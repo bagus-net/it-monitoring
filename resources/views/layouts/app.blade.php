@@ -19,19 +19,22 @@
         <div class="offcanvas-body p-0 d-block">
             <a class="sidebar-brand" href="{{ route('dashboard') }}"><span class="sidebar-brand-mark">IT</span><span>IT Monitoring<small>Asset & Maintenance</small></span></a>
             <nav class="sidebar-nav">
-                <span class="sidebar-label">Operasional</span>
                 <a class="sidebar-link" href="{{ route('dashboard') }}">Dashboard Utama</a>
+                <span class="sidebar-label">Operasional</span>
+
                 <a class="sidebar-link" href="{{ route('web-monitoring.index') }}">Web Monitoring</a>
-                <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT</a>
-                <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT</span><span id="ticketNotificationBadge" class="ticket-notification-badge d-none">0</span></a>
-                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Checklist</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('web-monitoring-checklists.index') }}">Checklist Web Monitoring</a></li><li><a class="dropdown-item" href="{{ route('maintenance-checklists.index') }}">Pelaksanaan Checklist IT</a></li></ul></div>
-                <a class="sidebar-link" href="{{ route('maintenances.grid') }}">Grid Perawatan</a>
-                <a class="sidebar-link" href="{{ route('activity-logs.index') }}">Log Aktivitas User</a>
+                <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT / Asset</a>
+                <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT / Ticketing</span><span id="ticketNotificationBadge" class="ticket-notification-badge d-none">0</span></a>
+                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Checklist</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('web-monitoring-checklists.index') }}">Web Monitoring</a></li><li><a class="dropdown-item" href="{{ route('maintenance-checklists.index') }}">Peralatan IT</a></li></ul></div>
+                {{-- <a class="sidebar-link" href="{{ route('maintenances.grid') }}">Grid Perawatan</a> --}}
+
                 <span class="sidebar-label">Perencanaan</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Jadwal</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('maintenances.schedules') }}">Jadwal Tahunan</a></li><li><a class="dropdown-item" href="{{ route('monthly_schedules.index') }}">Jadwal Bulanan</a></li></ul></div>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Laporan</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('reports.annual') }}">Laporan Tahunan</a></li><li><a class="dropdown-item" href="{{ route('reports.monthly') }}">Laporan Bulanan</a></li></ul></div>
                 <span class="sidebar-label">Master Data</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Pengaturan Master</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('masters.manufacturers.index') }}">Manufacturers</a></li><li><a class="dropdown-item" href="{{ route('masters.locations.index') }}">Lokasi</a></li><li><a class="dropdown-item" href="{{ route('masters.equipment-types.index') }}">Tipe Peralatan</a></li><li><a class="dropdown-item" href="{{ route('masters.checklist-items.index') }}">Program Perawatan</a></li></ul></div>
+                <span class="sidebar-label">Pengaturan</span>
+                <a class="sidebar-link" href="{{ route('activity-logs.index') }}">Log Aktivitas User</a>
             </nav>
             <div class="sidebar-footer"><button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle">Aktifkan notifikasi tiket</button><span>IT Maintenance System</span></div>
         </div>

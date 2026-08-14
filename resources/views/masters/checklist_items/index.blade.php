@@ -28,6 +28,7 @@
                 </tbody>
             </table>
             </div>
+            <div class="table-pagination">{{ $items->links() }}</div>
         </div>
     </div>
 </div>

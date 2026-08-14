@@ -20,6 +20,9 @@ body{background:linear-gradient(135deg,#f3f8fd 0%,#fff8eb 100%);}
 .card-colorful .card-header{background: linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#222}
 .badge-type{background: linear-gradient(90deg,var(--brand-1),var(--brand-2));color:white}
 .table thead th{background:#fff6e4}
+.data-table-tools{display:flex;justify-content:flex-end;padding:10px 0}.data-table-tools input{width:min(280px,100%);padding:7px 10px;border:1px solid #cbd5e1;border-radius:5px;background:#fff;color:#17324d}.table-sortable{cursor:pointer;user-select:none}.table-sortable:after{content:' ↕';color:#94a3b8;font-size:.72rem}.table-sortable.sort-asc:after{content:' ↑';color:#0b5ea8}.table-sortable.sort-desc:after{content:' ↓';color:#0b5ea8}
+.table-row-number{width:52px;text-align:center;color:#64748b;font-size:.78rem}
+.table-pagination{display:flex;justify-content:flex-end;padding:14px 16px}.table-pagination .pagination{margin:0}.table-pagination .page-link{color:#0b5ea8;border-color:#dbe5ef;font-size:.8rem}.table-pagination .page-link:hover{background:#edf5fc;color:#084e8d}.table-pagination .page-item.active .page-link{background:#0b5ea8;border-color:#0b5ea8}.table-pagination .page-item.disabled .page-link{color:#94a3b8}
 .month-cell{min-width:54px}
 .check-mark{color:var(--brand-1);font-size:18px}
 .btn-brand{background: linear-gradient(90deg,var(--brand-1),var(--brand-2));border:0;color:white}
@@ -62,6 +65,7 @@ body{background:linear-gradient(135deg,#f3f8fd 0%,#fff8eb 100%);}
   .app-main .d-flex.justify-content-between{align-items:flex-start!important;gap:10px}
   .app-main .d-flex.justify-content-between>.btn,.app-main .d-flex.justify-content-between>div:last-child{flex-shrink:0}
   .table-responsive{margin-right:-14px;margin-left:-14px;padding:0 14px}
+  .data-table-tools{align-items:stretch;flex-direction:column}.data-table-tools input{width:100%}
 }
 @media (max-width:991.98px){
   .app-sidebar{position:fixed!important;z-index:1055!important;width:min(84vw,320px)!important;height:100vh}.app-sidebar .offcanvas-body{overflow-y:auto}.sidebar-mobile-header{display:flex;align-items:center;justify-content:space-between;background:#063b6c;color:#fff;border-bottom:1px solid rgba(255,255,255,.14)}.sidebar-brand{padding-top:18px}.sidebar-footer{position:static;margin-top:10px}.app-main{margin-left:0;padding:70px 14px 24px!important}.sidebar-toggle{display:block;position:fixed;top:14px;left:14px;z-index:1060;padding:9px 13px;border:0;border-radius:6px;background:#0b5ea8;color:#fff;font-size:.84rem;font-weight:700;box-shadow:0 3px 12px rgba(7,59,109,.28)}.sidebar-menu{position:static!important;min-width:0;margin:0 0 4px;padding:0 0 0 12px;background:transparent;box-shadow:none;transform:none!important}.sidebar-menu .dropdown-item{padding:8px 10px;color:#dbeafe;font-size:.84rem}.sidebar-menu .dropdown-item:hover{background:rgba(255,255,255,.12);color:#fff}.sidebar-link-toggle::after{margin-right:2px}

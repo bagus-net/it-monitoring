@@ -36,7 +36,8 @@ class ItRepairTicketController extends Controller
             ->when($status, fn ($query) => $query->where('status', $status))
             ->orderByRaw("FIELD(status, 'open', 'in_progress', 'resolved')")
             ->orderByDesc('reported_at')
-            ->get();
+            ->paginate(50)
+            ->withQueryString();
         $summary = [
             'open' => ItRepairTicket::where('status', 'open')->count(),
             'in_progress' => ItRepairTicket::where('status', 'in_progress')->count(),

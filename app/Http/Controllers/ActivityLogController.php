@@ -16,8 +16,8 @@ class ActivityLogController extends Controller
             ->when($module, fn ($query) => $query->where('module', $module))
             ->when($action, fn ($query) => $query->where('action', $action))
             ->latest()
-            ->limit(200)
-            ->get();
+            ->paginate(50)
+            ->withQueryString();
         $modules = ActivityLog::whereNotNull('module')->distinct()->orderBy('module')->pluck('module');
         $summary = [
             'today' => ActivityLog::whereDate('created_at', today())->count(),

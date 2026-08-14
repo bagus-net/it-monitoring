@@ -10,7 +10,7 @@ class ChecklistItemController extends Controller
 {
     public function index()
     {
-        $items = ChecklistItem::with('equipmentType')->orderBy('sort_order')->get();
+        $items = ChecklistItem::with('equipmentType')->orderBy('sort_order')->paginate(50);
         return view('masters.checklist_items.index', compact('items'));
     }
 

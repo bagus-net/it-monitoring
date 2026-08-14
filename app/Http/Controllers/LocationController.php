@@ -9,7 +9,7 @@ class LocationController extends Controller
 {
     public function index()
     {
-        $items = Location::orderBy('name')->get();
+        $items = Location::orderBy('name')->paginate(50);
         return view('masters.locations.index', compact('items'));
     }
 

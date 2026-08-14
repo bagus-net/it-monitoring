@@ -11,11 +11,11 @@ class EquipmentController extends Controller
 {
     public function index()
     {
-        $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])->orderBy('name')->get();
+        $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])->orderBy('name')->paginate(50);
         $summary = [
-            'total' => $equipments->count(),
-            'active' => $equipments->whereNotIn('condition', ['rusak', 'perbaikan'])->count(),
-            'attention' => $equipments->whereIn('condition', ['rusak', 'perbaikan'])->count(),
+            'total' => Equipment::count(),
+            'active' => Equipment::whereNotIn('condition', ['rusak', 'perbaikan'])->count(),
+            'attention' => Equipment::whereIn('condition', ['rusak', 'perbaikan'])->count(),
         ];
 
         return view('equipments.index', compact('equipments', 'summary'));

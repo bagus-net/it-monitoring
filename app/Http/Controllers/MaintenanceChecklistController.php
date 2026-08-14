@@ -22,7 +22,7 @@ class MaintenanceChecklistController extends Controller
     {
         $checklists = MaintenanceChecklist::with(['checklistItem', 'entries.equipment'])
             ->orderByDesc('checked_at')
-            ->get();
+            ->paginate(50);
         $byProgram = $checklists->groupBy('checklist_item_id')
             ->map(function ($items) {
                 return [
@@ -32,14 +32,14 @@ class MaintenanceChecklistController extends Controller
             })
             ->sortBy(fn ($group) => $group['checklistItem']->title ?? '')
             ->values();
-        $entries = $checklists->flatMap(fn ($checklist) => $checklist->entries);
+        $entries = $checklists->getCollection()->flatMap(fn ($checklist) => $checklist->entries);
         $summary = [
-            'documents' => $checklists->count(),
+            'documents' => MaintenanceChecklist::count(),
             'ok' => $entries->where('result', 'ok')->count(),
             'not_ok' => $entries->where('result', 'not_ok')->count(),
         ];
 
-        return view('maintenance_checklists.index', compact('byProgram', 'summary'));
+        return view('maintenance_checklists.index', compact('checklists', 'byProgram', 'summary'));
     }
 
     public function create(Request $request)

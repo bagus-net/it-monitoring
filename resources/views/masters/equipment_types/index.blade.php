@@ -21,6 +21,7 @@
                 @endforeach
                 </tbody>
             </table>
+            <div class="table-pagination">{{ $items->links() }}</div>
         </div>
     </div>
 </div>

@@ -39,11 +39,11 @@ class WebMonitoringChecklistController extends Controller
         $checklists = WebMonitoringChecklist::with('site')
             ->withCount('entries')
             ->orderByDesc('checked_at')
-            ->get();
+            ->paginate(50);
         $summary = [
-            'total' => $checklists->count(),
-            'security' => $checklists->where('checklist_type', 'security')->count(),
-            'functional' => $checklists->where('checklist_type', 'functional')->count(),
+            'total' => WebMonitoringChecklist::count(),
+            'security' => WebMonitoringChecklist::where('checklist_type', 'security')->count(),
+            'functional' => WebMonitoringChecklist::where('checklist_type', 'functional')->count(),
         ];
 
         return view('web_monitoring_checklists.index', compact('checklists', 'summary'));

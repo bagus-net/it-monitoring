@@ -82,6 +82,69 @@
         });
         updateTicketNotifications();
         setInterval(updateTicketNotifications, 20000);
+
+        function tableSortValue(cell) {
+            const primaryAssetName = cell.querySelector?.('.asset-cell strong')?.textContent;
+            const value = (primaryAssetName || cell.textContent).trim().toLowerCase();
+            if (/^-?\d+(?:[.,]\d+)?$/.test(value)) {
+                return Number(value.replace(',', '.'));
+            }
+            return value;
+        }
+
+        function enhanceDataTables() {
+            document.querySelectorAll('table.table').forEach(table => {
+                if (table.dataset.enhanced || table.classList.contains('no-table-tools') || table.closest('form') || table.querySelector('input[type="radio"], input[type="checkbox"], select, textarea') || table.querySelector('th[rowspan], th[colspan]')) return;
+                const body = table.tBodies[0];
+                const headers = Array.from(table.tHead?.rows?.[0]?.cells || []);
+                if (!body || !headers.length) return;
+                table.dataset.enhanced = 'true';
+                const page = Number(new URLSearchParams(window.location.search).get('page') || 1);
+                const rowOffset = (Math.max(page, 1) - 1) * 50;
+                const numberHeader = document.createElement('th');
+                numberHeader.textContent = 'No.';
+                numberHeader.className = 'table-row-number';
+                table.tHead.rows[0].insertBefore(numberHeader, table.tHead.rows[0].firstChild);
+                Array.from(body.rows).forEach((row, rowIndex) => {
+                    const numberCell = document.createElement('td');
+                    numberCell.className = 'table-row-number';
+                    numberCell.textContent = rowOffset + rowIndex + 1;
+                    row.insertBefore(numberCell, row.firstChild);
+                });
+                const toolbar = document.createElement('div');
+                toolbar.className = 'data-table-tools';
+                toolbar.innerHTML = '<input type="search" placeholder="Cari di tabel..." aria-label="Cari di tabel">';
+                const wrapper = table.closest('.table-responsive');
+                (wrapper || table).parentElement.insertBefore(toolbar, wrapper || table);
+                const searchInput = toolbar.querySelector('input');
+                searchInput.addEventListener('input', () => {
+                    const keyword = searchInput.value.trim().toLowerCase();
+                    Array.from(body.rows).forEach(row => { row.style.display = row.textContent.toLowerCase().includes(keyword) ? '' : 'none'; });
+                });
+                headers.forEach((header, index) => {
+                    if (index === headers.length - 1 && /aksi|action/i.test(header.textContent)) return;
+                    header.classList.add('table-sortable');
+                    header.setAttribute('role', 'button');
+                    header.setAttribute('tabindex', '0');
+                    let direction = 1;
+                    const sort = () => {
+                        const rows = Array.from(body.rows).filter(row => row.style.display !== 'none');
+                        rows.sort((first, second) => {
+                            const firstValue = tableSortValue(first.cells[index + 1] || first.cells[0]);
+                            const secondValue = tableSortValue(second.cells[index + 1] || second.cells[0]);
+                            return typeof firstValue === 'number' && typeof secondValue === 'number' ? (firstValue - secondValue) * direction : String(firstValue).localeCompare(String(secondValue), 'id', { numeric: true, sensitivity: 'base' }) * direction;
+                        });
+                        rows.forEach(row => body.appendChild(row));
+                        headers.forEach(item => item.classList.remove('sort-asc', 'sort-desc'));
+                        header.classList.add(direction === 1 ? 'sort-asc' : 'sort-desc');
+                        direction *= -1;
+                    };
+                    header.addEventListener('click', sort);
+                    header.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sort(); } });
+                });
+            });
+        }
+        enhanceDataTables();
     </script>
 </body>
 </html>

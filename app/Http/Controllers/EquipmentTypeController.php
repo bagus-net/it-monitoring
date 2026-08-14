@@ -9,7 +9,7 @@ class EquipmentTypeController extends Controller
 {
     public function index()
     {
-        $items = EquipmentType::orderBy('name')->get();
+        $items = EquipmentType::orderBy('name')->paginate(50);
         return view('masters.equipment_types.index', compact('items'));
     }
 

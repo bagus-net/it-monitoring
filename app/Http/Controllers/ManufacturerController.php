@@ -9,7 +9,7 @@ class ManufacturerController extends Controller
 {
     public function index()
     {
-        $items = Manufacturer::orderBy('name')->get();
+        $items = Manufacturer::orderBy('name')->paginate(50);
         return view('masters.manufacturers.index', compact('items'));
     }
 

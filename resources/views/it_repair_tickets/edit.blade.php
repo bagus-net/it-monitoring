@@ -1,0 +1,6 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mt-4"><div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Edit Tiket {{ $itRepairTicket->ticket_number }}</h2><p class="text-muted mb-0">Perbarui tindakan dan status perbaikan.</p></div><a href="{{ route('it-repair-tickets.show', $itRepairTicket) }}" class="btn btn-outline-secondary">Kembali</a></div>@if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif<form method="POST" action="{{ route('it-repair-tickets.update', $itRepairTicket) }}">@csrf @method('PUT')<div class="card repair-form"><div class="card-header">PERMINTAAN PERBAIKAN PERALATAN IT</div><div class="card-body">@include('it_repair_tickets._form', ['ticket' => $itRepairTicket])</div><div class="card-footer text-end"><button class="btn btn-brand">Simpan Perubahan</button></div></div></form></div>
+<style>.repair-form{border:1px solid #dbe5ef}.repair-form .card-header{background:#fff6e4;color:#17324d;font-weight:700}</style>
+@endsection

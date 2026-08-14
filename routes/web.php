@@ -7,6 +7,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MaintenanceChecklistController;
 use App\Http\Controllers\MonthlyScheduleController;
 use App\Http\Controllers\ScheduleReportController;
+use App\Http\Controllers\ItRepairTicketController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,13 @@ Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->n
 Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
 Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
 Route::patch('/sites/{site}/toggle', [SiteController::class, 'toggle'])->name('sites.toggle');
+
+// IT repair ticketing
+Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');
+Route::get('/it-repair-tickets/{itRepairTicket}/repair', [ItRepairTicketController::class, 'repair'])->name('it-repair-tickets.repair');
+Route::put('/it-repair-tickets/{itRepairTicket}/repair', [ItRepairTicketController::class, 'updateRepair'])->name('it-repair-tickets.update-repair');
+Route::resource('it-repair-tickets', ItRepairTicketController::class)
+	->parameters(['it-repair-tickets' => 'itRepairTicket']);
 
 // Equipment routes
 Route::get('/equipments', [EquipmentController::class, 'index'])->name('equipments.index');

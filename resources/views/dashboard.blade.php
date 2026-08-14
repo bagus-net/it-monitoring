@@ -2,41 +2,25 @@
 
 @section('content')
 <style>
-  /* Minimal dashboard-specific styles kept here to match existing theme */
-  .wrap{max-width:1180px;margin:0 auto;padding:24px;}
-  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-  .stat-card{background:#121821;border:1px solid #232D3A;border-radius:12px;padding:16px 18px;color:#E7EDF5}
-  .stat-card .label{font-size:11px;color:#8493A6;text-transform:uppercase}
-  .stat-card .value{font-family:IBM Plex Mono,monospace;font-size:28px;margin-top:6px}
-  .stat-card.up .value{color:#35D48A}
-  .stat-card.down .value{color:#FF5D5D}
-  .panel{background:#121821;border:1px solid #232D3A;border-radius:12px;padding:18px 20px;margin-bottom:22px;color:#E7EDF5}
-  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-  .panel-head h2{font-size:13px;color:#8493A6;margin:0;text-transform:uppercase}
-  .site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-  .site-card{background:#171F2A;border:1px solid #232D3A;border-radius:10px;padding:14px 16px}
-  .site-name{font-weight:600;font-size:14px}
-  .site-url{color:#8493A6;font-size:11px;font-family:IBM Plex Mono,monospace;margin-top:2px}
-  .ping-strip{display:flex;gap:2px;margin-top:12px;align-items:flex-end;height:22px}
-  .ping-tick{flex:1;min-width:3px;border-radius:1px;background:#232D3A;height:100%}
-  .ping-tick.UP{background:#35D48A}
-  .ping-tick.DOWN{background:#FF5D5D}
-  .ping-tick.ERROR{background:#F5A623}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#171F2A;border:1px solid #232D3A;color:#E7EDF5;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:50}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .monitoring-dashboard{max-width:1440px;margin:0 auto;padding:0 4px}.monitoring-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:22px}.monitoring-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.monitoring-head h1{margin:4px 0;font-size:1.7rem;color:#17324d}.monitoring-head p{margin:0;color:#64748b}.monitoring-actions{display:flex;gap:8px}.monitoring-actions .btn{white-space:nowrap}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;margin-bottom:18px}.stat-card{position:relative;overflow:hidden;background:#fff;border:1px solid #dbe5ef;border-radius:7px;padding:17px 18px;color:#17324d}.stat-card:before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:#0b5ea8}.stat-card.up:before{background:#159957}.stat-card.down:before{background:#dc2626}.stat-card.response:before{background:#f6b322}.stat-card .label{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:700}.stat-card .value{font-size:1.7rem;font-weight:700;margin-top:5px}.stat-card .hint{margin-top:2px;font-size:.75rem;color:#94a3b8}.panel{background:#fff;border:1px solid #dbe5ef;border-radius:7px;padding:18px 20px;margin-bottom:18px;color:#17324d}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel-head h2{font-size:.95rem;color:#17324d;margin:0}.panel-subtitle{font-size:.78rem;color:#64748b}.live-indicator{color:#15803d;font-size:.72rem;font-weight:700}.live-indicator:before{content:'';display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #dcfce7}.add-form{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(260px,1.4fr) auto;gap:10px}.add-form input{min-width:0;border:1px solid #cbd5e1;border-radius:5px;padding:9px 11px;font-size:.9rem}.primary{border:0;border-radius:5px;background:#0b5ea8;color:#fff;padding:9px 13px;font-weight:700}.primary:hover{background:#084e8d}.site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px}.site-card{cursor:pointer;background:#fbfdff;border:1px solid #dbe5ef;border-radius:7px;padding:15px;transition:border .18s,box-shadow .18s,transform .18s}.site-card:hover,.site-card.selected{border-color:#0b5ea8;box-shadow:0 8px 18px rgba(11,94,168,.12);transform:translateY(-1px)}.site-card-top{display:flex;justify-content:space-between;gap:10px}.site-name{font-weight:700;font-size:.95rem;color:#17324d}.site-url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px;color:#64748b;font-size:.73rem;margin-top:3px}.status-badge{display:inline-block;padding:4px 7px;border-radius:3px;font-size:.7rem;font-weight:700}.status-badge.UP{background:#dcfce7;color:#166534}.status-badge.DOWN{background:#fee2e2;color:#991b1b}.status-badge.ERROR{background:#fef3c7;color:#92400e}.status-badge.PENDING{background:#e2e8f0;color:#475569}.site-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.m-label{font-size:.7rem;color:#64748b}.m-value{font-size:.92rem;font-weight:700;color:#17324d}.ping-strip{display:flex;gap:2px;margin-top:13px;height:18px}.ping-tick{flex:1;min-width:3px;border-radius:2px;background:#e2e8f0}.ping-tick.UP{background:#22c55e}.ping-tick.DOWN{background:#ef4444}.ping-tick.ERROR{background:#f6b322}.card-actions{display:flex;align-items:center;justify-content:space-between;margin-top:11px}.ghost{border:0;background:none;color:#dc2626;font-size:.76rem;padding:0}.dashboard-split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:18px}.chart-wrap{height:270px;position:relative}.table-scroll{overflow:auto}.table-scroll table{width:100%;border-collapse:collapse;font-size:.82rem}.table-scroll th{text-align:left;padding:8px;border-bottom:1px solid #dbe5ef;color:#64748b;font-size:.72rem;text-transform:uppercase}.table-scroll td{padding:9px 8px;border-bottom:1px solid #edf2f7}.status-UP{color:#15803d;font-weight:700}.status-DOWN,.status-ERROR{color:#dc2626;font-weight:700}.empty-state{padding:26px;color:#64748b;border:1px dashed #cbd5e1;border-radius:6px;text-align:center}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#17324d;color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:1100}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@media(max-width:900px){.summary-grid{grid-template-columns:repeat(2,1fr)}.dashboard-split{grid-template-columns:1fr}}@media(max-width:600px){.monitoring-head{flex-direction:column}.monitoring-actions{width:100%}.monitoring-actions .btn{flex:1}.add-form{grid-template-columns:1fr}.summary-grid{gap:9px}.stat-card{padding:13px}.stat-card .value{font-size:1.35rem}.panel{padding:14px}.site-grid{grid-template-columns:1fr}.chart-wrap{height:220px}}
 </style>
 
-<div class="wrap">
+<div class="monitoring-dashboard">
+
+  <div class="monitoring-head">
+    <div><div class="monitoring-eyebrow">Web Monitoring</div><h1>Ringkasan Kesehatan Layanan</h1><p>Status ketersediaan dan performa endpoint yang dipantau.</p></div>
+    <div class="monitoring-actions"><button id="refreshBtn" class="btn btn-brand" type="button" onclick="refreshNow()">Cek Sekarang</button></div>
+  </div>
 
   <div class="summary-grid">
-    <div class="stat-card"><div class="label">Total Situs</div><div class="value" id="statTotal">0</div></div>
-    <div class="stat-card up"><div class="label">Up</div><div class="value" id="statUp">0</div></div>
-    <div class="stat-card down"><div class="label">Down</div><div class="value" id="statDown">0</div></div>
-    <div class="stat-card"><div class="label">Rata-rata Response</div><div class="value" id="statAvg">-</div></div>
+    <div class="stat-card"><div class="label">Total Situs</div><div class="value" id="statTotal">0</div><div class="hint">Endpoint terdaftar</div></div>
+    <div class="stat-card up"><div class="label">Layanan Normal</div><div class="value" id="statUp">0</div><div class="hint">Status terakhir UP</div></div>
+    <div class="stat-card down"><div class="label">Perlu Perhatian</div><div class="value" id="statDown">0</div><div class="hint">DOWN atau ERROR</div></div>
+    <div class="stat-card response"><div class="label">Rata-rata Respons</div><div class="value" id="statAvg">-</div><div class="hint">Pemeriksaan terakhir</div></div>
   </div>
 
   <div class="panel">
-    <div class="panel-head"><h2>Tambah Situs Dipantau</h2></div>
+    <div class="panel-head"><div><h2>Tambah Situs Dipantau</h2><div class="panel-subtitle">Masukkan endpoint HTTP atau HTTPS untuk dipantau.</div></div></div>
     <form class="add-form" onsubmit="handleAddSite(event)">
       <input type="text" id="siteName" placeholder="Nama situs (mis. Website Utama)">
       <input type="text" id="siteUrl" placeholder="https://contoh.com" required>
@@ -46,27 +30,20 @@
 
   <div class="panel">
     <div class="panel-head">
-      <h2>Status Situs</h2>
+      <div><h2>Status Situs</h2><div class="panel-subtitle">Pilih kartu situs untuk melihat tren respons.</div></div>
       <span class="mono" style="color:#8493A6;font-size:11px;" id="siteCountLabel"></span>
     </div>
     <div id="siteGrid" class="site-grid"></div>
   </div>
 
-  <div class="panel">
-    <div class="panel-head">
-      <h2>Tren Response Time</h2>
-      <span class="mono" style="color:#8493A6;font-size:11px;" id="chartSiteLabel">pilih situs di atas</span>
+  <div class="dashboard-split">
+    <div class="panel">
+      <div class="panel-head"><div><h2>Tren Response Time</h2><div class="panel-subtitle" id="chartSiteLabel">Pilih situs di atas</div></div><span class="live-indicator">Live</span></div>
+      <div class="chart-wrap"><canvas id="rtChart"></canvas></div>
     </div>
-    <div class="chart-wrap" style="height:260px;position:relative;"><canvas id="rtChart"></canvas></div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-head"><h2>Log Terbaru</h2></div>
-    <div class="table-scroll">
-      <table>
-        <thead><tr><th>Waktu</th><th>Situs</th><th>Kode</th><th>Response</th><th>Status</th></tr></thead>
-        <tbody id="logsBody"></tbody>
-      </table>
+    <div class="panel">
+      <div class="panel-head"><div><h2>Log Terbaru</h2><div class="panel-subtitle">30 pemeriksaan terakhir</div></div></div>
+      <div class="table-scroll"><table><thead><tr><th>Waktu</th><th>Situs</th><th>Kode</th><th>Response</th><th>Status</th></tr></thead><tbody id="logsBody"></tbody></table></div>
     </div>
   </div>
 
@@ -74,12 +51,10 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script>
   const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
   let currentData = null;
   let selectedSiteId = null;
-  let chart = null;
 
   function fmtTime(ts){ return new Date(ts).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
   function fmtDateTime(ts){ return new Date(ts).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
@@ -172,16 +147,38 @@
 
   function renderChart(){
     const site = (currentData.sites || []).find(s => s.id === selectedSiteId);
-    const ctxEl = document.getElementById('rtChart');
-    if(!ctxEl) return;
-    const ctx = ctxEl.getContext('2d');
+    const canvas = document.getElementById('rtChart');
+    if(!canvas) return;
     const label = document.getElementById('chartSiteLabel');
-    if(!site || !site.history.length){ label.textContent = site ? site.name + ' - belum ada data' : 'pilih situs di atas'; if(chart) chart.destroy(); chart = null; return; }
-    label.textContent = site.name;
-    const labels = site.history.map(h => fmtTime(h.t));
-    const values = site.history.map(h => h.ms);
-    if(chart) chart.destroy();
-    chart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Response time (ms)', data: values, borderColor: '#4C8DFF', backgroundColor: 'rgba(76,141,255,0.08)', pointRadius: 3, tension: 0.3, fill: true }]}, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8493A6', maxTicksLimit: 8 }, grid: { color: '#232D3A' } }, y: { ticks: { color: '#8493A6' }, grid: { color: '#232D3A' }, beginAtZero: true } } } });
+    const bounds = canvas.parentElement.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.floor(bounds.width * ratio));
+    canvas.height = Math.max(1, Math.floor(bounds.height * ratio));
+    canvas.style.width = bounds.width + 'px'; canvas.style.height = bounds.height + 'px';
+    const ctx = canvas.getContext('2d'); ctx.scale(ratio, ratio);
+    const width = bounds.width, height = bounds.height;
+    ctx.clearRect(0, 0, width, height);
+    if(!site || !site.history.length){ label.textContent = site ? site.name + ' - belum ada data respons' : 'Pilih situs di atas'; ctx.fillStyle='#64748b'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('Belum ada data respons untuk ditampilkan', width / 2, height / 2); return; }
+    const points = site.history.filter(h => Number.isFinite(Number(h.ms)));
+    if(!points.length){ label.textContent = site.name + ' - belum ada data respons'; return; }
+    label.textContent = site.name + ' | diperbarui ' + fmtTime(currentData.generatedAt);
+    const pad = {top:20,right:16,bottom:30,left:48};
+    const graphW = width - pad.left - pad.right, graphH = height - pad.top - pad.bottom;
+    const max = Math.max(...points.map(point => Number(point.ms)), 1);
+    const roundedMax = Math.ceil(max / 100) * 100 || 100;
+    ctx.font='11px sans-serif'; ctx.fillStyle='#64748b'; ctx.textAlign='right';
+    for(let step=0; step<=4; step++){
+      const value = roundedMax - (roundedMax * step / 4); const y = pad.top + (graphH * step / 4);
+      ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(width-pad.right,y); ctx.stroke();
+      ctx.fillText(Math.round(value)+' ms', pad.left-7, y+4);
+    }
+    const xFor = index => pad.left + (points.length === 1 ? graphW / 2 : index * graphW / (points.length - 1));
+    const yFor = value => pad.top + graphH - (Number(value) / roundedMax * graphH);
+    const gradient = ctx.createLinearGradient(0,pad.top,0,pad.top+graphH); gradient.addColorStop(0,'rgba(11,94,168,.22)'); gradient.addColorStop(1,'rgba(11,94,168,0)');
+    ctx.beginPath(); points.forEach((point,index) => { const x=xFor(index), y=yFor(point.ms); index ? ctx.lineTo(x,y) : ctx.moveTo(x,y); }); ctx.lineTo(xFor(points.length-1),pad.top+graphH); ctx.lineTo(xFor(0),pad.top+graphH); ctx.closePath(); ctx.fillStyle=gradient; ctx.fill();
+    ctx.beginPath(); points.forEach((point,index) => { const x=xFor(index), y=yFor(point.ms); index ? ctx.lineTo(x,y) : ctx.moveTo(x,y); }); ctx.strokeStyle='#0b5ea8'; ctx.lineWidth=2.5; ctx.stroke();
+    points.forEach((point,index) => { ctx.beginPath(); ctx.arc(xFor(index),yFor(point.ms),3.5,0,Math.PI*2); ctx.fillStyle=point.status === 'UP' ? '#0b5ea8' : '#dc2626'; ctx.fill(); });
+    ctx.fillStyle='#64748b'; ctx.textAlign='left'; ctx.font='10px sans-serif'; const first=points[0], last=points[points.length-1]; ctx.fillText(fmtTime(first.t),pad.left,height-9); ctx.textAlign='right'; ctx.fillText(fmtTime(last.t),width-pad.right,height-9);
   }
 
   function renderLogs(logs){ const body = document.getElementById('logsBody'); if(!logs.length){ body.innerHTML = '<tr><td colspan="5" style="color:#8493A6">Belum ada log.</td></tr>'; return; } body.innerHTML = logs.map(l => '<tr><td>' + fmtDateTime(l.t) + '</td><td>' + escapeHtml(l.name) + '</td><td>' + (l.code || '-') + '</td><td>' + l.ms + ' ms</td><td class="status-' + l.status + '">' + l.status + '</td></tr>').join(''); }
@@ -189,7 +186,8 @@
   function escapeHtml(str){ const div = document.createElement('div'); div.textContent = str || ''; return div.innerHTML; }
 
   loadDashboard();
-  setInterval(loadDashboard, 60000);
+  window.addEventListener('resize', () => { if(currentData) renderChart(); });
+  setInterval(loadDashboard, 15000);
 </script>
 
 @endsection

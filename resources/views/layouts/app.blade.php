@@ -22,6 +22,7 @@
                 <span class="sidebar-label">Operasional</span>
                 <a class="sidebar-link" href="{{ route('dashboard') }}">Web Monitoring</a>
                 <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT</a>
+                <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT</span><span id="ticketNotificationBadge" class="ticket-notification-badge d-none">0</span></a>
                 <a class="sidebar-link" href="{{ route('maintenance-checklists.index') }}">Pelaksanaan Checklist</a>
                 <a class="sidebar-link" href="{{ route('maintenances.grid') }}">Grid Perawatan</a>
                 <span class="sidebar-label">Perencanaan</span>
@@ -30,7 +31,7 @@
                 <span class="sidebar-label">Master Data</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Pengaturan Master</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('masters.manufacturers.index') }}">Manufacturers</a></li><li><a class="dropdown-item" href="{{ route('masters.locations.index') }}">Lokasi</a></li><li><a class="dropdown-item" href="{{ route('masters.equipment-types.index') }}">Tipe Peralatan</a></li><li><a class="dropdown-item" href="{{ route('masters.checklist-items.index') }}">Program Perawatan</a></li></ul></div>
             </nav>
-            <div class="sidebar-footer">IT Maintenance System</div>
+            <div class="sidebar-footer"><button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle">Aktifkan notifikasi tiket</button><span>IT Maintenance System</span></div>
         </div>
     </aside>
     <main class="app-main py-4">
@@ -42,5 +43,43 @@
         @endif
         @yield('content')
     </main>
+    <div id="ticketToast" class="ticket-toast" role="status"><strong>Tiket baru masuk</strong><span id="ticketToastMessage"></span><a href="{{ route('it-repair-tickets.index') }}">Buka tiket</a></div>
+    <script>
+        const ticketEndpoint = @json(route('it-repair-tickets.notifications'));
+        const ticketBadge = document.getElementById('ticketNotificationBadge');
+        const ticketToast = document.getElementById('ticketToast');
+        const ticketToastMessage = document.getElementById('ticketToastMessage');
+        const storedTicketIdKey = 'it-monitoring-last-ticket-id';
+
+        function updateTicketNotifications() {
+            fetch(ticketEndpoint, { headers: { Accept: 'application/json' } })
+                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(data => {
+                    const count = Number(data.openCount || 0);
+                    ticketBadge.textContent = count;
+                    ticketBadge.classList.toggle('d-none', count === 0);
+                    if (!data.latest) return;
+                    const previousId = sessionStorage.getItem(storedTicketIdKey);
+                    if (previousId && Number(data.latest.id) > Number(previousId)) {
+                        const message = data.latest.number + ' - ' + data.latest.equipment;
+                        ticketToastMessage.textContent = message;
+                        ticketToast.classList.add('show');
+                        setTimeout(() => ticketToast.classList.remove('show'), 7000);
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Tiket Perbaikan IT Baru', { body: message });
+                        }
+                    }
+                    sessionStorage.setItem(storedTicketIdKey, data.latest.id);
+                })
+                .catch(() => {});
+        }
+
+        document.getElementById('enableTicketAlerts').addEventListener('click', () => {
+            if (!('Notification' in window)) return;
+            Notification.requestPermission();
+        });
+        updateTicketNotifications();
+        setInterval(updateTicketNotifications, 20000);
+    </script>
 </body>
 </html>

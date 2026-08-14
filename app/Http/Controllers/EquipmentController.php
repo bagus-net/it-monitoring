@@ -12,7 +12,13 @@ class EquipmentController extends Controller
     public function index()
     {
         $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])->orderBy('name')->get();
-        return view('equipments.index', compact('equipments'));
+        $summary = [
+            'total' => $equipments->count(),
+            'active' => $equipments->whereNotIn('condition', ['rusak', 'perbaikan'])->count(),
+            'attention' => $equipments->whereIn('condition', ['rusak', 'perbaikan'])->count(),
+        ];
+
+        return view('equipments.index', compact('equipments', 'summary'));
     }
 
     public function create()

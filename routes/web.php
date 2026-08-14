@@ -9,6 +9,7 @@ use App\Http\Controllers\MonthlyScheduleController;
 use App\Http\Controllers\ScheduleReportController;
 use App\Http\Controllers\ItRepairTicketController;
 use App\Http\Controllers\WebMonitoringChecklistController;
+use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,12 +21,15 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/dashboard');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/web-monitoring', [DashboardController::class, 'monitoring'])->name('web-monitoring.index');
 Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->name('dashboard.check-now');
 
 Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
 Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
 Route::patch('/sites/{site}/toggle', [SiteController::class, 'toggle'])->name('sites.toggle');
+
+Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
 Route::resource('web-monitoring-checklists', WebMonitoringChecklistController::class)
 	->only(['index', 'create', 'store', 'show', 'destroy'])

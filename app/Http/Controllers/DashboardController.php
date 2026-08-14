@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\MonitoringLog;
 use App\Models\Site;
+use App\Models\Equipment;
+use App\Models\ItRepairTicket;
+use App\Models\MaintenanceChecklist;
+use App\Models\WebMonitoringChecklist;
 use App\Services\SiteMonitorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -12,7 +16,25 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        return view('dashboard');
+        $overview = [
+            'assets' => Equipment::count(),
+            'assetAttention' => Equipment::whereIn('condition', ['rusak', 'perbaikan'])->count(),
+            'ticketsOpen' => ItRepairTicket::whereIn('status', ['open', 'in_progress'])->count(),
+            'ticketsUrgent' => ItRepairTicket::whereIn('priority', ['high', 'urgent'])->whereIn('status', ['open', 'in_progress'])->count(),
+            'webChecklistMonth' => WebMonitoringChecklist::whereYear('checked_at', now()->year)->whereMonth('checked_at', now()->month)->count(),
+            'maintenanceChecklistMonth' => MaintenanceChecklist::whereYear('checked_at', now()->year)->whereMonth('checked_at', now()->month)->count(),
+        ];
+
+        $recentTickets = ItRepairTicket::with('equipment')->latest('reported_at')->limit(5)->get();
+        $recentWebChecklists = WebMonitoringChecklist::with('site')->latest('checked_at')->limit(4)->get();
+        $recentMaintenanceChecklists = MaintenanceChecklist::with('checklistItem')->latest('checked_at')->limit(4)->get();
+
+        return view('dashboard', compact('overview', 'recentTickets', 'recentWebChecklists', 'recentMaintenanceChecklists'));
+    }
+
+    public function monitoring(): View
+    {
+        return view('web_monitoring');
     }
 
     public function data(): JsonResponse

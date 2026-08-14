@@ -32,8 +32,14 @@ class MaintenanceChecklistController extends Controller
             })
             ->sortBy(fn ($group) => $group['checklistItem']->title ?? '')
             ->values();
+        $entries = $checklists->flatMap(fn ($checklist) => $checklist->entries);
+        $summary = [
+            'documents' => $checklists->count(),
+            'ok' => $entries->where('result', 'ok')->count(),
+            'not_ok' => $entries->where('result', 'not_ok')->count(),
+        ];
 
-        return view('maintenance_checklists.index', compact('byProgram'));
+        return view('maintenance_checklists.index', compact('byProgram', 'summary'));
     }
 
     public function create(Request $request)

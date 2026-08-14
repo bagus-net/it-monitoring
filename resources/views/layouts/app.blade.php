@@ -21,6 +21,7 @@
             <nav class="sidebar-nav">
                 <span class="sidebar-label">Operasional</span>
                 <a class="sidebar-link" href="{{ route('dashboard') }}">Web Monitoring</a>
+                <a class="sidebar-link" href="{{ route('web-monitoring-checklists.index') }}">Checklist Web</a>
                 <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT</a>
                 <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT</span><span id="ticketNotificationBadge" class="ticket-notification-badge d-none">0</span></a>
                 <a class="sidebar-link" href="{{ route('maintenance-checklists.index') }}">Pelaksanaan Checklist</a>

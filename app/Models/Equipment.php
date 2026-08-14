@@ -11,12 +11,13 @@ class Equipment extends Model
 
     protected $table = 'equipments';
 
-    protected $fillable = ['name','asset_tag','photo_path','serial_number','model','operating_system','equipment_type_id','manufacturer_id','vendor_name','location_id','owner_name','department','capacity','specification','purchase_date','manufacture_year','warranty_expiry','support_contract_end','ip_address','status','condition','criticality','notes'];
+    protected $fillable = ['name','asset_tag','photo_path','serial_number','model','operating_system','equipment_type_id','manufacturer_id','vendor_name','location_id','owner_name','department','capacity','specification','technical_details','purchase_date','manufacture_year','warranty_expiry','support_contract_end','ip_address','status','condition','criticality','notes'];
 
     protected $casts = [
         'purchase_date' => 'date',
         'warranty_expiry' => 'date',
         'support_contract_end' => 'date',
+        'technical_details' => 'array',
     ];
 
     public function type()
@@ -57,5 +58,10 @@ class Equipment extends Model
     public function maintenanceChecklistEntries()
     {
         return $this->hasMany(MaintenanceChecklistEntry::class);
+    }
+
+    public function repairTickets()
+    {
+        return $this->hasMany(ItRepairTicket::class);
     }
 }

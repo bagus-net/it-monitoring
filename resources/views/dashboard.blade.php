@@ -9,7 +9,7 @@
 
   <div class="monitoring-head">
     <div><div class="monitoring-eyebrow">Web Monitoring</div><h1>Ringkasan Kesehatan Layanan</h1><p>Status ketersediaan dan performa endpoint yang dipantau.</p></div>
-    <div class="monitoring-actions"><button id="refreshBtn" class="btn btn-brand" type="button" onclick="refreshNow()">Cek Sekarang</button></div>
+    <div class="monitoring-actions"><a href="{{ route('web-monitoring-checklists.index') }}" class="btn btn-outline-primary">Checklist Web</a><button id="refreshBtn" class="btn btn-brand" type="button" onclick="refreshNow()">Cek Sekarang</button></div>
   </div>
 
   <div class="summary-grid">

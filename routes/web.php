@@ -8,6 +8,7 @@ use App\Http\Controllers\MaintenanceChecklistController;
 use App\Http\Controllers\MonthlyScheduleController;
 use App\Http\Controllers\ScheduleReportController;
 use App\Http\Controllers\ItRepairTicketController;
+use App\Http\Controllers\WebMonitoringChecklistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,10 @@ Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->n
 Route::post('/sites', [SiteController::class, 'store'])->name('sites.store');
 Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
 Route::patch('/sites/{site}/toggle', [SiteController::class, 'toggle'])->name('sites.toggle');
+
+Route::resource('web-monitoring-checklists', WebMonitoringChecklistController::class)
+	->only(['index', 'create', 'store', 'show', 'destroy'])
+	->parameters(['web-monitoring-checklists' => 'webMonitoringChecklist']);
 
 // IT repair ticketing
 Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');

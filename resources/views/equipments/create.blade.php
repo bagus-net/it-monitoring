@@ -51,12 +51,19 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Tipe</label>
-            <select name="equipment_type_id" class="form-control">
+            <select id="equipmentType" name="equipment_type_id" class="form-control">
                 <option value="">-- Pilih --</option>
                 @foreach($types as $t)
-                    <option value="{{ $t->id }}">{{ $t->name }}</option>
+                    <option value="{{ $t->id }}" data-type-name="{{ strtolower($t->name) }}" {{ old('equipment_type_id') == $t->id ? 'selected' : '' }}>{{ $t->name }}</option>
                 @endforeach
             </select>
+        </div>
+        <div id="technicalDetails" class="technical-details d-none">
+            <div class="technical-details-title">Spesifikasi Berdasarkan Tipe Peralatan</div>
+            <div data-type-section="komputer" class="type-fields d-none"><div class="row"><div class="col-md-3 mb-3"><label class="form-label">Processor</label><input name="technical_details[processor]" class="form-control" value="{{ old('technical_details.processor') }}" placeholder="Intel Core i5"></div><div class="col-md-3 mb-3"><label class="form-label">RAM</label><input name="technical_details[ram]" class="form-control" value="{{ old('technical_details.ram') }}" placeholder="16 GB"></div><div class="col-md-3 mb-3"><label class="form-label">Storage</label><input name="technical_details[storage]" class="form-control" value="{{ old('technical_details.storage') }}" placeholder="512 GB SSD"></div><div class="col-md-3 mb-3"><label class="form-label">GPU / VGA</label><input name="technical_details[gpu]" class="form-control" value="{{ old('technical_details.gpu') }}" placeholder="Integrated / RTX"></div></div></div>
+            <div data-type-section="monitor" class="type-fields d-none"><div class="row"><div class="col-md-3 mb-3"><label class="form-label">Ukuran Layar</label><input name="technical_details[screen_size]" class="form-control" value="{{ old('technical_details.screen_size') }}" placeholder="24 inch"></div><div class="col-md-3 mb-3"><label class="form-label">Resolusi</label><input name="technical_details[resolution]" class="form-control" value="{{ old('technical_details.resolution') }}" placeholder="1920 x 1080"></div><div class="col-md-3 mb-3"><label class="form-label">Panel</label><input name="technical_details[panel_type]" class="form-control" value="{{ old('technical_details.panel_type') }}" placeholder="IPS / VA / TN"></div><div class="col-md-3 mb-3"><label class="form-label">Port Input</label><input name="technical_details[display_ports]" class="form-control" value="{{ old('technical_details.display_ports') }}" placeholder="HDMI, DisplayPort"></div></div></div>
+            <div data-type-section="network" class="type-fields d-none"><div class="row"><div class="col-md-3 mb-3"><label class="form-label">Jumlah Port</label><input name="technical_details[port_count]" class="form-control" value="{{ old('technical_details.port_count') }}" placeholder="24 Port"></div><div class="col-md-3 mb-3"><label class="form-label">Kecepatan Port</label><input name="technical_details[port_speed]" class="form-control" value="{{ old('technical_details.port_speed') }}" placeholder="1 Gbps"></div><div class="col-md-3 mb-3"><label class="form-label">Firmware</label><input name="technical_details[firmware_version]" class="form-control" value="{{ old('technical_details.firmware_version') }}" placeholder="Versi firmware"></div><div class="col-md-3 mb-3"><label class="form-label">MAC Address</label><input name="technical_details[mac_address]" class="form-control" value="{{ old('technical_details.mac_address') }}" placeholder="00:00:00:00:00:00"></div></div></div>
+            <div data-type-section="printer" class="type-fields d-none"><div class="row"><div class="col-md-3 mb-3"><label class="form-label">Teknologi Cetak</label><input name="technical_details[print_technology]" class="form-control" value="{{ old('technical_details.print_technology') }}" placeholder="Laser / Inkjet"></div><div class="col-md-3 mb-3"><label class="form-label">Warna / Mono</label><input name="technical_details[print_color]" class="form-control" value="{{ old('technical_details.print_color') }}" placeholder="Warna / Monokrom"></div><div class="col-md-3 mb-3"><label class="form-label">Koneksi</label><input name="technical_details[print_connection]" class="form-control" value="{{ old('technical_details.print_connection') }}" placeholder="USB / LAN / Wi-Fi"></div><div class="col-md-3 mb-3"><label class="form-label">Duplex</label><select name="technical_details[duplex]" class="form-control"><option value="">-- Pilih --</option><option value="Ya" {{ old('technical_details.duplex') === 'Ya' ? 'selected' : '' }}>Ya</option><option value="Tidak" {{ old('technical_details.duplex') === 'Tidak' ? 'selected' : '' }}>Tidak</option></select></div></div></div>
         </div>
         <div class="mb-3">
             <label class="form-label">Serial</label>
@@ -156,4 +163,24 @@
         </div>
     </div>
 </div>
+<script>
+const equipmentTypeInput = document.getElementById('equipmentType');
+const technicalDetails = document.getElementById('technicalDetails');
+const typeSections = document.querySelectorAll('[data-type-section]');
+function updateTechnicalForm() {
+    const selected = equipmentTypeInput.options[equipmentTypeInput.selectedIndex];
+    const typeName = selected?.dataset.typeName || '';
+    let visible = false;
+    typeSections.forEach(section => {
+        const matches = section.dataset.typeSection === typeName;
+        section.classList.toggle('d-none', !matches);
+        section.querySelectorAll('input, select').forEach(input => input.disabled = !matches);
+        visible = visible || matches;
+    });
+    technicalDetails.classList.toggle('d-none', !visible);
+}
+equipmentTypeInput.addEventListener('change', updateTechnicalForm);
+updateTechnicalForm();
+</script>
+<style>.technical-details{margin:0 0 1rem;padding:16px;background:#f5f9fd;border:1px solid #cfe1f2;border-left:4px solid #0b5ea8}.technical-details-title{margin-bottom:14px;color:#0b5ea8;font-size:.9rem;font-weight:700}</style>
 @endsection

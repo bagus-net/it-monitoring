@@ -44,6 +44,8 @@ class EquipmentController extends Controller
             'support_contract_end' => 'nullable|date',
             'capacity' => 'nullable|string|max:255',
             'specification' => 'nullable|string',
+            'technical_details' => 'nullable|array',
+            'technical_details.*' => 'nullable|string|max:255',
             'manufacture_year' => 'nullable|integer|min:1900|max:2100',
             'status' => 'nullable|string',
             'condition' => 'nullable|string',
@@ -54,6 +56,7 @@ class EquipmentController extends Controller
         if ($request->hasFile('photo')) {
             $data['photo_path'] = $request->file('photo')->store('equipment-photos', 'public');
         }
+        $data['technical_details'] = array_filter($data['technical_details'] ?? [], fn ($value) => $value !== null && $value !== '');
 
         Equipment::create($data);
         return redirect()->route('equipments.index')->with('success','Equipment created');
@@ -66,6 +69,7 @@ class EquipmentController extends Controller
             'manufacturer',
             'assetLocation',
             'maintenanceChecklistEntries.maintenanceChecklist.checklistItem',
+            'repairTickets',
         ]);
         return view('equipments.show', compact('equipment'));
     }
@@ -99,6 +103,8 @@ class EquipmentController extends Controller
             'support_contract_end' => 'nullable|date',
             'capacity' => 'nullable|string|max:255',
             'specification' => 'nullable|string',
+            'technical_details' => 'nullable|array',
+            'technical_details.*' => 'nullable|string|max:255',
             'manufacture_year' => 'nullable|integer|min:1900|max:2100',
             'status' => 'nullable|string',
             'condition' => 'nullable|string',
@@ -112,6 +118,7 @@ class EquipmentController extends Controller
             }
             $data['photo_path'] = $request->file('photo')->store('equipment-photos', 'public');
         }
+        $data['technical_details'] = array_filter($data['technical_details'] ?? [], fn ($value) => $value !== null && $value !== '');
 
         $equipment->update($data);
         return redirect()->route('equipments.index')->with('success','Equipment updated');

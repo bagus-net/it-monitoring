@@ -11,6 +11,10 @@ class MaintenanceLog extends Model
 
     protected $fillable = ['equipment_id','checklist_item_id','performed_at','performed_by','result','remarks'];
 
+    protected $casts = [
+        'performed_at' => 'datetime',
+    ];
+
     public function equipment()
     {
         return $this->belongsTo(Equipment::class);

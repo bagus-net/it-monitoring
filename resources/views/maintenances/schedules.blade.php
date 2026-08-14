@@ -12,7 +12,7 @@
                 <tbody>
                 @forelse($groups as $g)
                     <tr>
-                        <td>{{ $g['item']->title }}</td>
+                        <td><span class="program-dot" style="background-color:{{ $g['item']->schedule_color }}"></span>{{ $g['item']->title }}</td>
                         <td>{{ implode(', ', $g['frequencies']) }}</td>
                         <td>
                             @if(in_array(null, $g['equipment_ids'])) Semua @else {{ count(array_filter($g['equipment_ids'])) }} items @endif
@@ -35,4 +35,5 @@
         </div>
     </div>
 </div>
+<style>.program-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:7px; }</style>
 @endsection

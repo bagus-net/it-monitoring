@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h3>Detail Jadwal: {{ $item->title }} - Tahun {{ $year ?? date('Y') }}</h3>
+    <h3 style="color:{{ $item->schedule_color }}">Detail Jadwal: {{ $item->title }} - Tahun {{ $year ?? date('Y') }}</h3>
     <form method="GET" class="mb-3 row g-2">
         <div class="col-auto">
             <label class="form-label">Tahun</label>
@@ -46,7 +46,7 @@
                                     $keyAllAll = $eq->id . '|all|all';
                                     $present = isset($grid[$keyExact]) || isset($grid[$keyMonthAll]) || isset($grid[$keyWeekAll]) || isset($grid[$keyAllAll]);
                                 @endphp
-                                <td class="text-center">@if($present) <span class="badge bg-success">✓</span> @else &nbsp; @endif</td>
+                                <td class="text-center">@if($present) <span class="badge" style="background-color:{{ $item->schedule_color }}">✓</span> @else &nbsp; @endif</td>
                             @endfor
                         @endfor
                     </tr>

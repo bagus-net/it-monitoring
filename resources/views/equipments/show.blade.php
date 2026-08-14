@@ -1,37 +1,52 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="card">
-        <div class="card-header"><strong>{{ $equipment->name }}</strong></div>
-        <div class="card-body">
-            <p><strong>Tipe:</strong> <span class="badge badge-type">{{ $equipment->type->name ?? '-' }}</span></p>
-            <p><strong>Manufacturer:</strong> {{ $equipment->manufacturer->name ?? '-' }}</p>
-            <p><strong>Lokasi:</strong> {{ $equipment->location?->name ?? $equipment->location }}</p>
-                <p><strong>No. Seri:</strong> {{ $equipment->serial_number }}</p>
-                <p><strong>Kapasitas:</strong> {{ $equipment->capacity }}</p>
-                <p><strong>Spesifikasi:</strong><br/> {!! nl2br(e($equipment->specification)) !!}</p>
-                <p><strong>Tahun pembuatan / pembelian:</strong> {{ $equipment->manufacture_year ?? ($equipment->purchase_date?->format('Y') ?? '-') }}</p>
-            <p><strong>Lokasi:</strong> {{ $equipment->location }}</p>
-                <p><strong>Kondisi:</strong> {{ $equipment->condition ?? $equipment->status }}</p>
-                <p><strong>IP Address:</strong> {{ $equipment->ip_address }}</p>
+@php
+    $criticalityLabels = ['low' => 'Rendah', 'medium' => 'Sedang', 'high' => 'Tinggi', 'critical' => 'Kritis'];
+    $criticalityClasses = ['low' => 'asset-criticality-low', 'medium' => 'asset-criticality-medium', 'high' => 'asset-criticality-high', 'critical' => 'asset-criticality-critical'];
+    $condition = $equipment->condition ?? $equipment->status ?? 'Tidak dicatat';
+    $locationName = $equipment->assetLocation?->name ?: $equipment->getRawOriginal('location');
+@endphp
 
-    <h3 class="mt-3">Riwayat Perawatan</h3>
-    <a href="{{ route('maintenances.checklists') }}" class="btn btn-brand btn-sm">Daftar Checklist</a>
-    <table class="table mt-2">
-        <thead><tr><th>Tanggal</th><th>Item</th><th>Hasil</th><th>Catatan</th></tr></thead>
-        <tbody>
-        @foreach($equipment->logs as $log)
-            <tr>
-                <td>{{ $log->performed_at }}</td>
-                <td>{{ $log->checklistItem->title ?? '-' }}</td>
-                <td>{{ $log->result }}</td>
-                <td>{{ $log->remarks }}</td>
-            </tr>
-        @endforeach
-        </tbody>
-    </table>
+<div class="container mt-4 asset-detail">
+    <div class="asset-hero {{ $equipment->photo_path ? 'asset-hero-with-photo' : '' }}">
+        <div class="asset-hero-main">
+            @if ($equipment->photo_path)
+                <img src="{{ asset('storage/' . $equipment->photo_path) }}" alt="Foto {{ $equipment->name }}" class="asset-photo">
+            @else
+                <div class="asset-icon">IT</div>
+            @endif
+            <div>
+                <div class="asset-eyebrow">IT Asset Record</div>
+                <h1>{{ $equipment->name }}</h1>
+                <div class="asset-meta">{{ $equipment->type->name ?? 'Tipe belum dipilih' }} | {{ $equipment->manufacturer->name ?? 'Manufacturer belum dipilih' }} | {{ $equipment->model ?? 'Model belum dicatat' }}</div>
+            </div>
+        </div>
+        <div class="asset-hero-side">
+            <span class="asset-tag">{{ $equipment->asset_tag ?? 'Belum ada kode aset' }}</span>
+            <span class="asset-criticality {{ $criticalityClasses[$equipment->criticality] ?? 'asset-criticality-none' }}">{{ $criticalityLabels[$equipment->criticality] ?? 'Kritikalitas belum dinilai' }}</span>
         </div>
     </div>
+
+    <div class="asset-actions">
+        <a href="{{ route('equipments.index') }}" class="btn btn-outline-secondary">Kembali</a>
+        <a href="{{ route('equipments.edit', $equipment) }}" class="btn btn-brand">Edit Peralatan</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6"><section class="asset-section h-100"><h2>Identitas Aset</h2><dl class="asset-data-grid"><div><dt>Kode Aset</dt><dd>{{ $equipment->asset_tag ?? '-' }}</dd></div><div><dt>No. Seri</dt><dd>{{ $equipment->serial_number ?? '-' }}</dd></div><div><dt>Tipe</dt><dd>{{ $equipment->type->name ?? '-' }}</dd></div><div><dt>Model</dt><dd>{{ $equipment->model ?? '-' }}</dd></div><div><dt>Sistem Operasi</dt><dd>{{ $equipment->operating_system ?? '-' }}</dd></div><div><dt>Manufacturer</dt><dd>{{ $equipment->manufacturer->name ?? '-' }}</dd></div><div><dt>Kapasitas</dt><dd>{{ $equipment->capacity ?? '-' }}</dd></div></dl></section></div>
+        <div class="col-lg-6"><section class="asset-section h-100"><h2>Penempatan & Kepemilikan</h2><dl class="asset-data-grid"><div><dt>Lokasi</dt><dd>{{ $locationName ?: '-' }}</dd></div><div><dt>IP Address</dt><dd>{{ $equipment->ip_address ?? '-' }}</dd></div><div><dt>Pemilik Aset / PIC</dt><dd>{{ $equipment->owner_name ?? '-' }}</dd></div><div><dt>Unit / Departemen</dt><dd>{{ $equipment->department ?? '-' }}</dd></div><div><dt>Vendor / Pemasok</dt><dd>{{ $equipment->vendor_name ?? '-' }}</dd></div><div><dt>Kondisi</dt><dd><span class="asset-condition">{{ ucfirst($condition) }}</span></dd></div></dl></section></div>
+        <div class="col-lg-6"><section class="asset-section h-100"><h2>Siklus Hidup & Dukungan</h2><dl class="asset-data-grid"><div><dt>Tanggal Pembelian</dt><dd>{{ $equipment->purchase_date?->format('d M Y') ?? '-' }}</dd></div><div><dt>Tahun Pembuatan</dt><dd>{{ $equipment->manufacture_year ?? '-' }}</dd></div><div><dt>Akhir Garansi</dt><dd>{{ $equipment->warranty_expiry?->format('d M Y') ?? '-' }}</dd></div><div><dt>Akhir Kontrak Dukungan</dt><dd>{{ $equipment->support_contract_end?->format('d M Y') ?? '-' }}</dd></div><div><dt>Status Operasional</dt><dd>{{ ucfirst($equipment->status ?? '-') }}</dd></div><div><dt>Kritikalitas Layanan</dt><dd>{{ $criticalityLabels[$equipment->criticality] ?? '-' }}</dd></div></dl></section></div>
+        <div class="col-lg-6"><section class="asset-section h-100"><h2>Spesifikasi & Catatan</h2><div class="asset-notes">{{ $equipment->specification ?: 'Spesifikasi detail belum dicatat.' }}</div>@if ($equipment->notes)<div class="asset-notes-label">Catatan Tambahan</div><div class="asset-notes">{{ $equipment->notes }}</div>@endif</section></div>
+    </div>
+
+    <section class="asset-section maintenance-section">
+        <div class="section-heading"><div><h2>Riwayat Perawatan</h2><p>Hasil pelaksanaan dari dokumen Checklist Perawatan.</p></div><a href="{{ route('maintenance-checklists.index') }}" class="btn btn-sm btn-outline-primary">Pelaksanaan Checklist</a></div>
+        <div class="table-responsive"><table class="table asset-log-table align-middle mb-0"><thead><tr><th>Tanggal</th><th>Program Perawatan</th><th>Periode</th><th>Hasil</th><th>Keterangan</th><th>Pelapor</th><th></th></tr></thead><tbody>@forelse ($equipment->maintenanceChecklistEntries->sortByDesc(fn ($entry) => $entry->maintenanceChecklist->checked_at) as $entry)@php $document = $entry->maintenanceChecklist; @endphp<tr><td>{{ $document->checked_at?->format('d M Y') ?? '-' }}</td><td>{{ $document->checklistItem->title ?? '-' }}</td><td>{{ ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][$document->month] }} {{ $document->year }}</td><td><span class="log-result log-result-{{ $entry->result }}">{{ $entry->result === 'ok' ? 'OK' : 'NOT OK' }}</span></td><td>{{ $entry->remarks ?? '-' }}</td><td>{{ $document->reported_by ?? '-' }}</td><td><a href="{{ route('maintenance-checklists.show', $document) }}" class="btn btn-sm btn-outline-secondary">Dokumen</a></td></tr>@empty<tr><td colspan="7" class="asset-empty">Belum ada hasil Pelaksanaan Checklist untuk peralatan ini.</td></tr>@endforelse</tbody></table></div>
+    </section>
 </div>
+
+<style>
+.asset-detail { color:#263238; }.asset-hero { display:flex; justify-content:space-between; gap:20px; padding:24px; background:linear-gradient(120deg,#0f766e,#0e7490); color:#fff; border-radius:8px; }.asset-hero-main { display:flex; align-items:center; gap:16px; min-width:0; }.asset-icon { display:flex; align-items:center; justify-content:center; flex:0 0 52px; width:52px; height:52px; border:1px solid rgba(255,255,255,.35); border-radius:8px; font-size:.85rem; font-weight:700; }.asset-photo { width:120px; height:90px; flex:0 0 120px; object-fit:cover; border:1px solid rgba(255,255,255,.5); border-radius:6px; background:#fff; }.asset-eyebrow { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; opacity:.8; }.asset-hero h1 { margin:3px 0 6px; font-size:1.55rem; }.asset-meta { font-size:.84rem; opacity:.9; }.asset-hero-side { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }.asset-tag,.asset-criticality { display:inline-flex; align-items:center; padding:5px 9px; border-radius:4px; font-size:.78rem; font-weight:700; }.asset-tag { border:1px solid rgba(255,255,255,.4); }.asset-criticality-low { background:#dcfce7; color:#166534; }.asset-criticality-medium { background:#fef3c7; color:#92400e; }.asset-criticality-high { background:#ffedd5; color:#9a3412; }.asset-criticality-critical { background:#fee2e2; color:#991b1b; }.asset-criticality-none { background:rgba(255,255,255,.16); color:#fff; }.asset-actions { display:flex; justify-content:flex-end; gap:8px; margin:14px 0; }.asset-section { background:#fff; border:1px solid #dbe3ea; border-radius:6px; padding:18px; }.asset-section h2 { margin:0 0 14px; font-size:1rem; color:#0f766e; }.asset-data-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; margin:0; }.asset-data-grid div { min-width:0; }.asset-data-grid dt { margin-bottom:3px; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#64748b; }.asset-data-grid dd { margin:0; overflow-wrap:anywhere; font-size:.9rem; }.asset-condition { display:inline-block; padding:3px 7px; border-radius:3px; background:#e0f2fe; color:#075985; font-weight:700; font-size:.78rem; }.asset-notes { white-space:pre-line; color:#334155; line-height:1.55; }.asset-notes-label { margin:16px 0 5px; color:#64748b; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }.maintenance-section { padding:0; overflow:hidden; }.section-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px; border-bottom:1px solid #dbe3ea; }.section-heading h2 { margin:0 0 3px; }.section-heading p { margin:0; color:#64748b; font-size:.85rem; }.asset-log-table { font-size:.86rem; }.asset-log-table thead th { background:#f1f5f9; color:#334155; }.log-result { display:inline-block; padding:3px 7px; border-radius:3px; font-size:.75rem; font-weight:700; }.log-result-ok { background:#dcfce7; color:#166534; }.log-result-not_ok { background:#fee2e2; color:#991b1b; }.asset-empty { padding:25px !important; text-align:center; color:#64748b; }@media (max-width:767px) { .asset-hero { flex-direction:column; }.asset-hero-side { align-items:flex-start; }.asset-data-grid { grid-template-columns:1fr; }.section-heading { align-items:flex-start; flex-direction:column; }.asset-actions .btn { flex:1; } }
+</style>
 @endsection

@@ -1,23 +1,25 @@
 :root{
-  --brand-1: #ff8a00; /* orange */
-  --brand-2: #ffb86b; /* light orange */
-  --accent-1: #ffb259;
-  --accent-2: #ffd9a6;
+  --brand-1: #0b5ea8;
+  --brand-2: #1675c1;
+  --accent-1: #f6b322;
+  --accent-2: #ffd776;
+  --navy: #073b6d;
   --muted: #6c757d;
+  --sidebar-width: 256px;
 }
-body{background: linear-gradient(180deg, #fff8f2 0%, #fff6ef 100%);}
+body{background:linear-gradient(135deg,#f3f8fd 0%,#fff8eb 100%);}
 .hero{
   background: linear-gradient(90deg,var(--brand-1),var(--brand-2));
   color: white;
   padding: 24px 16px;
   border-radius: 8px;
-  box-shadow: 0 10px 26px rgba(255,138,0,0.12);
+  box-shadow: 0 10px 26px rgba(11,94,168,0.16);
 }
 .nav-brand{font-weight:700;color:white}
 .card-colorful{border:0;border-radius:10px;overflow:hidden}
 .card-colorful .card-header{background: linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#222}
 .badge-type{background: linear-gradient(90deg,var(--brand-1),var(--brand-2));color:white}
-.table thead th{background:#fff3e6}
+.table thead th{background:#fff6e4}
 .month-cell{min-width:54px}
 .check-mark{color:var(--brand-1);font-size:18px}
 .btn-brand{background: linear-gradient(90deg,var(--brand-1),var(--brand-2));border:0;color:white}
@@ -26,7 +28,7 @@ body{background: linear-gradient(180deg, #fff8f2 0%, #fff6ef 100%);}
 .wide-table { min-width:1400px; table-layout: fixed; }
 .table-responsive { overflow-x:auto; }
 /* sticky first column and header for wide tables */
-.wide-table thead th { position: sticky; top: 0; z-index: 5; background: #fff3e6; }
+.wide-table thead th { position: sticky; top: 0; z-index: 5; background: #fff6e4; }
 .wide-table tbody td:first-child, .wide-table thead th.sticky-col { position: sticky; left: 0; z-index: 6; background: #fff; }
 .sticky-col { position: sticky; left: 0; z-index: 6; background: #fff; }
 .wide-table tbody td { vertical-align: middle; padding: 6px 8px; }
@@ -35,9 +37,32 @@ body{background: linear-gradient(180deg, #fff8f2 0%, #fff6ef 100%);}
 .wide-table .week-cell { min-width:56px; text-align:center; }
 .badge-check { display:inline-block; width:28px; height:28px; line-height:28px; border-radius:50%; background: #16a34a; color:#fff; font-weight:700; }
 .wide-table tbody tr:nth-child(odd){ background: rgba(0,0,0,0.02); }
-.wide-table thead th{ background: #fff3e6; }
+.wide-table thead th{ background: #fff6e4; }
+
+/* left application navigation */
+.app-sidebar{position:fixed!important;top:0;bottom:0;left:0;z-index:1030;width:var(--sidebar-width)!important;height:100vh;background:linear-gradient(180deg,#063b6c 0%,#0b5ea8 55%,#084478 100%);color:#fff;border:0;box-shadow:6px 0 22px rgba(7,59,109,.14)}
+.sidebar-brand{display:flex;align-items:center;gap:11px;padding:25px 20px 22px;color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.14);font-weight:700;font-size:1rem}
+.sidebar-brand:hover{color:#fff}.sidebar-brand small{display:block;margin-top:2px;font-size:.68rem;font-weight:500;letter-spacing:.04em;opacity:.68;text-transform:uppercase}
+.sidebar-brand-mark{display:flex;align-items:center;justify-content:center;width:35px;height:35px;border-radius:7px;background:var(--accent-1);color:#153a5f;font-size:.73rem;letter-spacing:.04em}
+.app-sidebar .offcanvas-body{height:100%;overflow-y:auto}.sidebar-nav{padding:16px 12px 64px}.sidebar-label{display:block;margin:14px 10px 6px;color:#b9d4ed;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.sidebar-link{display:block;width:100%;padding:10px 12px;margin:2px 0;border:0;border-radius:5px;background:transparent;color:#eef7ff;text-align:left;text-decoration:none;font-size:.9rem;line-height:1.25}
+.sidebar-link:hover,.sidebar-link:focus{background:rgba(255,255,255,.13);color:#fff}.sidebar-link-toggle::after{float:right;margin-top:7px}.sidebar-footer{position:absolute;right:0;bottom:0;left:0;padding:14px 20px;background:rgba(0,0,0,.12);color:#b9d4ed;font-size:.72rem}
+.sidebar-menu{min-width:210px;padding:6px;border:0;border-radius:6px;box-shadow:0 12px 28px rgba(15,23,42,.2)}.sidebar-menu .dropdown-item{padding:8px 10px;border-radius:4px;font-size:.86rem}.sidebar-menu .dropdown-item:hover{background:#eaf4fe;color:#0b5ea8}
+.app-main{min-height:100vh;margin-left:var(--sidebar-width);padding:24px 28px!important}.app-main>.container{max-width:1440px}.app-main>.container-fluid.app-content{max-width:1440px}.sidebar-toggle{display:none}.sidebar-mobile-header{display:none}
 
 /* responsive tweaks */
 @media (max-width:767px){
   .hero{padding:16px;font-size:14px}
+  .app-main>.container,.app-main>.container-fluid{width:100%;padding-right:0;padding-left:0}
+  .app-main .card{border-radius:0}
+  .app-main .row{--bs-gutter-x:1rem}
+  .app-main h1{font-size:1.45rem}
+  .app-main h2{font-size:1.25rem}
+  .app-main .d-flex.justify-content-between{align-items:flex-start!important;gap:10px}
+  .app-main .d-flex.justify-content-between>.btn,.app-main .d-flex.justify-content-between>div:last-child{flex-shrink:0}
+  .table-responsive{margin-right:-14px;margin-left:-14px;padding:0 14px}
 }
+@media (max-width:991.98px){
+  .app-sidebar{position:fixed!important;z-index:1055!important;width:min(84vw,320px)!important;height:100vh}.app-sidebar .offcanvas-body{overflow-y:auto}.sidebar-mobile-header{display:flex;align-items:center;justify-content:space-between;background:#063b6c;color:#fff;border-bottom:1px solid rgba(255,255,255,.14)}.sidebar-brand{padding-top:18px}.sidebar-footer{position:static;margin-top:10px}.app-main{margin-left:0;padding:70px 14px 24px!important}.sidebar-toggle{display:block;position:fixed;top:14px;left:14px;z-index:1060;padding:9px 13px;border:0;border-radius:6px;background:#0b5ea8;color:#fff;font-size:.84rem;font-weight:700;box-shadow:0 3px 12px rgba(7,59,109,.28)}.sidebar-menu{position:static!important;min-width:0;margin:0 0 4px;padding:0 0 0 12px;background:transparent;box-shadow:none;transform:none!important}.sidebar-menu .dropdown-item{padding:8px 10px;color:#dbeafe;font-size:.84rem}.sidebar-menu .dropdown-item:hover{background:rgba(255,255,255,.12);color:#fff}.sidebar-link-toggle::after{margin-right:2px}
+}
+@media print{.app-sidebar,.sidebar-toggle{display:none!important}.app-main{margin-left:0!important}}

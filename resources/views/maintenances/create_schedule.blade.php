@@ -33,7 +33,7 @@
         <div class="mb-3">
             <label class="form-label">Frekuensi</label>
             <select name="frequency" id="frequency" class="form-control">
-                <option value="monthly">Bulanan</option>
+                {{-- <option value="monthly">Bulanan</option> --}}
                 <option value="annual">Tahunan</option>
             </select>
         </div>

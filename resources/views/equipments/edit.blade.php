@@ -15,12 +15,44 @@
             </ul>
         </div>
     @endif
-    <form method="POST" action="{{ route('equipments.update', $equipment) }}">
+    <form method="POST" action="{{ route('equipments.update', $equipment) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="mb-3">
             <label class="form-label">Nama</label>
             <input name="name" class="form-control" required value="{{ old('name', $equipment->name) }}">
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Kode Aset / Asset Tag</label>
+                <input name="asset_tag" class="form-control" value="{{ old('asset_tag', $equipment->asset_tag) }}" placeholder="Contoh: IT-LPT-001">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Model</label>
+                <input name="model" class="form-control" value="{{ old('model', $equipment->model) }}">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Sistem Operasi <span class="text-muted">(opsional)</span></label>
+            <input name="operating_system" class="form-control" list="operating-system-options" value="{{ old('operating_system', $equipment->operating_system) }}" placeholder="Contoh: Windows 11 Pro 23H2">
+            <datalist id="operating-system-options">
+                <option value="Windows 11 Pro"></option>
+                <option value="Windows 10 Pro"></option>
+                <option value="Windows Server 2022"></option>
+                <option value="Ubuntu Server 22.04 LTS"></option>
+                <option value="Ubuntu 22.04 LTS"></option>
+                <option value="macOS"></option>
+                <option value="VMware ESXi"></option>
+                <option value="Tidak berlaku / perangkat jaringan"></option>
+            </datalist>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Foto Peralatan <span class="text-muted">(opsional)</span></label>
+            <input name="photo" type="file" class="form-control" accept="image/jpeg,image/png,image/webp">
+            <div class="form-text">Pilih foto baru untuk mengganti foto yang ada. Format JPG, PNG, atau WebP; maksimal 5 MB.</div>
+            @if ($equipment->photo_path)
+                <img src="{{ asset('storage/' . $equipment->photo_path) }}" alt="Foto {{ $equipment->name }}" class="mt-2 border rounded" style="width:120px;height:90px;object-fit:cover;">
+            @endif
         </div>
         <div class="mb-3">
             <label class="form-label">Tipe</label>
@@ -56,6 +88,20 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Vendor / Pemasok</label>
+                <input name="vendor_name" class="form-control" value="{{ old('vendor_name', $equipment->vendor_name) }}">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Pemilik Aset / PIC</label>
+                <input name="owner_name" class="form-control" value="{{ old('owner_name', $equipment->owner_name) }}">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Unit / Departemen</label>
+                <input name="department" class="form-control" value="{{ old('department', $equipment->department) }}">
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Kapasitas / Spesifikasi singkat</label>
                 <input name="capacity" class="form-control" value="{{ old('capacity', $equipment->capacity) }}">
@@ -63,6 +109,20 @@
             <div class="col-md-6 mb-3">
                 <label class="form-label">Tahun Pembuatan / Pembelian</label>
                 <input name="manufacture_year" type="number" class="form-control" placeholder="YYYY" value="{{ old('manufacture_year', $equipment->manufacture_year) }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Tanggal Pembelian</label>
+                <input name="purchase_date" type="date" class="form-control" value="{{ old('purchase_date', optional($equipment->purchase_date)->format('Y-m-d')) }}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Akhir Garansi</label>
+                <input name="warranty_expiry" type="date" class="form-control" value="{{ old('warranty_expiry', optional($equipment->warranty_expiry)->format('Y-m-d')) }}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Akhir Kontrak Dukungan</label>
+                <input name="support_contract_end" type="date" class="form-control" value="{{ old('support_contract_end', optional($equipment->support_contract_end)->format('Y-m-d')) }}">
             </div>
         </div>
         <div class="mb-3">
@@ -83,7 +143,17 @@
                     <option value="perbaikan" {{ (old('condition', $equipment->condition) == 'perbaikan')? 'selected':'' }}>Perbaikan</option>
                 </select>
             </div>
-            <div class="col-md-3 align-self-end">
+            <div class="col-md-3">
+                <label class="form-label">Kritikalitas Layanan</label>
+                <select name="criticality" class="form-control">
+                    <option value="">-- Pilih --</option>
+                    <option value="low" {{ old('criticality', $equipment->criticality) === 'low' ? 'selected' : '' }}>Rendah</option>
+                    <option value="medium" {{ old('criticality', $equipment->criticality) === 'medium' ? 'selected' : '' }}>Sedang</option>
+                    <option value="high" {{ old('criticality', $equipment->criticality) === 'high' ? 'selected' : '' }}>Tinggi</option>
+                    <option value="critical" {{ old('criticality', $equipment->criticality) === 'critical' ? 'selected' : '' }}>Kritis</option>
+                </select>
+            </div>
+            <div class="col-md-2 align-self-end">
                 <button class="btn btn-brand">Simpan</button>
             </div>
         </div>

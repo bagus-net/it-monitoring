@@ -29,7 +29,7 @@
                 <td>{{ $eq->serial_number }}</td>
                 <td>{{ $eq->capacity }}</td>
                 <td>{{ $eq->manufacture_year ?? ($eq->purchase_date?->format('Y') ?? '-') }}</td>
-                <td>{{ $eq->location->name ?? '-' }}</td>
+                <td>{{ $eq->assetLocation?->name ?: $eq->getRawOriginal('location') ?: '-' }}</td>
                 <td>{{ $eq->condition ?? $eq->status }}</td>
                 <td>{{ $eq->ip_address }}</td>
                 <td>

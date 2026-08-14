@@ -4,6 +4,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\MaintenanceChecklistController;
+use App\Http\Controllers\MonthlyScheduleController;
+use App\Http\Controllers\ScheduleReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,9 +46,26 @@ Route::get('/maintenances/checklists', [MaintenanceController::class, 'checklist
 Route::post('/maintenances/logs', [MaintenanceController::class, 'storeLog'])->name('maintenances.store_log');
 Route::get('/maintenances/grid', [MaintenanceController::class, 'grid'])->name('maintenances.grid');
 
+// Maintenance checklist execution records
+Route::resource('maintenance-checklists', MaintenanceChecklistController::class)
+	->parameters(['maintenance-checklists' => 'maintenanceChecklist']);
+
 // Convenience aliases / redirects for common URLs (fixes clients/bookmarks using alternate paths)
 Route::get('/maintenances/create', [MaintenanceController::class, 'create'])->name('maintenances.create');
 Route::get('/maintenances/schedules/new', [MaintenanceController::class, 'create'])->name('maintenances.schedules.new');
+
+// Monthly schedules routes
+Route::get('/monthly-schedules', [MonthlyScheduleController::class, 'index'])->name('monthly_schedules.index');
+Route::get('/monthly-schedules/create', [MonthlyScheduleController::class, 'create'])->name('monthly_schedules.create');
+Route::post('/monthly-schedules', [MonthlyScheduleController::class, 'store'])->name('monthly_schedules.store');
+Route::get('/monthly-schedules/{checklistItemId}/{year}/months', [MonthlyScheduleController::class, 'selectMonths'])->name('monthly_schedules.select_months');
+Route::get('/monthly-schedules/{checklistItemId}/{year}/edit', [MonthlyScheduleController::class, 'edit'])->name('monthly_schedules.edit');
+Route::get('/monthly-schedules/{checklistItemId}/{year}', [MonthlyScheduleController::class, 'show'])->name('monthly_schedules.show');
+Route::delete('/monthly-schedules/{checklistItemId}/{year}', [MonthlyScheduleController::class, 'destroy'])->name('monthly_schedules.destroy');
+
+// Schedule reports
+Route::get('/reports/schedules/annual', [ScheduleReportController::class, 'annual'])->name('reports.annual');
+Route::get('/reports/schedules/monthly', [ScheduleReportController::class, 'monthly'])->name('reports.monthly');
 
 // Masters: manufacturers & locations
 Route::prefix('masters')->name('masters.')->group(function(){

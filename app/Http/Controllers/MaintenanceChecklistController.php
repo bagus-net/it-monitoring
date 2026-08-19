@@ -18,11 +18,24 @@ class MaintenanceChecklistController extends Controller
         9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->input('search'));
         $checklists = MaintenanceChecklist::with(['checklistItem', 'entries.equipment'])
+            ->when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where(function ($inner) use ($keyword) {
+                    $inner->where('reported_by', 'like', $keyword)
+                        ->orWhere('acknowledged_by', 'like', $keyword)
+                        ->orWhere('notes', 'like', $keyword)
+                        ->orWhereHas('checklistItem', fn ($relation) => $relation->where('title', 'like', $keyword))
+                        ->orWhereHas('entries', fn ($relation) => $relation->where('remarks', 'like', $keyword)
+                            ->orWhereHas('equipment', fn ($equipment) => $equipment->where('name', 'like', $keyword)));
+                });
+            })
             ->orderByDesc('checked_at')
-            ->paginate(50);
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
         $byProgram = $checklists->groupBy('checklist_item_id')
             ->map(function ($items) {
                 return [
@@ -39,7 +52,7 @@ class MaintenanceChecklistController extends Controller
             'not_ok' => $entries->where('result', 'not_ok')->count(),
         ];
 
-        return view('maintenance_checklists.index', compact('checklists', 'byProgram', 'summary'));
+        return view('maintenance_checklists.index', compact('checklists', 'byProgram', 'summary', 'search'));
     }
 
     public function create(Request $request)

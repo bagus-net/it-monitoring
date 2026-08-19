@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 
 class ManufacturerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Manufacturer::orderBy('name')->paginate(50);
-        return view('masters.manufacturers.index', compact('items'));
+        $search = trim((string) $request->input('search'));
+        $items = Manufacturer::when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where('name', 'like', $keyword)->orWhere('country', 'like', $keyword)->orWhere('notes', 'like', $keyword);
+            })
+            ->orderBy('name')
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
+        return view('masters.manufacturers.index', compact('items', 'search'));
     }
 
     public function create()

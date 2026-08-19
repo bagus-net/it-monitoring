@@ -8,10 +8,22 @@ use Illuminate\Http\Request;
 
 class ChecklistItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = ChecklistItem::with('equipmentType')->orderBy('sort_order')->paginate(50);
-        return view('masters.checklist_items.index', compact('items'));
+        $search = trim((string) $request->input('search'));
+        $items = ChecklistItem::with('equipmentType')
+            ->when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where('title', 'like', $keyword)
+                    ->orWhere('category', 'like', $keyword)
+                    ->orWhere('frequency', 'like', $keyword)
+                    ->orWhere('description', 'like', $keyword)
+                    ->orWhereHas('equipmentType', fn ($relation) => $relation->where('name', 'like', $keyword));
+            })
+            ->orderBy('sort_order')
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
+        return view('masters.checklist_items.index', compact('items', 'search'));
     }
 
     public function create()

@@ -9,16 +9,85 @@ use Illuminate\Support\Facades\Storage;
 
 class EquipmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])->orderBy('name')->paginate(50);
+        $search = trim((string) $request->input('search'));
+        $filters = [
+            'equipment_type_id' => $request->input('equipment_type_id'),
+            'manufacturer_id' => $request->input('manufacturer_id'),
+            'location_id' => $request->input('location_id'),
+            'condition' => $request->input('condition'),
+            'criticality' => $request->input('criticality'),
+            'department' => $request->input('department'),
+        ];
+        $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])
+            ->when($filters['equipment_type_id'], fn ($query, $value) => $query->where('equipment_type_id', $value))
+            ->when($filters['manufacturer_id'], fn ($query, $value) => $query->where('manufacturer_id', $value))
+            ->when($filters['location_id'], fn ($query, $value) => $query->where('location_id', $value))
+            ->when($filters['condition'], fn ($query, $value) => $query->where('condition', $value))
+            ->when($filters['criticality'], fn ($query, $value) => $query->where('criticality', $value))
+            ->when($filters['department'], fn ($query, $value) => $query->where('department', $value))
+            ->when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where(function ($inner) use ($keyword) {
+                    $inner->where('name', 'like', $keyword)
+                        ->orWhere('asset_tag', 'like', $keyword)
+                        ->orWhere('serial_number', 'like', $keyword)
+                        ->orWhere('model', 'like', $keyword)
+                        ->orWhere('operating_system', 'like', $keyword)
+                        ->orWhere('ip_address', 'like', $keyword)
+                        ->orWhere('owner_name', 'like', $keyword)
+                        ->orWhere('department', 'like', $keyword)
+                        ->orWhere('condition', 'like', $keyword)
+                        ->orWhere('status', 'like', $keyword)
+                        ->orWhereHas('type', fn ($relation) => $relation->where('name', 'like', $keyword))
+                        ->orWhereHas('manufacturer', fn ($relation) => $relation->where('name', 'like', $keyword))
+                        ->orWhereHas('assetLocation', fn ($relation) => $relation->where('name', 'like', $keyword));
+                });
+            })
+            ->orderBy('name')
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
         $summary = [
             'total' => Equipment::count(),
             'active' => Equipment::whereNotIn('condition', ['rusak', 'perbaikan'])->count(),
             'attention' => Equipment::whereIn('condition', ['rusak', 'perbaikan'])->count(),
         ];
 
-        return view('equipments.index', compact('equipments', 'summary'));
+        $typeRecap = EquipmentType::withCount([
+            'equipments',
+            'equipments as good_count' => fn ($query) => $query->where(fn ($inner) => $inner->whereNull('condition')->orWhereNotIn('condition', ['rusak', 'perbaikan'])),
+            'equipments as broken_count' => fn ($query) => $query->whereIn('condition', ['rusak', 'perbaikan']),
+        ])->orderByDesc('equipments_count')->orderBy('name')->get();
+
+        $criticalityLabels = [
+            'critical' => 'Sangat Kritis',
+            'high' => 'Tinggi',
+            'medium' => 'Sedang',
+            'low' => 'Rendah',
+        ];
+        $criticalityCounts = Equipment::selectRaw('criticality, COUNT(*) as total')->groupBy('criticality')->pluck('total', 'criticality');
+        $criticalityRecap = collect($criticalityLabels)->map(fn ($label, $key) => [
+            'key' => $key,
+            'label' => $label,
+            'total' => (int) ($criticalityCounts[$key] ?? 0),
+        ])->values();
+        $criticalityRecap->push([
+            'key' => 'unset',
+            'label' => 'Belum Ditentukan',
+            'total' => (int) ($criticalityCounts[''] ?? 0) + (int) ($criticalityCounts[null] ?? 0),
+        ]);
+
+        $filterOptions = [
+            'types' => EquipmentType::orderBy('name')->get(['id', 'name']),
+            'manufacturers' => \App\Models\Manufacturer::orderBy('name')->get(['id', 'name']),
+            'locations' => \App\Models\Location::orderBy('name')->get(['id', 'name']),
+            'conditions' => Equipment::whereNotNull('condition')->distinct()->orderBy('condition')->pluck('condition'),
+            'departments' => Equipment::whereNotNull('department')->where('department', '!=', '')->distinct()->orderBy('department')->pluck('department'),
+            'criticalities' => $criticalityLabels,
+        ];
+
+        return view('equipments.index', compact('equipments', 'summary', 'search', 'typeRecap', 'criticalityRecap', 'filters', 'filterOptions'));
     }
 
     public function create()

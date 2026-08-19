@@ -12,6 +12,16 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const ROLE_MASTER = 'master';
+    public const ROLE_ADMIN_IT = 'admin_it';
+    public const ROLE_USER = 'user';
+
+    public const ROLE_LABELS = [
+        self::ROLE_MASTER => 'Master',
+        self::ROLE_ADMIN_IT => 'Admin IT',
+        self::ROLE_USER => 'User / Karyawan',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +31,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'department',
+        'is_active',
+        'signature_path',
+        'signature_title',
     ];
 
     /**
@@ -41,5 +56,36 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
+
+    public function isMaster(): bool
+    {
+        return $this->role === self::ROLE_MASTER;
+    }
+
+    public function isAdminIt(): bool
+    {
+        return $this->role === self::ROLE_ADMIN_IT;
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === self::ROLE_USER;
+    }
+
+    public function hasRole(string ...$roles): bool
+    {
+        return in_array($this->role, $roles, true);
+    }
+
+    public function roleLabel(): string
+    {
+        return self::ROLE_LABELS[$this->role] ?? $this->role;
+    }
+
+    public function equipments()
+    {
+        return $this->hasMany(Equipment::class);
+    }
 }

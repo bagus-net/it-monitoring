@@ -34,19 +34,30 @@ class WebMonitoringChecklistController extends Controller
         ],
     ];
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim((string) $request->input('search'));
         $checklists = WebMonitoringChecklist::with('site')
             ->withCount('entries')
+            ->when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where(function ($inner) use ($keyword) {
+                    $inner->where('checked_by', 'like', $keyword)
+                        ->orWhere('checklist_type', 'like', $keyword)
+                        ->orWhere('notes', 'like', $keyword)
+                        ->orWhereHas('site', fn ($relation) => $relation->where('name', 'like', $keyword)->orWhere('url', 'like', $keyword));
+                });
+            })
             ->orderByDesc('checked_at')
-            ->paginate(50);
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
         $summary = [
             'total' => WebMonitoringChecklist::count(),
             'security' => WebMonitoringChecklist::where('checklist_type', 'security')->count(),
             'functional' => WebMonitoringChecklist::where('checklist_type', 'functional')->count(),
         ];
 
-        return view('web_monitoring_checklists.index', compact('checklists', 'summary'));
+        return view('web_monitoring_checklists.index', compact('checklists', 'summary', 'search'));
     }
 
     public function create()

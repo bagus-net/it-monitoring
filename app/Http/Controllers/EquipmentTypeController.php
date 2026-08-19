@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 
 class EquipmentTypeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = EquipmentType::orderBy('name')->paginate(50);
-        return view('masters.equipment_types.index', compact('items'));
+        $search = trim((string) $request->input('search'));
+        $items = EquipmentType::when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where('name', 'like', $keyword)->orWhere('description', 'like', $keyword);
+            })
+            ->orderBy('name')
+            ->paginate($this->resolvePerPage($request))
+            ->withQueryString();
+        return view('masters.equipment_types.index', compact('items', 'search'));
     }
 
     public function create()

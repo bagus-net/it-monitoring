@@ -6,6 +6,13 @@
 </style>
 
 <style>
+  .operations-grid{grid-template-columns:repeat(5,minmax(150px,1fr))}.operation-card.inventory{border-top-color:#0891b2}.operation-card.transfer{border-top-color:#f97316}.operation-card.license{border-top-color:#6d28d9}
+  .trend-chart{height:215px;min-width:0;overflow-x:auto;overflow-y:hidden;padding:18px 8px 0;grid-template-columns:repeat({{ $dashboardTrend->count() }},minmax(48px,1fr));grid-auto-flow:column}.trend-chart>div{min-width:48px}.trend-column{height:178px;align-items:flex-end}.trend-bar{position:relative;display:flex;align-items:flex-start;justify-content:center;min-height:4px;box-shadow:0 4px 8px rgba(15,23,42,.12)}.trend-bar b{position:absolute;top:-18px;color:#475569;font-size:.62rem;font-weight:800}.trend-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.trend-summary-item{padding:9px 10px;border-radius:5px;background:#f8fafc}.trend-summary-item span,.trend-summary-item strong{display:block}.trend-summary-item span{color:#64748b;font-size:.68rem}.trend-summary-item strong{margin-top:2px;color:#17324d;font-size:1rem}.trend-summary-item.ticket{border-left:3px solid #dc2626}.trend-summary-item.checklist{border-left:3px solid #7c3aed}.trend-summary-item.stock{border-left:3px solid #0891b2}.trend-summary-item.license{border-left:3px solid #f59e0b}
+  .trend-filter{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.trend-filter label{color:#64748b;font-size:.72rem}.trend-filter select,.trend-filter button,.download-chart{height:30px;padding:3px 7px;border:1px solid #cbd5e1;border-radius:4px;background:#fff;color:#475569;font-size:.72rem}.trend-filter button{border-color:#0b5ea8;background:#0b5ea8;color:#fff;font-weight:700}.trend-filter button:hover{background:#084e8d}.download-chart{border-color:#0b5ea8;color:#0b5ea8;font-weight:700;white-space:nowrap}.download-chart:hover{background:#edf5fc}@media(max-width:700px){.trend-filter{width:100%;justify-content:flex-start;margin-top:10px}.trend-filter select{flex:1;min-width:0}}
+  .dashboard-analytics{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:18px;margin-bottom:22px}.analytics-panel{padding:18px;background:#fff;border:1px solid #dbe5ef}.analytics-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:16px}.analytics-head h2{margin:0;color:#17324d;font-size:1rem}.analytics-head p{margin:4px 0 0;color:#64748b;font-size:.78rem}.trend-chart{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;height:190px;padding:12px 8px 0;border-bottom:1px solid #cbd5e1;background:repeating-linear-gradient(to bottom,transparent 0,transparent 46px,#edf2f7 47px)}.trend-column{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:160px}.trend-bar{width:11px;min-height:3px;border-radius:3px 3px 0 0}.trend-bar.ticket{background:#dc2626}.trend-bar.checklist{background:#7c3aed}.trend-bar.stock{background:#0891b2}.trend-bar.license{background:#f59e0b}.trend-label{text-align:center;color:#64748b;font-size:.72rem;margin-top:7px}.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;color:#64748b;font-size:.72rem}.chart-legend i{display:inline-block;width:9px;height:9px;margin-right:4px;border-radius:2px}.health-layout{display:flex;align-items:center;gap:22px}.health-donut{width:132px;height:132px;flex:0 0 132px;border-radius:50%;background:conic-gradient(#16a34a {{ $overview['assets'] ? round(($assetStatus['Normal'] / max(1, $overview['assets'])) * 100) : 0 }}%,#f59e0b 0);position:relative}.health-donut::after{content:'';position:absolute;inset:25px;border-radius:50%;background:#fff}.health-list{display:grid;gap:10px;width:100%}.health-item{display:flex;justify-content:space-between;gap:10px;color:#475569;font-size:.78rem}.health-item b{color:#17324d}.risk-list{display:grid;gap:8px;margin-top:12px}.risk-item{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border-left:3px solid #f59e0b;background:#fffbeb;color:#475569;font-size:.78rem}.risk-item strong{color:#92400e}.quick-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.quick-links a{padding:7px 10px;border:1px solid #cbd5e1;border-radius:4px;color:#0b5ea8;font-size:.74rem;font-weight:700;text-decoration:none}.quick-links a:hover{background:#edf5fc}@media(max-width:1100px){.operations-grid{grid-template-columns:repeat(3,minmax(150px,1fr))}.dashboard-analytics{grid-template-columns:1fr}}@media(max-width:600px){.operations-grid{grid-template-columns:repeat(2,minmax(130px,1fr))}.dashboard-analytics{display:block}.analytics-panel{margin-bottom:14px}.trend-chart{gap:4px}.trend-bar{width:7px}.health-layout{gap:12px}.health-donut{width:105px;height:105px;flex-basis:105px}}
+</style>
+
+<style>
   /* Web Monitoring now lives on its dedicated /web-monitoring page. */
   .monitoring-dashboard > .monitoring-head,
   .monitoring-dashboard > .summary-grid,
@@ -23,6 +30,30 @@
       <a class="operation-card asset" href="{{ route('equipments.index') }}"><span>Aset IT</span><strong>{{ $overview['assets'] }}</strong><small>{{ $overview['assetAttention'] }} perlu perhatian</small></a>
       <a class="operation-card ticket" href="{{ route('it-repair-tickets.index') }}"><span>Tiket Perbaikan</span><strong>{{ $overview['ticketsOpen'] }}</strong><small>{{ $overview['ticketsUrgent'] }} prioritas tinggi/mendesak</small></a>
       <a class="operation-card maintenance" href="{{ route('maintenance-checklists.index') }}"><span>Pelaksanaan Checklist</span><strong>{{ $overview['maintenanceChecklistMonth'] }}</strong><small>dokumen bulan ini</small></a>
+      <a class="operation-card inventory" href="{{ route('ink.index') }}"><span>Stok Tinta</span><strong>{{ $overview['inkLowStock'] }}</strong><small>jenis menipis</small></a>
+      <a class="operation-card inventory" href="{{ route('spareparts.index') }}"><span>Stok Sparepart</span><strong>{{ $overview['sparepartLowStock'] }}</strong><small>jenis menipis</small></a>
+      <a class="operation-card license" href="{{ route('licenses.index') }}"><span>Seat Lisensi</span><strong>{{ $overview['licenseAvailableSeats'] }}</strong><small>seat tersedia</small></a>
+      <a class="operation-card transfer" href="{{ route('equipment-transfers.index') }}"><span>Mutasi Peralatan</span><strong>{{ $overview['transfersPending'] }}</strong><small>menunggu proses</small></a>
+    </div>
+  </section>
+
+  <section class="dashboard-analytics">
+    <div class="analytics-panel">
+      <div class="analytics-head"><div><h2>Tren Aktivitas Sistem</h2><p>Jumlah aktivitas berdasarkan periode yang dipilih.</p></div><div class="trend-controls"><form method="GET" action="{{ route('dashboard') }}" class="trend-filter"><label>Tampilkan</label><select name="period" aria-label="Panjang periode">@foreach($periodOptions as $value => $label)<option value="{{ $value }}" @selected($selectedPeriod === $value)>{{ $label }}</option>@endforeach</select><select name="month" aria-label="Bulan akhir">@foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber + 1 }}" @selected($selectedMonth === $monthNumber + 1)>{{ $monthName }}</option>@endforeach</select><select name="year" aria-label="Tahun akhir">@foreach($yearOptions as $year)<option value="{{ $year }}" @selected($selectedYear === $year)>{{ $year }}</option>@endforeach</select><button type="submit">Terapkan</button></form><button type="button" class="download-chart" onclick="downloadTrendChart()">Unduh Grafik</button></div></div>
+      <div class="trend-chart">
+        @php($trendMax = max(1, $dashboardTrend->flatMap(fn ($item) => [$item['tickets'], $item['checklists'], $item['stock'], $item['licenses']])->max()))
+        @foreach($dashboardTrend as $trend)
+          <div><div class="trend-column"><span class="trend-bar ticket" style="height:{{ round(($trend['tickets'] / $trendMax) * 150) }}px" title="Tiket: {{ $trend['tickets'] }}"><b>{{ $trend['tickets'] }}</b></span><span class="trend-bar checklist" style="height:{{ round(($trend['checklists'] / $trendMax) * 150) }}px" title="Checklist: {{ $trend['checklists'] }}"><b>{{ $trend['checklists'] }}</b></span><span class="trend-bar stock" style="height:{{ round(($trend['stock'] / $trendMax) * 150) }}px" title="Stok: {{ $trend['stock'] }}"><b>{{ $trend['stock'] }}</b></span><span class="trend-bar license" style="height:{{ round(($trend['licenses'] / $trendMax) * 150) }}px" title="Lisensi: {{ $trend['licenses'] }}"><b>{{ $trend['licenses'] }}</b></span></div><div class="trend-label">{{ $trend['label'] }}</div></div>
+        @endforeach
+      </div>
+      <div class="chart-legend"><span><i style="background:#dc2626"></i>Tiket</span><span><i style="background:#7c3aed"></i>Checklist</span><span><i style="background:#0891b2"></i>Stok</span><span><i style="background:#f59e0b"></i>Lisensi</span></div>
+      <div class="trend-summary"><div class="trend-summary-item ticket"><span>Total Tiket</span><strong>{{ $dashboardTrend->sum('tickets') }}</strong></div><div class="trend-summary-item checklist"><span>Total Checklist</span><strong>{{ $dashboardTrend->sum('checklists') }}</strong></div><div class="trend-summary-item stock"><span>Total Stok</span><strong>{{ $dashboardTrend->sum('stock') }}</strong></div><div class="trend-summary-item license"><span>Total Lisensi</span><strong>{{ $dashboardTrend->sum('licenses') }}</strong></div></div>
+    </div>
+    <div class="analytics-panel">
+      <div class="analytics-head"><div><h2>Kesehatan Operasional</h2><p>Aset dan risiko yang perlu dipantau.</p></div></div>
+      <div class="health-layout"><div class="health-donut"></div><div class="health-list"><div class="health-item"><span>Aset normal</span><b>{{ $assetStatus['Normal'] }}</b></div><div class="health-item"><span>Perlu perhatian</span><b>{{ $assetStatus['Perlu Perhatian'] }}</b></div><div class="health-item"><span>Tiket aktif</span><b>{{ $assetStatus['Tiket Aktif'] }}</b></div></div></div>
+      <div class="risk-list"><div class="risk-item"><span>Situs bermasalah</span><strong>{{ $overview['sitesDown'] }}</strong></div><div class="risk-item"><span>Lisensi segera berakhir</span><strong>{{ $overview['licenseExpiring'] }}</strong></div><div class="risk-item"><span>Mutasi belum selesai</span><strong>{{ $overview['transfersPending'] }}</strong></div></div>
+      <div class="quick-links"><a href="{{ route('web-monitoring.index') }}">Pantau situs</a><a href="{{ route('ink.index') }}">Cek tinta</a><a href="{{ route('spareparts.index') }}">Cek sparepart</a><a href="{{ route('licenses.index') }}">Cek lisensi</a></div>
     </div>
   </section>
 
@@ -76,6 +107,60 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  const trendDownloadData = @json($dashboardTrend);
+  function downloadTrendChart(){
+    const canvas = document.createElement('canvas');
+    const scale = 2;
+    const width = 1200;
+    const height = 650;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = '#17324d';
+    ctx.font = '700 24px Arial';
+    ctx.fillText('Tren Aktivitas Sistem', 52, 52);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Arial';
+    ctx.fillText('Data aktivitas berdasarkan periode dashboard', 52, 78);
+    const chart = { left: 72, top: 125, width: 1060, height: 380 };
+    const colors = ['#dc2626', '#7c3aed', '#0891b2', '#f59e0b'];
+    const keys = ['tickets', 'checklists', 'stock', 'licenses'];
+    const labels = ['Tiket', 'Checklist', 'Stok', 'Lisensi'];
+    const maxValue = Math.max(1, ...trendDownloadData.flatMap(item => keys.map(key => Number(item[key] || 0))));
+    const roundedMax = Math.max(1, Math.ceil(maxValue / 5) * 5);
+    ctx.font = '12px Arial';
+    for(let step = 0; step <= 4; step++){
+      const value = Math.round(roundedMax - roundedMax * step / 4);
+      const y = chart.top + chart.height * step / 4;
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.beginPath(); ctx.moveTo(chart.left, y); ctx.lineTo(chart.left + chart.width, y); ctx.stroke();
+      ctx.fillStyle = '#64748b'; ctx.textAlign = 'right'; ctx.fillText(String(value), chart.left - 12, y + 4);
+    }
+    const groupWidth = chart.width / Math.max(1, trendDownloadData.length);
+    const barWidth = Math.min(18, Math.max(8, groupWidth / 7));
+    trendDownloadData.forEach((item, index) => {
+      const groupLeft = chart.left + index * groupWidth;
+      keys.forEach((key, keyIndex) => {
+        const value = Number(item[key] || 0);
+        const barHeight = value / roundedMax * chart.height;
+        const x = groupLeft + groupWidth / 2 + (keyIndex - 1.5) * (barWidth + 5);
+        const y = chart.top + chart.height - barHeight;
+        ctx.fillStyle = colors[keyIndex];
+        ctx.fillRect(x, y, barWidth, Math.max(2, barHeight));
+        ctx.fillStyle = '#475569'; ctx.textAlign = 'center'; ctx.font = '700 11px Arial'; ctx.fillText(String(value), x + barWidth / 2, y - 7);
+      });
+      ctx.fillStyle = '#64748b'; ctx.font = '12px Arial'; ctx.fillText(item.label, groupLeft + groupWidth / 2, chart.top + chart.height + 25);
+    });
+    labels.forEach((label, index) => { const x = 72 + index * 110; ctx.fillStyle = colors[index]; ctx.fillRect(x, 570, 12, 12); ctx.fillStyle = '#475569'; ctx.textAlign = 'left'; ctx.font = '13px Arial'; ctx.fillText(label, x + 20, 581); });
+    const link = document.createElement('a');
+    link.download = 'tren-aktivitas-sistem.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
   const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
   let currentData = null;
   let selectedSiteId = null;

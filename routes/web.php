@@ -12,6 +12,9 @@ use App\Http\Controllers\ItRepairTicketController;
 use App\Http\Controllers\WebMonitoringChecklistController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\EquipmentTransferController;
+use App\Http\Controllers\InkController;
+use App\Http\Controllers\SparepartController;
+use App\Http\Controllers\LicenseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -81,6 +84,22 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipment-transfers/{equipmentTransfer}/print', [EquipmentTransferController::class, 'print'])->name('equipment-transfers.print');
 		Route::get('/equipment-transfers/{equipmentTransfer}', [EquipmentTransferController::class, 'show'])->name('equipment-transfers.show');
 		Route::post('/equipment-transfers/{equipmentTransfer}/complete', [EquipmentTransferController::class, 'complete'])->name('equipment-transfers.complete');
+
+		Route::get('/ink', [InkController::class, 'index'])->name('ink.index');
+		Route::post('/ink/types', [InkController::class, 'storeType'])->name('ink.types.store');
+		Route::put('/ink/types/{inkType}', [InkController::class, 'updateType'])->name('ink.types.update');
+		Route::delete('/ink/types/{inkType}', [InkController::class, 'destroyType'])->name('ink.types.destroy');
+		Route::post('/ink/transactions', [InkController::class, 'storeTransaction'])->name('ink.transactions.store');
+		Route::get('/spareparts', [SparepartController::class, 'index'])->name('spareparts.index');
+		Route::post('/spareparts/types', [SparepartController::class, 'storeType'])->name('spareparts.types.store');
+		Route::put('/spareparts/types/{sparepartType}', [SparepartController::class, 'updateType'])->name('spareparts.types.update');
+		Route::delete('/spareparts/types/{sparepartType}', [SparepartController::class, 'destroyType'])->name('spareparts.types.destroy');
+		Route::post('/spareparts/transactions', [SparepartController::class, 'storeTransaction'])->name('spareparts.transactions.store');
+		Route::get('/licenses', [LicenseController::class, 'index'])->name('licenses.index');
+		Route::post('/licenses/types', [LicenseController::class, 'storeType'])->name('licenses.types.store');
+		Route::put('/licenses/types/{licenseType}', [LicenseController::class, 'updateType'])->name('licenses.types.update');
+		Route::delete('/licenses/types/{licenseType}', [LicenseController::class, 'destroyType'])->name('licenses.types.destroy');
+		Route::post('/licenses/transactions', [LicenseController::class, 'storeTransaction'])->name('licenses.transactions.store');
 
 		// Pelaksanaan perawatan
 		Route::get('/maintenances/checklists', [MaintenanceController::class, 'checklists'])->name('maintenances.checklists');

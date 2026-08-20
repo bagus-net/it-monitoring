@@ -15,7 +15,7 @@
         <input type="password" name="password" class="form-control" required>
     </div>
     <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1">
+        <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1" checked>
         <label class="form-check-label" for="remember">Ingat saya</label>
     </div>
     <button type="submit" class="btn btn-brand w-100">Masuk</button>

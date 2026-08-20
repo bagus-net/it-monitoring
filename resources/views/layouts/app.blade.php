@@ -43,6 +43,10 @@
                 <span class="sidebar-label">Master Data</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Pengaturan Master</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('masters.manufacturers.index') }}">Manufacturers</a></li><li><a class="dropdown-item" href="{{ route('masters.locations.index') }}">Lokasi</a></li><li><a class="dropdown-item" href="{{ route('masters.equipment-types.index') }}">Tipe Peralatan</a></li><li><a class="dropdown-item" href="{{ route('masters.checklist-items.index') }}">Program Perawatan</a></li></ul></div>
                 @endif
+                @if($currentUser && !$currentUser->isEmployee())
+                <span class="sidebar-label">Inventaris &amp; Persediaan</span>
+                <div class="sidebar-dropdown dropdown sidebar-manage-dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="sidebar-ink-icon">KG</span><span>Kelola</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('ink.index') }}"><span class="sidebar-ink-icon">IN</span>Kelola Tinta</a></li><li><a class="dropdown-item" href="{{ route('spareparts.index') }}"><span class="sidebar-ink-icon">SP</span>Kelola Sparepart</a></li><li><a class="dropdown-item" href="{{ route('licenses.index') }}"><span class="sidebar-ink-icon">LC</span>Kelola Lisensi</a></li></ul></div>
+                @endif
                 @if($currentUser && $currentUser->isMaster())
                 <span class="sidebar-label">Pengaturan</span>
                 <a class="sidebar-link" href="{{ route('users.index') }}">Pengaturan User</a>

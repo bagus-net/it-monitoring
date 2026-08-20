@@ -83,6 +83,13 @@ class EquipmentTransferController extends Controller
         return view('equipment_transfers.show', ['transfer' => $equipmentTransfer, 'statuses' => self::STATUSES]);
     }
 
+    public function print(EquipmentTransfer $equipmentTransfer)
+    {
+        $equipmentTransfer->load(['equipment', 'fromUser', 'toUser', 'fromLocation', 'toLocation', 'requester', 'approver', 'completer']);
+
+        return view('equipment_transfers.print', ['transfer' => $equipmentTransfer, 'statuses' => self::STATUSES]);
+    }
+
     public function approve(Request $request, EquipmentTransfer $equipmentTransfer)
     {
         $action = $request->validate(['action' => ['required', Rule::in(['approve', 'reject'])]])['action'];
@@ -111,5 +118,12 @@ class EquipmentTransferController extends Controller
         });
 
         return back()->with('success', 'Serah terima selesai. PIC aktif peralatan sudah diperbarui.');
+    }
+
+    public function destroy(EquipmentTransfer $equipmentTransfer)
+    {
+        $equipmentTransfer->delete();
+
+        return redirect()->route('equipment-transfers.index')->with('success', 'Riwayat mutasi berhasil dihapus.');
     }
 }

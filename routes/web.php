@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipment-transfers', [EquipmentTransferController::class, 'index'])->name('equipment-transfers.index');
 		Route::get('/equipment-transfers/create', [EquipmentTransferController::class, 'create'])->name('equipment-transfers.create');
 		Route::post('/equipment-transfers', [EquipmentTransferController::class, 'store'])->name('equipment-transfers.store');
+		Route::get('/equipment-transfers/{equipmentTransfer}/print', [EquipmentTransferController::class, 'print'])->name('equipment-transfers.print');
 		Route::get('/equipment-transfers/{equipmentTransfer}', [EquipmentTransferController::class, 'show'])->name('equipment-transfers.show');
 		Route::post('/equipment-transfers/{equipmentTransfer}/complete', [EquipmentTransferController::class, 'complete'])->name('equipment-transfers.complete');
 
@@ -133,6 +134,7 @@ Route::middleware('auth')->group(function () {
 	// Khusus Master: menu jadwal, log aktivitas & pengaturan user
 	Route::middleware('role:master')->group(function () {
 		Route::post('/equipment-transfers/{equipmentTransfer}/approve', [EquipmentTransferController::class, 'approve'])->name('equipment-transfers.approve');
+		Route::delete('/equipment-transfers/{equipmentTransfer}', [EquipmentTransferController::class, 'destroy'])->name('equipment-transfers.destroy');
 		Route::post('/it-repair-tickets/{itRepairTicket}/approve', [ItRepairTicketController::class, 'approve'])->name('it-repair-tickets.approve');
 		Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 		Route::get('/reports/activities', [\App\Http\Controllers\ReportController::class, 'activities'])->name('reports.activities');

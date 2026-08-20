@@ -143,10 +143,30 @@ class EquipmentController extends Controller
             'type',
             'manufacturer',
             'assetLocation',
+            'owner',
+        ]);
+        return view('equipments.show', compact('equipment'));
+    }
+
+    public function scan(Equipment $equipment)
+    {
+        $equipment->load([
+            'type',
+            'manufacturer',
+            'assetLocation',
             'maintenanceChecklistEntries.maintenanceChecklist.checklistItem',
             'repairTickets',
         ]);
-        return view('equipments.show', compact('equipment'));
+
+        return view('equipments.scan', compact('equipment'));
+    }
+
+    public function label(Equipment $equipment)
+    {
+        return view('equipments.label', [
+            'equipment' => $equipment,
+            'scanUrl' => rtrim(config('app.equipment_scan_url'), '/') . route('equipments.scan', $equipment, false),
+        ]);
     }
 
     public function edit(Equipment $equipment)

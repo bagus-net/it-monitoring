@@ -7,6 +7,7 @@
     <form method="GET" class="card mb-3 checklist-filter">
         <div class="card-body row g-3 align-items-end">
             <div class="col-md-5"><label class="form-label">Program Perawatan</label><select name="checklist_item_id" class="form-select" required><option value="">-- Pilih Program --</option>@foreach ($items as $item)<option value="{{ $item->id }}" {{ $checklistItemId === $item->id ? 'selected' : '' }}>{{ $item->title }}</option>@endforeach</select></div>
+            @if ($equipmentId)<input type="hidden" name="equipment_id" value="{{ $equipmentId }}">@endif
             <div class="col-md-2"><label class="form-label">Tahun</label><input type="number" name="year" class="form-control" min="2000" max="2100" value="{{ $year }}"></div>
             <div class="col-md-3"><label class="form-label">Bulan</label><select name="month" class="form-select">@foreach ($monthNames as $number => $name)<option value="{{ $number }}" {{ $month === $number ? 'selected' : '' }}>{{ $name }}</option>@endforeach</select></div>
             <div class="col-md-2"><button class="btn btn-outline-primary w-100">Tampilkan</button></div>

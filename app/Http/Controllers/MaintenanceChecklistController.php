@@ -59,12 +59,15 @@ class MaintenanceChecklistController extends Controller
     {
         $items = ChecklistItem::orderBy('title')->get();
         $checklistItemId = $request->integer('checklist_item_id');
+        $equipmentId = $request->integer('equipment_id') ?: null;
         $year = $request->integer('year') ?: (int) date('Y');
         $month = $request->integer('month') ?: (int) date('n');
-        $equipment = $checklistItemId ? $this->scheduledEquipment($checklistItemId, $year, $month) : collect();
+        $equipment = $checklistItemId
+            ? ($equipmentId ? Equipment::whereKey($equipmentId)->get() : $this->scheduledEquipment($checklistItemId, $year, $month))
+            : collect();
         $monthNames = self::MONTH_NAMES;
 
-        return view('maintenance_checklists.create', compact('items', 'checklistItemId', 'year', 'month', 'equipment', 'monthNames'));
+        return view('maintenance_checklists.create', compact('items', 'checklistItemId', 'equipmentId', 'year', 'month', 'equipment', 'monthNames'));
     }
 
     public function store(Request $request)

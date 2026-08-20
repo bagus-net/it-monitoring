@@ -26,6 +26,9 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+// URL ini dibaca dari barcode pada label fisik peralatan.
+Route::get('/equipment-scan/{equipment}', [EquipmentController::class, 'scan'])->name('equipments.scan');
+
 Route::middleware('auth')->group(function () {
 	Route::get('/', fn () => redirect(auth()->user()->isEmployee() ? route('it-repair-tickets.index') : route('dashboard')));
 
@@ -65,6 +68,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipments', [EquipmentController::class, 'index'])->name('equipments.index');
 		Route::get('/equipments/create', [EquipmentController::class, 'create'])->name('equipments.create');
 		Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
+		Route::get('/equipments/{equipment}/label', [EquipmentController::class, 'label'])->name('equipments.label');
 		Route::get('/equipments/{equipment}', [EquipmentController::class, 'show'])->name('equipments.show');
 		Route::get('/equipments/{equipment}/edit', [EquipmentController::class, 'edit'])->name('equipments.edit');
 		Route::put('/equipments/{equipment}', [EquipmentController::class, 'update'])->name('equipments.update');

@@ -30,6 +30,7 @@
 
     <div class="asset-actions">
         <a href="{{ route('equipments.index') }}" class="btn btn-outline-secondary">Kembali</a>
+        <a href="{{ route('equipments.label', $equipment) }}" class="btn btn-outline-dark" target="_blank" rel="noopener">Cetak Label QR</a>
         <a href="{{ route('equipments.edit', $equipment) }}" class="btn btn-brand">Edit Peralatan</a>
     </div>
 

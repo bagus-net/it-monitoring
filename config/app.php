@@ -57,6 +57,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'equipment_scan_url' => env('EQUIPMENT_SCAN_URL', env('APP_URL', 'http://localhost')),
+
     'asset_url' => env('ASSET_URL'),
 
     /*

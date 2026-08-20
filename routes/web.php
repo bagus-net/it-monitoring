@@ -11,6 +11,7 @@ use App\Http\Controllers\ScheduleReportController;
 use App\Http\Controllers\ItRepairTicketController;
 use App\Http\Controllers\WebMonitoringChecklistController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\EquipmentTransferController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -74,6 +75,12 @@ Route::middleware('auth')->group(function () {
 		Route::put('/equipments/{equipment}', [EquipmentController::class, 'update'])->name('equipments.update');
 		Route::delete('/equipments/{equipment}', [EquipmentController::class, 'destroy'])->name('equipments.destroy');
 
+		Route::get('/equipment-transfers', [EquipmentTransferController::class, 'index'])->name('equipment-transfers.index');
+		Route::get('/equipment-transfers/create', [EquipmentTransferController::class, 'create'])->name('equipment-transfers.create');
+		Route::post('/equipment-transfers', [EquipmentTransferController::class, 'store'])->name('equipment-transfers.store');
+		Route::get('/equipment-transfers/{equipmentTransfer}', [EquipmentTransferController::class, 'show'])->name('equipment-transfers.show');
+		Route::post('/equipment-transfers/{equipmentTransfer}/complete', [EquipmentTransferController::class, 'complete'])->name('equipment-transfers.complete');
+
 		// Pelaksanaan perawatan
 		Route::get('/maintenances/checklists', [MaintenanceController::class, 'checklists'])->name('maintenances.checklists');
 		Route::post('/maintenances/logs', [MaintenanceController::class, 'storeLog'])->name('maintenances.store_log');
@@ -125,6 +132,7 @@ Route::middleware('auth')->group(function () {
 
 	// Khusus Master: menu jadwal, log aktivitas & pengaturan user
 	Route::middleware('role:master')->group(function () {
+		Route::post('/equipment-transfers/{equipmentTransfer}/approve', [EquipmentTransferController::class, 'approve'])->name('equipment-transfers.approve');
 		Route::post('/it-repair-tickets/{itRepairTicket}/approve', [ItRepairTicketController::class, 'approve'])->name('it-repair-tickets.approve');
 		Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 		Route::get('/reports/activities', [\App\Http\Controllers\ReportController::class, 'activities'])->name('reports.activities');

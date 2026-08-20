@@ -69,4 +69,9 @@ class Equipment extends Model
     {
         return $this->hasMany(ItRepairTicket::class);
     }
+
+    public function transfers()
+    {
+        return $this->hasMany(EquipmentTransfer::class);
+    }
 }

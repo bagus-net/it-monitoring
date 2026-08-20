@@ -156,6 +156,8 @@ class EquipmentController extends Controller
             'assetLocation',
             'maintenanceChecklistEntries.maintenanceChecklist.checklistItem',
             'repairTickets',
+            'transfers.fromLocation',
+            'transfers.toLocation',
         ]);
 
         return view('equipments.scan', compact('equipment'));

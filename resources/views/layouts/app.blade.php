@@ -28,6 +28,7 @@
                 @if($currentUser && !$currentUser->isEmployee())
                 <a class="sidebar-link" href="{{ route('web-monitoring.index') }}">Web Monitoring</a>
                 <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT / Asset</a>
+                <a class="sidebar-link" href="{{ route('equipment-transfers.index') }}">Mutasi Peralatan</a>
                 @endif
                 <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT / Ticketing</span><span class="ticket-badge-group"><span id="ticketNotificationBadge" class="ticket-notification-badge d-none" title="Tiket open">0</span><span id="ticketProgressBadge" class="ticket-notification-badge badge-progress d-none" title="Tiket sedang dikerjakan">0</span></span></a>
                 @if($currentUser && !$currentUser->isEmployee())

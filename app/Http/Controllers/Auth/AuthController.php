@@ -22,7 +22,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (!Auth::attempt($credentials, false)) {
             throw ValidationException::withMessages([
                 'email' => 'Email atau kata sandi tidak sesuai.',
             ]);
@@ -37,6 +37,7 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->put('authenticated_at', now()->timestamp);
 
         return redirect()->intended($this->homeFor(Auth::user()));
     }

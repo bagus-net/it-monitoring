@@ -15,6 +15,8 @@ use App\Http\Controllers\EquipmentTransferController;
 use App\Http\Controllers\InkController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\NetworkTopologyController;
+use App\Http\Controllers\CctvController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -100,6 +102,20 @@ Route::middleware('auth')->group(function () {
 		Route::put('/licenses/types/{licenseType}', [LicenseController::class, 'updateType'])->name('licenses.types.update');
 		Route::delete('/licenses/types/{licenseType}', [LicenseController::class, 'destroyType'])->name('licenses.types.destroy');
 		Route::post('/licenses/transactions', [LicenseController::class, 'storeTransaction'])->name('licenses.transactions.store');
+		Route::get('/cctv', [CctvController::class, 'index'])->name('cctv.index');
+		Route::post('/cctv', [CctvController::class, 'store'])->name('cctv.store');
+		Route::put('/cctv/{cctv}', [CctvController::class, 'update'])->name('cctv.update');
+		Route::patch('/cctv/{cctv}/toggle-status', [CctvController::class, 'toggleStatus'])->name('cctv.toggle-status');
+		Route::delete('/cctv/{cctv}', [CctvController::class, 'destroy'])->name('cctv.destroy');
+		Route::get('/network-topology', [NetworkTopologyController::class, 'index'])->name('network.topology');
+		Route::post('/network-topology/nodes', [NetworkTopologyController::class, 'storeNode'])->name('network.nodes.store');
+		Route::put('/network-topology/nodes/{networkNode}', [NetworkTopologyController::class, 'updateNode'])->name('network.nodes.update');
+		Route::delete('/network-topology/nodes/{networkNode}', [NetworkTopologyController::class, 'destroyNode'])->name('network.nodes.destroy');
+		Route::post('/network-topology/links', [NetworkTopologyController::class, 'storeLink'])->name('network.links.store');
+		Route::put('/network-topology/links/{networkLink}', [NetworkTopologyController::class, 'updateLink'])->name('network.links.update');
+		Route::delete('/network-topology/links/{networkLink}', [NetworkTopologyController::class, 'destroyLink'])->name('network.links.destroy');
+		Route::post('/network-topology/zones', [NetworkTopologyController::class, 'storeZone'])->name('network.zones.store');
+		Route::delete('/network-topology/zones/{networkZone}', [NetworkTopologyController::class, 'destroyZone'])->name('network.zones.destroy');
 
 		// Pelaksanaan perawatan
 		Route::get('/maintenances/checklists', [MaintenanceController::class, 'checklists'])->name('maintenances.checklists');

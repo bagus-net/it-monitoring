@@ -45,7 +45,11 @@
                 @endif
                 @if($currentUser && !$currentUser->isEmployee())
                 <span class="sidebar-label">Inventaris &amp; Persediaan</span>
-                <div class="sidebar-dropdown dropdown sidebar-manage-dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="sidebar-ink-icon">KG</span><span>Kelola</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('ink.index') }}"><span class="sidebar-ink-icon">IN</span>Kelola Tinta</a></li><li><a class="dropdown-item" href="{{ route('spareparts.index') }}"><span class="sidebar-ink-icon">SP</span>Kelola Sparepart</a></li><li><a class="dropdown-item" href="{{ route('licenses.index') }}"><span class="sidebar-ink-icon">LC</span>Kelola Lisensi</a></li></ul></div>
+                <div class="sidebar-dropdown dropdown sidebar-manage-dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="sidebar-ink-icon">KG</span><span>Kelola</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('ink.index') }}"><span class="sidebar-ink-icon">IN</span>Kelola Tinta</a></li><li><a class="dropdown-item" href="{{ route('spareparts.index') }}"><span class="sidebar-ink-icon">SP</span>Kelola Sparepart</a></li><li><a class="dropdown-item" href="{{ route('licenses.index') }}"><span class="sidebar-ink-icon">LC</span>Kelola Lisensi</a></li><li><a class="dropdown-item" href="{{ route('cctv.index') }}"><span class="sidebar-ink-icon">TV</span>Kelola CCTV</a></li></ul></div>
+                @endif
+                @if($currentUser && !$currentUser->isEmployee())
+                <span class="sidebar-label">Jaringan</span>
+                <a class="sidebar-link sidebar-network-link" href="{{ route('network.topology') }}"><span class="sidebar-ink-icon">NT</span><span>Topologi Jaringan</span></a>
                 @endif
                 @if($currentUser && $currentUser->isMaster())
                 <span class="sidebar-label">Pengaturan</span>

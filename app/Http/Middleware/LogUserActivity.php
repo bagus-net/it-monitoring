@@ -59,6 +59,8 @@ class LogUserActivity
             str_starts_with($routeName, 'ink.') => 'Kelola Tinta',
             str_starts_with($routeName, 'spareparts.') => 'Kelola Sparepart',
             str_starts_with($routeName, 'licenses.') => 'Kelola Lisensi',
+            str_starts_with($routeName, 'network.') => 'Topologi Jaringan',
+            str_starts_with($routeName, 'cctv.') => 'Kelola CCTV',
             str_starts_with($routeName, 'masters.') => 'Master Data',
             str_starts_with($routeName, 'sites.') => 'Web Monitoring',
             default => 'Sistem',

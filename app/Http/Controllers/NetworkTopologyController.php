@@ -18,6 +18,7 @@ class NetworkTopologyController extends Controller
         'switch' => 'Switch',
         'access_point' => 'Access Point',
         'server' => 'Server',
+        'it_equipment' => 'Peralatan IT (Simulasi)',
         'other' => 'Lainnya',
     ];
 

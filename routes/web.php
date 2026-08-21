@@ -107,6 +107,8 @@ Route::middleware('auth')->group(function () {
 		Route::put('/cctv/{cctv}', [CctvController::class, 'update'])->name('cctv.update');
 		Route::patch('/cctv/{cctv}/toggle-status', [CctvController::class, 'toggleStatus'])->name('cctv.toggle-status');
 		Route::delete('/cctv/{cctv}', [CctvController::class, 'destroy'])->name('cctv.destroy');
+		Route::post('/cctv-connections', [CctvController::class, 'storeConnection'])->name('cctv.connections.store');
+		Route::delete('/cctv-connections/{cctvConnection}', [CctvController::class, 'destroyConnection'])->name('cctv.connections.destroy');
 		Route::get('/network-topology', [NetworkTopologyController::class, 'index'])->name('network.topology');
 		Route::post('/network-topology/nodes', [NetworkTopologyController::class, 'storeNode'])->name('network.nodes.store');
 		Route::put('/network-topology/nodes/{networkNode}', [NetworkTopologyController::class, 'updateNode'])->name('network.nodes.update');

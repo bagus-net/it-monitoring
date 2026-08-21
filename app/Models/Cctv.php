@@ -22,4 +22,14 @@ class Cctv extends Model
     {
         return $this->belongsTo(NetworkZone::class);
     }
+
+    public function recorderConnections()
+    {
+        return $this->hasMany(CctvConnection::class, 'recorder_id');
+    }
+
+    public function cameraConnections()
+    {
+        return $this->hasMany(CctvConnection::class, 'camera_id');
+    }
 }

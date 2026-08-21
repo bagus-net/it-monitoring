@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cctv;
+use App\Models\CctvConnection;
 use App\Models\NetworkZone;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,10 +18,27 @@ class CctvController extends Controller
         $status = $request->input('status');
         $zone = $request->input('zone');
         $editing = $request->integer('edit') ? Cctv::find($request->integer('edit')) : null;
-        $cctvs = Cctv::with('networkZone')
+        $cctvs = Cctv::with(['networkZone', 'recorderConnections.camera'])
             ->when($status, fn ($query, $value) => $query->where('status', $value))
             ->when($zone, fn ($query, $value) => $query->where('network_zone_id', $value))
             ->orderBy('name')->paginate($this->resolvePerPage($request))->withQueryString();
+        $previewCctvs = Cctv::with(['networkZone', 'recorderConnections.camera'])->orderBy('network_zone_id')->orderBy('name')->get();
+        $recorders = Cctv::whereIn('camera_type', ['nvr', 'dvr'])->orderBy('name')->get();
+        $cameraOptions = Cctv::whereNotIn('camera_type', ['nvr', 'dvr'])->orderBy('name')->get();
+        $connections = CctvConnection::with(['recorder', 'camera'])->latest()->get();
+        $topologyNodes = $previewCctvs->map(fn ($camera) => [
+            'id' => $camera->id,
+            'name' => $camera->name,
+            'code' => $camera->code,
+            'type' => $camera->camera_type,
+            'status' => $camera->status,
+        ])->values();
+        $topologyLinks = $connections->map(fn ($connection) => [
+            'source' => $connection->recorder_id,
+            'target' => $connection->camera_id,
+            'channel' => $connection->channel,
+            'status' => $connection->status,
+        ])->values();
         $zones = NetworkZone::orderBy('name')->get();
         $summary = [
             'total' => Cctv::count(),
@@ -29,7 +47,7 @@ class CctvController extends Controller
             'zones' => Cctv::whereNotNull('network_zone_id')->distinct('network_zone_id')->count('network_zone_id'),
         ];
         $selectedZone = $zone;
-        return view('cctv.index', compact('cctvs', 'zones', 'editing', 'summary', 'status', 'zone', 'selectedZone'));
+        return view('cctv.index', compact('cctvs', 'previewCctvs', 'topologyNodes', 'topologyLinks', 'recorders', 'cameraOptions', 'connections', 'zones', 'editing', 'summary', 'status', 'zone', 'selectedZone'));
     }
 
     public function store(Request $request)
@@ -60,6 +78,27 @@ class CctvController extends Controller
     {
         $cctv->delete();
         return back()->with('success', 'CCTV berhasil dihapus.');
+    }
+
+    public function storeConnection(Request $request)
+    {
+        $data = $request->validate([
+            'recorder_id' => ['required', 'exists:cctvs,id'],
+            'camera_id' => ['required', 'exists:cctvs,id', 'different:recorder_id'],
+            'channel' => ['nullable', 'string', 'max:50'],
+            'status' => ['required', Rule::in(['connected', 'offline', 'degraded'])],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+        $recorder = Cctv::findOrFail($data['recorder_id']);
+        abort_unless(in_array($recorder->camera_type, ['nvr', 'dvr'], true), 422, 'Perangkat sumber harus NVR atau DVR.');
+        CctvConnection::create($data);
+        return back()->with('success', 'Koneksi NVR/DVR ke kamera berhasil ditambahkan.');
+    }
+
+    public function destroyConnection(CctvConnection $cctvConnection)
+    {
+        $cctvConnection->delete();
+        return back()->with('success', 'Koneksi CCTV berhasil dihapus.');
     }
 
     private function validateCctv(Request $request, ?Cctv $cctv = null): array

@@ -59,16 +59,20 @@
             </nav>
             <div class="sidebar-footer">
                 @auth
-                <div class="sidebar-user"><strong>{{ auth()->user()->name }}</strong><span>{{ auth()->user()->roleLabel() }}</span></div>
                 <a class="sidebar-signature-link" href="{{ route('signature.edit') }}">Tanda Tangan Digital</a>
                 @endauth
                 <button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle">Aktifkan notifikasi tiket</button>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="sidebar-logout">Keluar</button></form>
                 <span>IT Maintenance System</span>
             </div>
         </div>
     </aside>
     <main class="app-main py-4">
+        <div class="app-topbar">
+            @auth
+            <div class="topbar-user"><span class="topbar-user-name">{{ auth()->user()->name }}</span><span class="topbar-user-role">{{ auth()->user()->roleLabel() }}</span></div>
+            <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="topbar-logout">Keluar</button></form>
+            @endauth
+        </div>
         <div class="print-letterhead">
             <img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture">
             <div><strong>PT MULIA GRAND MANUFACTURE</strong><span>IT Monitoring &amp; Maintenance System</span></div>

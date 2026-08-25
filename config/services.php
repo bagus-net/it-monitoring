@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'whatsapp' => [
+        'enabled' => (bool) env('WHATSAPP_NOTIF_ENABLED', false),
+        'api_url' => env('WHATSAPP_API_URL', 'https://api.fonnte.com/send'),
+        'token' => env('WHATSAPP_API_TOKEN'),
+        'targets' => array_filter(array_map('trim', explode(',', (string) env('WHATSAPP_TARGET_NUMBERS')))),
+    ],
+
 ];

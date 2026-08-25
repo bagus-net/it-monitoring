@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use App\Models\ItRepairTicket;
+use App\Services\WhatsappNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -127,7 +128,7 @@ class ItRepairTicketController extends Controller
         return view('it_repair_tickets.create', compact('equipment'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, WhatsappNotificationService $whatsapp)
     {
         $data = $this->validateRequestTicket($request);
         $data['ticket_number'] = $this->nextTicketNumber();
@@ -138,7 +139,8 @@ class ItRepairTicketController extends Controller
         if ($request->hasFile('error_photo')) {
             $data['error_photo_path'] = $request->file('error_photo')->store('repair-ticket-attachments', 'public');
         }
-        ItRepairTicket::create($data);
+        $ticket = ItRepairTicket::create($data);
+        $whatsapp->notifyNewTicket($ticket->load('equipment'));
 
         return redirect()->route('it-repair-tickets.index')->with('success', 'Tiket perbaikan IT berhasil dibuat.');
     }

@@ -31,17 +31,19 @@ class MaintenanceController extends Controller
 
     public function createSchedule()
     {
-        $equipments = Equipment::orderBy('name')->get();
+        $equipments = Equipment::with('type')->orderBy('name')->get();
+        $equipmentsByType = $equipments->groupBy(fn ($equipment) => $equipment->type->name ?? 'Tanpa Tipe')->sortKeys();
         $items = ChecklistItem::orderBy('sort_order')->get();
-        return view('maintenances.create_schedule', compact('equipments','items'));
+        return view('maintenances.create_schedule', compact('equipments', 'equipmentsByType', 'items'));
     }
 
     // new create method to serve `maintenances.create`
     public function create()
     {
-        $equipments = Equipment::orderBy('name')->get();
+        $equipments = Equipment::with('type')->orderBy('name')->get();
+        $equipmentsByType = $equipments->groupBy(fn ($equipment) => $equipment->type->name ?? 'Tanpa Tipe')->sortKeys();
         $items = ChecklistItem::orderBy('sort_order')->get();
-        return view('maintenances.create', compact('equipments','items'));
+        return view('maintenances.create', compact('equipments', 'equipmentsByType', 'items'));
     }
 
     public function storeSchedule(Request $request)

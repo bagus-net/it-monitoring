@@ -18,13 +18,22 @@
         <div class="mb-3">
             <label class="form-label">Peralatan (centang untuk memilih; kosong = semua)</label>
             <div class="mb-2">
-                <input type="checkbox" id="select_all_equipments"> <label for="select_all_equipments">Pilih Semua</label>
+                <input type="checkbox" id="select_all_equipments"> <label for="select_all_equipments">Pilih Semua Peralatan</label>
             </div>
-            <div class="card p-2" style="max-height:220px;overflow:auto">
-                @foreach($equipments as $e)
-                    <div class="form-check">
-                        <input class="form-check-input equipment-checkbox" type="checkbox" name="equipment_ids[]" value="{{ $e->id }}" id="eq{{ $e->id }}">
-                        <label class="form-check-label" for="eq{{ $e->id }}">{{ $e->name }}</label>
+            <div class="card p-2" style="max-height:320px;overflow:auto">
+                @foreach($equipmentsByType as $typeName => $typeEquipments)
+                    @php($typeSlug = \Illuminate\Support\Str::slug($typeName))
+                    <div class="equipment-type-group mb-2">
+                        <div class="form-check border-bottom pb-1 mb-1">
+                            <input class="form-check-input equipment-type-toggle" type="checkbox" data-type-group="{{ $typeSlug }}" id="type_{{ $typeSlug }}">
+                            <label class="form-check-label fw-bold" for="type_{{ $typeSlug }}">Pilih Semua {{ $typeName }} ({{ $typeEquipments->count() }})</label>
+                        </div>
+                        @foreach($typeEquipments as $e)
+                            <div class="form-check ms-3">
+                                <input class="form-check-input equipment-checkbox" data-type-group="{{ $typeSlug }}" type="checkbox" name="equipment_ids[]" value="{{ $e->id }}" id="eq{{ $e->id }}">
+                                <label class="form-check-label" for="eq{{ $e->id }}">{{ $e->name }}</label>
+                            </div>
+                        @endforeach
                     </div>
                 @endforeach
             </div>
@@ -92,6 +101,13 @@
     <script>
         document.getElementById('select_all_equipments').addEventListener('change', function(e){
             document.querySelectorAll('.equipment-checkbox').forEach(cb => cb.checked = e.target.checked);
+            document.querySelectorAll('.equipment-type-toggle').forEach(cb => cb.checked = e.target.checked);
+        });
+        document.querySelectorAll('.equipment-type-toggle').forEach(function(typeToggle){
+            typeToggle.addEventListener('change', function(e){
+                const group = e.target.dataset.typeGroup;
+                document.querySelectorAll('.equipment-checkbox[data-type-group="' + group + '"]').forEach(cb => cb.checked = e.target.checked);
+            });
         });
         document.getElementById('frequency').addEventListener('change', function(e){
             if(e.target.value === 'annual'){

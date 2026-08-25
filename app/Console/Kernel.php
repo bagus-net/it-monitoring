@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('monitor:check')
-            ->everyTenMinutes()
+            ->everyFifteenMinutes()
             ->withoutOverlapping();
     }
 

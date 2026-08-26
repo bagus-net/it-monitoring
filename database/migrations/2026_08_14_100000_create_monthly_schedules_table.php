@@ -19,7 +19,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Unique constraint: one schedule per equipment per month
-            $table->unique(['checklist_item_id', 'equipment_id', 'month', 'year']);
+            // Explicit short name: default generated name exceeds MySQL's 64-char identifier limit
+            $table->unique(['checklist_item_id', 'equipment_id', 'month', 'year'], 'monthly_sched_unique');
         });
     }
 

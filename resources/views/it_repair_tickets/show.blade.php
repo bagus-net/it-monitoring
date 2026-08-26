@@ -46,7 +46,7 @@
 				<h3>Informasi User / Pelapor</h3>
 				<dl>
 					<dt>Peralatan IT</dt><dd>{{ $itRepairTicket->equipment->name ?? '-' }}</dd>
-					<dt>PIC Peralatan</dt><dd>{{ $itRepairTicket->equipment?->owner_name ?: '-' }}</dd>
+					<dt>PIC Peralatan</dt><dd>{{ $itRepairTicket->snapshotOwnerName() ?: '-' }}</dd>
 					<dt>Lokasi</dt><dd>{{ $itRepairTicket->equipment?->assetLocation?->name ?: '-' }}</dd>
 					<dt>Kategori Perbaikan</dt><dd>{{ $itRepairTicket->repair_category === 'software' ? 'Software / Aplikasi' : 'Hardware' }}</dd>
 					<dt>{{ $itRepairTicket->repair_category === 'software' ? 'Aplikasi / Software' : 'Jenis Peralatan' }}</dt><dd>{{ ($itRepairTicket->repair_category === 'software' ? $itRepairTicket->software_name : $itRepairTicket->equipment_category) ?: '-' }}</dd>

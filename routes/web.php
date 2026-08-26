@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
 
 	// Tiket perbaikan IT: semua level boleh mengakses, karyawan hanya melihat tiket peralatannya sendiri
 	Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');	Route::get('/it-repair-tickets', [ItRepairTicketController::class, 'index'])->name('it-repair-tickets.index');
+	Route::get('/equipment-transfers/notifications', [EquipmentTransferController::class, 'notifications'])->name('equipment-transfers.notifications');
 	Route::get('/it-repair-tickets/create', [ItRepairTicketController::class, 'create'])->name('it-repair-tickets.create');
 	Route::post('/it-repair-tickets', [ItRepairTicketController::class, 'store'])->name('it-repair-tickets.store');
 	Route::get('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'show'])->name('it-repair-tickets.show');

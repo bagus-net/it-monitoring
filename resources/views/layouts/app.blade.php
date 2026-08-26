@@ -28,7 +28,7 @@
                 @if($currentUser && !$currentUser->isEmployee())
                 <a class="sidebar-link" href="{{ route('web-monitoring.index') }}">Web Monitoring</a>
                 <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT / Asset</a>
-                <a class="sidebar-link" href="{{ route('equipment-transfers.index') }}">Mutasi Peralatan</a>
+                <a class="sidebar-link sidebar-ticket-link" href="{{ route('equipment-transfers.index') }}"><span>Mutasi Peralatan</span><span class="ticket-badge-group"><span id="transferPendingApprovalBadge" class="ticket-notification-badge d-none" title="Mutasi baru menunggu approve">0</span><span id="transferMyUnfinishedBadge" class="ticket-notification-badge badge-progress d-none" title="Mutasi saya belum selesai">0</span></span></a>
                 @endif
                 <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT / Ticketing</span><span class="ticket-badge-group"><span id="ticketNotificationBadge" class="ticket-notification-badge d-none" title="Tiket open">0</span><span id="ticketProgressBadge" class="ticket-notification-badge badge-progress d-none" title="Tiket sedang dikerjakan">0</span></span></a>
                 @if($currentUser && !$currentUser->isEmployee())
@@ -87,15 +87,22 @@
         @yield('content')
     </main>
     <div id="ticketToast" class="ticket-toast" role="status"><strong>Tiket baru masuk</strong><span id="ticketToastMessage"></span><a href="{{ route('it-repair-tickets.index') }}">Buka tiket</a></div>
+    <div id="transferToast" class="ticket-toast" role="status"><strong>Mutasi baru menunggu approve</strong><span id="transferToastMessage"></span><a href="{{ route('equipment-transfers.index') }}">Buka mutasi</a></div>
     <script>
         const ticketEndpoint = @json(route('it-repair-tickets.notifications'));
+        const transferEndpoint = @json(route('equipment-transfers.notifications'));
         const companyLogoUrl = @json(asset('images/logo-mgm.svg'));
         const companyName = 'PT MULIA GRAND MANUFACTURE';
         const ticketBadge = document.getElementById('ticketNotificationBadge');
         const ticketProgressBadge = document.getElementById('ticketProgressBadge');
+        const transferPendingApprovalBadge = document.getElementById('transferPendingApprovalBadge');
+        const transferMyUnfinishedBadge = document.getElementById('transferMyUnfinishedBadge');
         const ticketToast = document.getElementById('ticketToast');
         const ticketToastMessage = document.getElementById('ticketToastMessage');
+        const transferToast = document.getElementById('transferToast');
+        const transferToastMessage = document.getElementById('transferToastMessage');
         const storedTicketIdKey = 'it-monitoring-last-ticket-id';
+        const storedTransferIdKey = 'it-monitoring-last-transfer-id';
 
         function updateTicketNotifications() {
             fetch(ticketEndpoint, { headers: { Accept: 'application/json' } })
@@ -123,12 +130,43 @@
                 .catch(() => {});
         }
 
+        function updateTransferNotifications() {
+            if (!transferPendingApprovalBadge || !transferMyUnfinishedBadge) return;
+            fetch(transferEndpoint, { headers: { Accept: 'application/json' } })
+                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(data => {
+                    const pendingCount = Number(data.pendingApprovalCount || 0);
+                    transferPendingApprovalBadge.textContent = pendingCount;
+                    transferPendingApprovalBadge.classList.toggle('d-none', pendingCount === 0);
+
+                    const myUnfinishedCount = Number(data.myUnfinishedCount || 0);
+                    transferMyUnfinishedBadge.textContent = myUnfinishedCount;
+                    transferMyUnfinishedBadge.classList.toggle('d-none', myUnfinishedCount === 0);
+
+                    if (!data.latestPendingApproval) return;
+                    const previousId = sessionStorage.getItem(storedTransferIdKey);
+                    if (previousId && Number(data.latestPendingApproval.id) > Number(previousId)) {
+                        const message = (data.latestPendingApproval.equipment || 'Peralatan') + ' - menunggu persetujuan';
+                        transferToastMessage.textContent = message;
+                        transferToast.classList.add('show');
+                        setTimeout(() => transferToast.classList.remove('show'), 7000);
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Mutasi Peralatan Baru', { body: message });
+                        }
+                    }
+                    sessionStorage.setItem(storedTransferIdKey, data.latestPendingApproval.id);
+                })
+                .catch(() => {});
+        }
+
         document.getElementById('enableTicketAlerts').addEventListener('click', () => {
             if (!('Notification' in window)) return;
             Notification.requestPermission();
         });
         updateTicketNotifications();
+        updateTransferNotifications();
         setInterval(updateTicketNotifications, 20000);
+        setInterval(updateTransferNotifications, 20000);
 
         function tableSortValue(cell) {
             const primaryAssetName = cell.querySelector?.('.asset-cell strong')?.textContent;

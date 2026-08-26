@@ -13,6 +13,9 @@ class ItRepairTicket extends Model
         'ticket_number',
         'user_id',
         'equipment_id',
+        'equipment_owner_user_id',
+        'equipment_owner_name',
+        'equipment_owner_department',
         'repair_category',
         'software_name',
         'equipment_category',
@@ -60,5 +63,10 @@ class ItRepairTicket extends Model
     public function equipment()
     {
         return $this->belongsTo(Equipment::class);
+    }
+
+    public function snapshotOwnerName(): ?string
+    {
+        return trim((string) ($this->equipment_owner_name ?: ($this->equipment?->owner_name ?: $this->equipment?->owner?->name ?: null)));
     }
 }

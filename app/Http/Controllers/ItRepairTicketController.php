@@ -109,7 +109,7 @@ class ItRepairTicketController extends Controller
         $categories = ItRepairTicket::whereNotNull('equipment_category')->distinct()->orderBy('equipment_category')->pluck('equipment_category');
         $locations = \App\Models\Location::orderBy('name')->get(['id', 'name']);
         $myEquipments = auth()->user()->isEmployee()
-            ? Equipment::with(['type', 'manufacturer', 'assetLocation'])
+            ? Equipment::with(['type', 'manufacturer', 'assetLocation', 'owner'])
                 ->where(fn ($query) => $query->where('user_id', auth()->id())->orWhere('owner_name', auth()->user()->name))
                 ->orderBy('name')
                 ->get()
@@ -136,6 +136,14 @@ class ItRepairTicketController extends Controller
         $data['user_id'] = auth()->id();
         $data['reported_by'] = $data['reported_by'] ?? auth()->user()->name;
         $data['department'] = $data['department'] ?? auth()->user()->department;
+
+        $equipment = $request->filled('equipment_id') ? Equipment::find($request->equipment_id) : null;
+        if ($equipment) {
+            $data['equipment_owner_user_id'] = $equipment->user_id;
+            $data['equipment_owner_name'] = $equipment->owner_name ?: $equipment->owner?->name;
+            $data['equipment_owner_department'] = $equipment->department ?: $equipment->owner?->department;
+        }
+
         if ($request->hasFile('error_photo')) {
             $data['error_photo_path'] = $request->file('error_photo')->store('repair-ticket-attachments', 'public');
         }

@@ -6,6 +6,7 @@ use App\Models\Equipment;
 use App\Models\EquipmentTransfer;
 use App\Models\Location;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,39 @@ class EquipmentTransferController extends Controller
         'rejected' => 'Ditolak',
         'cancelled' => 'Dibatalkan',
     ];
+
+    public function notifications(): JsonResponse
+    {
+        $user = auth()->user();
+
+        $latestPendingApproval = EquipmentTransfer::with('equipment')
+            ->where('status', 'pending_approval')
+            ->latest('created_at')
+            ->first();
+
+        $latestMyUnfinished = EquipmentTransfer::with('equipment')
+            ->where('requested_by', $user?->id)
+            ->whereIn('status', ['pending_approval', 'approved'])
+            ->latest('created_at')
+            ->first();
+
+        return response()->json([
+            'pendingApprovalCount' => EquipmentTransfer::where('status', 'pending_approval')->count(),
+            'myUnfinishedCount' => EquipmentTransfer::where('requested_by', $user?->id)
+                ->whereIn('status', ['pending_approval', 'approved'])
+                ->count(),
+            'latestPendingApproval' => $latestPendingApproval ? [
+                'id' => $latestPendingApproval->id,
+                'equipment' => $latestPendingApproval->equipment->name ?? 'Peralatan tidak ditemukan',
+                'status' => $latestPendingApproval->status,
+            ] : null,
+            'latestMyUnfinished' => $latestMyUnfinished ? [
+                'id' => $latestMyUnfinished->id,
+                'equipment' => $latestMyUnfinished->equipment->name ?? 'Peralatan tidak ditemukan',
+                'status' => $latestMyUnfinished->status,
+            ] : null,
+        ]);
+    }
 
     public function index(Request $request)
     {

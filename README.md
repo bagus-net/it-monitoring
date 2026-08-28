@@ -1,41 +1,103 @@
-# IT Monitoring Dashboard — Laravel 8
+# IT Monitoring & Maintenance System
 
-Sistem monitoring website (status UP/DOWN + response time) berbasis Laravel 8, dengan pengecekan terjadwal via scheduler dan dashboard real-time (AJAX + Chart.js).
+Sistem operasional internal PT Mulia Grand Manufacture untuk mengelola peralatan IT, monitoring website, perbaikan, jadwal perawatan, checklist, persediaan, dokumen ISO, inovasi, dan limbah IT.
 
-## Struktur file yang disertakan
+## Teknologi
 
+- PHP 8.1+
+- Laravel 10
+- MySQL atau MariaDB
+- Bootstrap 5
+- Vite
+- Laragon direkomendasikan untuk pengembangan lokal Windows
+
+## Fitur
+
+### Aset dan Peralatan IT
+
+- Data aset, tipe, manufacturer, lokasi, PIC, departemen, kondisi, dan kritikalitas.
+- Detail aset berisi user pemilik, riwayat perawatan, mutasi, serta tiket perbaikan.
+- Cetak label QR dan unduh label aset dalam format JPEG.
+- Mutasi peralatan dengan proses persetujuan dan riwayat perpindahan.
+
+### Tiket Perbaikan IT
+
+- Tiket hardware dan software, prioritas, status, lampiran foto, tindakan perbaikan, dan persetujuan.
+- Karyawan hanya melihat tiket serta peralatan yang dimilikinya.
+- Pencarian cepat peralatan berdasarkan kode/inisial aset, nama peralatan, PIC, atau lokasi.
+- Notifikasi polling untuk tiket baru dan tiket proses.
+
+### Monitoring dan Perawatan
+
+- Monitoring website dengan status layanan dan response time.
+- Checklist Web Monitoring untuk pemeriksaan keamanan dan fungsional.
+- Jadwal perawatan tahunan dan bulanan per program/peralatan.
+- Cetak jadwal perawatan bulanan sebagai kalender tanggal.
+- Pelaksanaan checklist dibandingkan dengan Jadwal Bulanan untuk menunjukkan kelengkapan peralatan dan pekerjaan yang belum diperiksa.
+- Tanggal Jadwal tampil pada form buat, edit, detail checklist, dan riwayat perawatan aset.
+
+### Persediaan dan Jaringan
+
+- Stok tinta, sparepart, lisensi, dan CCTV.
+- Riwayat stok masuk/keluar tinta.
+- Topologi jaringan, node, link, dan zona.
+
+### Inovasi IT
+
+- Catat inovasi, implementasi, tanggal, dan keterangan.
+- Unggah paper pendukung dalam format PDF, DOC, atau DOCX.
+
+### Limbah IT dan Limbah B3
+
+- Alur Box/Batch: buat box terlebih dahulu, kemudian tambah limbah harian ke batch tersebut.
+- Kode box dan kode limbah dibuat otomatis.
+- Mendukung botol tinta bekas, sisa tinta, limbah cleaning printer, cartridge/toner, baterai, kabel, dan komponen elektronik.
+- Status box terbuka, siap diserahkan, atau sudah diserahkan ke Limbah B3.
+- Cetak Berita Acara Serah Terima setelah batch berstatus sudah diserahkan ke Limbah B3.
+
+### Dokumen ISO
+
+- Ruang berbagi dokumen internal dengan izin pengguna per dokumen.
+- Master/Admin IT memilih penerima; penerima hanya dapat melihat serta mengunduh dokumen yang dibagikan kepadanya.
+- File disimpan privat dan dilindungi pemeriksaan akses server.
+- Mendukung PDF, Word, Excel, dan PowerPoint hingga 20 MB.
+- Preview inline untuk PDF, XLS, dan XLSX.
+- Nomor dokumen otomatis, kategori, revisi, tanggal, dan deskripsi.
+
+### User dan Keamanan
+
+- Peran `Master`, `Admin IT`, dan `User / Karyawan`.
+- Profil mandiri untuk mengganti foto profil serta password.
+- Avatar default perusahaan jika belum ada foto profil.
+- Detail user menampilkan peralatan yang ditugaskan dan Master dapat melepaskan aset dari user.
+- Privacy Policy internal.
+
+### Sampah Data
+
+Soft delete diterapkan pada Peralatan IT, User, Checklist Perawatan, Inovasi IT, Dokumen ISO, Limbah IT, dan Box Limbah.
+
+- Data terhapus masuk ke `Pengaturan > Trash`.
+- Master dapat memulihkan data atau menghapusnya permanen.
+- File foto, paper, dan dokumen hanya dihapus pada penghapusan permanen.
+
+## Hak Akses
+
+| Peran | Akses utama |
+| --- | --- |
+| Master | Seluruh fitur, pengaturan user, jadwal, persetujuan, log aktivitas, dan Trash. |
+| Admin IT | Operasional IT, aset, tiket, checklist, stok, inovasi, limbah, dan Dokumen ISO. |
+| User / Karyawan | Tiket/peralatan sendiri, Dokumen ISO yang dibagikan, profil, dan tanda tangan digital. |
+
+## Instalasi Lokal
+
+1. Siapkan PHP 8.1+, Composer, Node.js, dan MySQL/MariaDB.
+2. Buat file environment:
+
+```powershell
+Copy-Item .env.example .env
 ```
-app/Console/Commands/CheckSites.php
-app/Console/Kernel.php
-app/Http/Controllers/DashboardController.php
-app/Http/Controllers/SiteController.php
-app/Models/Site.php
-app/Models/MonitoringLog.php
-app/Services/SiteMonitorService.php
-database/migrations/2026_08_13_000001_create_sites_table.php
-database/migrations/2026_08_13_000002_create_monitoring_logs_table.php
-resources/views/dashboard.blade.php
-routes/web.php
-```
 
-Semua file di atas didesain untuk **ditempel ke dalam project Laravel 8 yang sudah ada**, bukan project yang berdiri sendiri — jadi kamu perlu membuat project Laravel kosong dulu.
-
-## 1. Buat project Laravel 8
-
-```bash
-composer create-project laravel/laravel:^8.54 it-monitoring
-cd it-monitoring
-```
-
-> Catatan: gunakan `^8.54` (bukan sekadar `^8.0`) kalau kamu menjalankan **PHP 8.1**, karena dukungan resmi PHP 8.1 baru masuk di Laravel 8.54. Cek versi PHP-mu dengan `php -v` dulu.
-
-## 2. Salin file dari paket ini
-
-Salin seluruh isi folder `app/`, `database/`, `resources/`, dan `routes/` dari paket ini ke root project Laravel-mu, **timpa file yang sudah ada** (khususnya `app/Console/Kernel.php` dan `routes/web.php`, karena keduanya sudah diisi lengkap termasuk kode bawaan yang perlu ada).
-
-## 3. Konfigurasi database
-
-Edit `.env`:
+1. Atur koneksi database pada `.env`:
 
 ```env
 DB_CONNECTION=mysql
@@ -46,44 +108,69 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Buat database `it_monitoring` di MySQL/MariaDB-mu (atau ganti ke `sqlite` kalau mau lebih ringan — cukup `DB_CONNECTION=sqlite` dan buat file `database/database.sqlite` kosong).
+1. Instal dependensi dan siapkan aplikasi:
 
-## 4. Migrasi & jalankan
-
-```bash
+```powershell
+composer install
+npm install
+php artisan key:generate
+php artisan storage:link
 php artisan migrate
+```
+
+1. Jalankan aplikasi:
+
+```powershell
 php artisan serve
+npm run dev
 ```
 
-Buka `http://127.0.0.1:8000` — dashboard langsung tampil. Tambahkan URL yang ingin dipantau lewat form di halaman, lalu klik **Cek Sekarang** untuk pengecekan pertama.
+Untuk Laragon, aplikasi dapat dibuka melalui virtual host lokal, misalnya `http://it-monitoring.test`.
 
-## 5. Aktifkan pengecekan otomatis (scheduler)
+## Scheduler Monitoring
 
-Laravel scheduler butuh satu entri cron di server (bukan banyak cron per-tugas):
+Di server, jalankan Laravel Scheduler setiap menit:
 
+```text
+* * * * * cd /path/ke/it-monitoring && php artisan schedule:run >> /dev/null 2>&1
 ```
-* * * * * cd /path/ke/project && php artisan schedule:run >> /dev/null 2>&1
-```
 
-Tambahkan baris itu ke crontab server (`crontab -e`). Setelah itu, `monitor:check` akan berjalan otomatis setiap 5 menit sesuai jadwal di `app/Console/Kernel.php` (bisa diubah ke `everyMinute()`, `everyTenMinutes()`, dst).
+Untuk pengembangan lokal:
 
-Untuk development lokal tanpa cron, kamu bisa jalankan manual di terminal terpisah:
-
-```bash
+```powershell
 php artisan schedule:work
 ```
 
-## Catatan teknis & batasan
+## Pengujian
 
-- Response time diukur dari server tempat Laravel berjalan (bukan dari browser pengguna), jadi cocok untuk cek ketersediaan, bukan pengukuran latensi sisi pengguna akhir.
-- Situs yang butuh login atau memblokir request non-browser bisa terbaca "DOWN" meski sebenarnya online — batasan umum monitoring berbasis HTTP client.
-- `SiteMonitorService::check()` memakai `Http::timeout(10)` — naikkan kalau kamu memantau situs yang lambat tapi valid.
-- Untuk performa lebih baik saat jumlah situs banyak, jalankan `monitor:check` di queue (`Http::async()` atau dispatch job per-situs) alih-alih sinkron — bisa saya bantu ubah kalau perlu.
+```powershell
+php artisan test
+```
 
-## Ide pengembangan lanjutan
+Database test harus berbeda dari database pengembangan. Konfigurasi PHPUnit proyek menggunakan database MySQL khusus `it_health_testing`; jangan menjalankan test yang memakai `RefreshDatabase` terhadap database aktif.
 
-- Notifikasi email/Slack/Telegram saat status berubah jadi DOWN (tambahkan `Notification`/`Mail` di `SiteMonitorService::check()`).
-- Autentikasi (Laravel Breeze/Jetstream) supaya dashboard tidak publik.
-- Threshold response time untuk menandai situs "lambat".
-- Laporan uptime mingguan/bulanan (export PDF/Excel).
-- Multi-user dengan grup situs per tim.
+## Struktur Penting
+
+```text
+app/Http/Controllers/     Controller aplikasi
+app/Models/               Model Eloquent
+app/Services/             Site monitor dan notifikasi WhatsApp
+database/migrations/      Struktur database
+resources/views/          Blade views
+routes/web.php            Rute web
+public/images/            Logo MGM dan avatar default
+```
+
+## Keamanan
+
+- Dokumen ISO tersimpan privat dan endpoint preview/unduh selalu memeriksa izin pengguna.
+- Password memakai hashing bawaan Laravel.
+- Soft delete memberi kesempatan pemulihan sebelum data serta file dihapus permanen.
+
+## Identitas
+
+PT Mulia Grand Manufacture
+
+IT Monitoring & Maintenance System
+
+Dibuat oleh ITMGM 2026.

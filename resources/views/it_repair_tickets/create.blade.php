@@ -6,7 +6,7 @@
 	@if($errors->any())<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 	<form method="POST" action="{{ route('it-repair-tickets.store') }}" enctype="multipart/form-data">@csrf
 		<div class="card repair-form"><div class="card-header">FORM TIKET USER - PERMINTAAN PERBAIKAN IT</div><div class="card-body"><div class="row g-3">
-			<div class="col-md-6"><label class="form-label">Peralatan IT</label><select name="equipment_id" class="form-select"><option value="">-- Pilih Peralatan --</option>@foreach($equipment as $item)<option value="{{ $item->id }}" {{ (string) old('equipment_id') === (string) $item->id ? 'selected' : '' }}>{{ $item->name }} - {{ $item->owner_name ?: 'PIC belum diisi' }} - {{ $item->assetLocation?->name ?: ($item->getRawOriginal('location') ?: 'Lokasi belum diisi') }}</option>@endforeach</select></div>
+			<div class="col-md-6"><label class="form-label">Peralatan IT</label><input id="equipmentSearch" type="search" class="form-control mb-2" placeholder="Ketik kode aset, nama peralatan, atau nama PIC..." autocomplete="off"><select id="equipmentSelect" name="equipment_id" class="form-select"><option value="">-- Pilih Peralatan --</option>@foreach($equipment as $item)<option value="{{ $item->id }}" data-search="{{ strtolower($item->name . ' ' . ($item->asset_tag ?? '') . ' ' . ($item->owner_name ?? '') . ' ' . ($item->assetLocation?->name ?? $item->getRawOriginal('location') ?? '')) }}" {{ (string) old('equipment_id') === (string) $item->id ? 'selected' : '' }}>{{ $item->name }} - {{ $item->owner_name ?: 'PIC belum diisi' }} - {{ $item->assetLocation?->name ?: ($item->getRawOriginal('location') ?: 'Lokasi belum diisi') }}</option>@endforeach</select><small id="equipmentSearchHint" class="form-text">Cari menggunakan inisial atau nama peralatan dan PIC.</small></div>
 			<div class="col-md-3"><label class="form-label">Kategori Perbaikan</label><select id="repairCategory" name="repair_category" class="form-select" required><option value="hardware" {{ old('repair_category', 'hardware') === 'hardware' ? 'selected' : '' }}>Hardware</option><option value="software" {{ old('repair_category') === 'software' ? 'selected' : '' }}>Software / Aplikasi</option></select></div>
 			<div class="col-md-3" id="hardwareCategoryWrap"><label class="form-label">Jenis Peralatan</label><select id="equipmentCategory" name="equipment_category" class="form-select"><option value="">-- Pilih Jenis --</option>@foreach(['Komputer','Laptop','Printer','Monitor','Keyboard','Mouse','Jaringan / Router','CCTV','Proyektor','Scanner','UPS','Server','CMS / ERP','Lainnya'] as $category)<option value="{{ $category }}" {{ old('equipment_category') === $category ? 'selected' : '' }}>{{ $category }}</option>@endforeach</select></div>
 			<div class="col-md-3 d-none" id="softwareCategoryWrap"><label class="form-label">Aplikasi / Software</label><select id="softwareName" name="software_name" class="form-select"><option value="">-- Pilih Aplikasi --</option>@foreach(['Microsoft Office','Aplikasi Design','Sistem Operasi','Browser / Internet','Email / Outlook','Antivirus','CMS / ERP','Aplikasi Akuntansi','Aplikasi Absensi','Aplikasi Gudang','Driver / Utility','Aplikasi Lainnya'] as $software)<option value="{{ $software }}" {{ old('software_name') === $software ? 'selected' : '' }}>{{ $software }}</option>@endforeach</select></div>
@@ -56,6 +56,22 @@ const hardwareWrap = document.getElementById('hardwareCategoryWrap');
 const softwareWrap = document.getElementById('softwareCategoryWrap');
 const errorInput = document.getElementById('errorType');
 const previousError = @json(old('error_type'));
+const equipmentSearch = document.getElementById('equipmentSearch');
+const equipmentSelect = document.getElementById('equipmentSelect');
+const equipmentSearchHint = document.getElementById('equipmentSearchHint');
+const equipmentOptions = equipmentSelect ? Array.from(equipmentSelect.options).slice(1) : [];
+function filterEquipmentOptions() {
+	const keyword = equipmentSearch.value.trim().toLowerCase();
+	let matches = 0;
+	equipmentOptions.forEach(option => {
+		const match = !keyword || option.dataset.search.includes(keyword);
+		option.hidden = !match;
+		option.disabled = !match;
+		if (match) matches += 1;
+	});
+	equipmentSearchHint.textContent = keyword ? matches + ' peralatan ditemukan.' : 'Cari menggunakan inisial atau nama peralatan dan PIC.';
+}
+equipmentSearch?.addEventListener('input', filterEquipmentOptions);
 function isSoftware() {
 	return repairCategoryInput.value === 'software';
 }

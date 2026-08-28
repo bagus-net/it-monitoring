@@ -46,6 +46,13 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(User $user)
+    {
+        $user->load(['equipments.type', 'equipments.assetLocation', 'equipments.manufacturer']);
+
+        return view('users.show', compact('user'));
+    }
+
     public function store(Request $request)
     {
         $data = $this->validateUser($request);
@@ -100,12 +107,9 @@ class UserController extends Controller
         }
 
         $user->equipments()->update(['user_id' => null]);
-        if ($user->profile_photo_path) {
-            Storage::disk('public')->delete($user->profile_photo_path);
-        }
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('users.index')->with('success', 'User dipindahkan ke Sampah Data.');
     }
 
     private function validateUser(Request $request, ?User $user = null): array

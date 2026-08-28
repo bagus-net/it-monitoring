@@ -245,10 +245,7 @@ class EquipmentController extends Controller
 
     public function destroy(Equipment $equipment)
     {
-        if ($equipment->photo_path) {
-            Storage::disk('public')->delete($equipment->photo_path);
-        }
         $equipment->delete();
-        return redirect()->route('equipments.index')->with('success','Equipment deleted');
+        return redirect()->route('equipments.index')->with('success', 'Peralatan dipindahkan ke Sampah Data.');
     }
 }

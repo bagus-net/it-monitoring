@@ -61,15 +61,18 @@
                 <span class="sidebar-label">Pengaturan</span>
                 <a class="sidebar-link" href="{{ route('users.index') }}">Pengaturan User</a>
                 <a class="sidebar-link" href="{{ route('activity-logs.index') }}">Log Aktivitas User</a>
+                <a class="sidebar-link" href="{{ route('recycle-bin.index') }}">Trash</a>
                 @endif
             </nav>
             <div class="sidebar-footer">
                 @auth
                 <a class="sidebar-signature-link" href="{{ route('profile.show') }}">Profil Saya</a>
                 <a class="sidebar-signature-link" href="{{ route('signature.edit') }}">Tanda Tangan Digital</a>
+                <a class="sidebar-signature-link" href="{{ route('privacy-policy') }}">Privacy Policy</a>
                 @endauth
                 <button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle">Aktifkan notifikasi tiket</button>
                 <span>IT Maintenance System</span>
+                <span>Dibuat oleh ITMGM 2026</span>
             </div>
         </div>
     </aside>
@@ -92,6 +95,7 @@
             <div class="container-fluid app-content"><div class="alert alert-danger">{{ session('error') }}</div></div>
         @endif
         @yield('content')
+        <footer class="app-footer">Dibuat oleh ITMGM 2026</footer>
     </main>
     <div id="ticketToast" class="ticket-toast" role="status"><strong>Tiket baru masuk</strong><span id="ticketToastMessage"></span><a href="{{ route('it-repair-tickets.index') }}">Buka tiket</a></div>
     <div id="transferToast" class="ticket-toast" role="status"><strong>Mutasi baru menunggu approve</strong><span id="transferToastMessage"></span><a href="{{ route('equipment-transfers.index') }}">Buka mutasi</a></div>

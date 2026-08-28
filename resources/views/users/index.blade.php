@@ -45,6 +45,7 @@
                                 <td>{{ $item->equipments_count }} unit</td>
                                 <td>{!! $item->is_active ? '<span class="role-badge role-active">Aktif</span>' : '<span class="role-badge role-inactive">Nonaktif</span>' !!}</td>
                                 <td class="text-nowrap">
+                                    <a href="{{ route('users.show', $item) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
                                     <a href="{{ route('users.edit', $item) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                                     <form action="{{ route('users.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus user ini?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Hapus</button></form>
                                 </td>

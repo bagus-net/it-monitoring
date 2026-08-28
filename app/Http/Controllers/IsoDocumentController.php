@@ -122,10 +122,9 @@ class IsoDocumentController extends Controller
     public function destroy(Request $request, IsoDocument $isoDocument)
     {
         $this->authorizeManage($request);
-        Storage::delete($isoDocument->file_path);
         $isoDocument->delete();
 
-        return redirect()->route('iso-documents.index')->with('success', 'Dokumen ISO berhasil dihapus.');
+        return redirect()->route('iso-documents.index')->with('success', 'Dokumen ISO dipindahkan ke Sampah Data.');
     }
 
     private function validateDocument(Request $request, bool $requireFile): array

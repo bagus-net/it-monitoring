@@ -73,12 +73,9 @@ class InnovationController extends Controller
 
     public function destroy(Innovation $innovation)
     {
-        if ($innovation->paper_path) {
-            Storage::disk('public')->delete($innovation->paper_path);
-        }
         $innovation->delete();
 
-        return redirect()->route('innovations.index')->with('success', 'Inovasi IT berhasil dihapus.');
+        return redirect()->route('innovations.index')->with('success', 'Inovasi IT dipindahkan ke Sampah Data.');
     }
 
     private function validateInnovation(Request $request): array

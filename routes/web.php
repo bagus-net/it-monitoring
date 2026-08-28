@@ -21,6 +21,7 @@ use App\Http\Controllers\InnovationController;
 use App\Http\Controllers\ItWasteController;
 use App\Http\Controllers\IsoDocumentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecycleBinController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +51,7 @@ Route::middleware('auth')->group(function () {
 	Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
 	Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
 	Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+	Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 
 	// Tiket perbaikan IT: semua level boleh mengakses, karyawan hanya melihat tiket peralatannya sendiri
 	Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');	Route::get('/it-repair-tickets', [ItRepairTicketController::class, 'index'])->name('it-repair-tickets.index');
@@ -193,6 +195,9 @@ Route::middleware('auth')->group(function () {
 
 	// Khusus Master: menu jadwal, log aktivitas & pengaturan user
 	Route::middleware('role:master')->group(function () {
+		Route::get('/recycle-bin', [RecycleBinController::class, 'index'])->name('recycle-bin.index');
+		Route::post('/recycle-bin/{type}/{id}/restore', [RecycleBinController::class, 'restore'])->name('recycle-bin.restore');
+		Route::delete('/recycle-bin/{type}/{id}', [RecycleBinController::class, 'forceDelete'])->name('recycle-bin.force-delete');
 		Route::post('/equipment-transfers/{equipmentTransfer}/approve', [EquipmentTransferController::class, 'approve'])->name('equipment-transfers.approve');
 		Route::delete('/equipment-transfers/{equipmentTransfer}', [EquipmentTransferController::class, 'destroy'])->name('equipment-transfers.destroy');
 		Route::post('/it-repair-tickets/{itRepairTicket}/approve', [ItRepairTicketController::class, 'approve'])->name('it-repair-tickets.approve');
@@ -202,6 +207,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 		Route::get('/users/create', [\App\Http\Controllers\UserController::class, 'create'])->name('users.create');
 		Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+		Route::get('/users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
 		Route::get('/users/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
 		Route::put('/users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
 		Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');

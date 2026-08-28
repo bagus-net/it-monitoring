@@ -6,11 +6,24 @@ use App\Models\MaintenanceSchedule;
 use App\Models\MaintenanceLog;
 use App\Models\ChecklistItem;
 use App\Models\Equipment;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class MaintenanceController extends Controller
 {
-    public function schedules()
+    private const MONTH_NAMES_SHORT = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ];
+
+    private const CATEGORY_ORDER = [
+        'Perawatan Software' => 1,
+        'Perawatan Hardware' => 2,
+        'Perawatan Networking' => 3,
+    ];
+
+    public function schedules(Request $request)
     {
         $ids = MaintenanceSchedule::select('checklist_item_id')->groupBy('checklist_item_id')->pluck('checklist_item_id')->toArray();
         $groups = [];
@@ -26,7 +39,72 @@ class MaintenanceController extends Controller
                 ];
             }
         }
-        return view('maintenances.schedules', compact('groups'));
+
+        usort($groups, function ($a, $b) {
+            $categoryA = $a['item']->category ?? 'Lainnya';
+            $categoryB = $b['item']->category ?? 'Lainnya';
+            $orderA = self::CATEGORY_ORDER[$categoryA] ?? 99;
+            $orderB = self::CATEGORY_ORDER[$categoryB] ?? 99;
+
+            if ($orderA !== $orderB) {
+                return $orderA <=> $orderB;
+            }
+
+            return (($a['item']->sort_order ?? 0) <=> ($b['item']->sort_order ?? 0));
+        });
+
+        // Opsi periode & fitur untuk cetak Jadwal Perawatan IT tahunan
+        $monthNamesShort = self::MONTH_NAMES_SHORT;
+        $availableYears = MaintenanceSchedule::where('frequency', 'annual')->distinct()->orderByDesc('year')->pluck('year');
+        $printYear = (int) $request->input('print_year', $availableYears->first() ?? now()->year);
+
+        $allItems = ChecklistItem::orderBy('sort_order')->get()->sortBy(function ($item) {
+            $category = $item->category ?? 'Lainnya';
+            return ((self::CATEGORY_ORDER[$category] ?? 99) * 1000) + ($item->sort_order ?? 0);
+        })->values();
+        $selectedItemIds = array_map('intval', (array) $request->input('print_items', $allItems->pluck('id')->all()));
+
+        $weeksByItem = [];
+        MaintenanceSchedule::where('frequency', 'annual')
+            ->where('year', $printYear)
+            ->whereIn('checklist_item_id', $selectedItemIds)
+            ->get(['checklist_item_id', 'month', 'week_of_month'])
+            ->each(function ($row) use (&$weeksByItem) {
+                $months = $row->month ? [(int) $row->month] : range(1, 12);
+                $weeks = $row->week_of_month ? [(int) $row->week_of_month] : range(1, 4);
+                foreach ($months as $month) {
+                    foreach ($weeks as $week) {
+                        $weeksByItem[$row->checklist_item_id][$month][$week] = true;
+                    }
+                }
+            });
+
+        $printCategories = $allItems->whereIn('id', $selectedItemIds)
+            ->groupBy(fn ($item) => $item->category ?: 'Lainnya');
+
+        $reporterUser = User::where(function ($query) {
+            $query->where('name', 'like', '%bagus%')
+                ->orWhere('name', 'like', '%admin it%')
+                ->orWhere('name', 'like', '%adminit%');
+        })->first();
+
+        $acknowledgerUser = User::where('name', 'like', '%arifin%')->first();
+
+        $signatureNames = [
+            'reporter' => $reporterUser?->name ?? 'Admin IT / Bagus',
+            'acknowledger' => $acknowledgerUser?->name ?? 'Arifin',
+        ];
+
+        $signatures = [
+            'reporter' => $reporterUser,
+            'acknowledger' => $acknowledgerUser,
+        ];
+
+        return view('maintenances.schedules', compact(
+            'groups', 'monthNamesShort', 'availableYears', 'printYear',
+            'allItems', 'selectedItemIds', 'weeksByItem', 'printCategories',
+            'signatures', 'signatureNames'
+        ));
     }
 
     public function createSchedule()

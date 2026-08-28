@@ -75,7 +75,7 @@ class ReportController extends Controller
             ->orderByDesc('reported_at')
             ->get();
 
-        $resolved = $tickets->where('status', 'resolved')->filter(fn ($ticket) => $ticket->reported_at && $ticket->resolved_at);
+        $resolved = $tickets->where('status', 'resolved')->filter(fn ($ticket) => $ticket->started_at && $ticket->resolved_at);
         $summary = [
             'total' => $tickets->count(),
             'open' => $tickets->where('status', 'open')->count(),
@@ -83,7 +83,7 @@ class ReportController extends Controller
             'resolved' => $tickets->where('status', 'resolved')->count(),
             'hardware' => $tickets->where('repair_category', 'hardware')->count(),
             'software' => $tickets->where('repair_category', 'software')->count(),
-            'avg_hours' => $resolved->count() ? round($resolved->avg(fn ($ticket) => $ticket->reported_at->diffInMinutes($ticket->resolved_at) / 60), 1) : 0,
+            'avg_hours' => $resolved->count() ? round($resolved->avg(fn ($ticket) => $ticket->started_at->diffInMinutes($ticket->resolved_at) / 60), 1) : 0,
         ];
 
         $byProblem = $tickets->groupBy(fn ($ticket) => $ticket->error_type ?: 'Tidak dikategorikan')

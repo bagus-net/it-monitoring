@@ -11,25 +11,122 @@ use Illuminate\Http\Request;
 class MonthlyScheduleController extends Controller
 {
     // List monthly schedules grouped by Program Perawatan + Tahun
-    public function index()
+    public function index(Request $request)
     {
-        $rows = MonthlySchedule::with('checklistItem')->get();
+        $selectedYear = $request->integer('year') ?: null;
+        $selectedMonth = $request->integer('month') ?: null;
+        $selectedProgram = $request->integer('checklist_item_id') ?: null;
+
+        $availableYears = MonthlySchedule::query()
+            ->select('year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+
+        $programOptions = ChecklistItem::whereIn(
+            'id',
+            MonthlySchedule::select('checklist_item_id')->distinct()
+        )->orderBy('title')->get();
+
+        $rows = MonthlySchedule::with('checklistItem')
+            ->when($selectedYear, fn ($query) => $query->where('year', $selectedYear))
+            ->when($selectedMonth, fn ($query) => $query->where('month', $selectedMonth))
+            ->when($selectedProgram, fn ($query) => $query->where('checklist_item_id', $selectedProgram))
+            ->get();
+
+        $monthShort = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
 
         $groups = $rows->groupBy(fn($r) => $r->checklist_item_id . '|' . $r->year)
-            ->map(function ($items) {
+            ->map(function ($items) use ($monthShort) {
                 $first = $items->first();
+                $months = $items->pluck('month')->unique()->sort()->values()->toArray();
                 return [
                     'checklist_item_id' => $first->checklist_item_id,
                     'checklist_item' => $first->checklistItem,
                     'year' => $first->year,
                     'equipment_count' => $items->pluck('equipment_id')->unique()->count(),
-                    'months' => $items->pluck('month')->unique()->sort()->values()->toArray(),
+                    'months' => $months,
+                    'month_labels' => array_map(fn ($m) => $monthShort[$m] ?? $m, $months),
                 ];
             })
             ->sortByDesc('year')
             ->values();
 
-        return view('monthly_schedules.index', compact('groups'));
+        $summary = [
+            'program_count' => $groups->count(),
+            'equipment_count' => $rows->pluck('equipment_id')->unique()->count(),
+            'month_count' => $rows->pluck('month')->unique()->count(),
+        ];
+
+        return view('monthly_schedules.index', compact(
+            'groups', 'availableYears', 'programOptions', 'selectedYear',
+            'selectedMonth', 'selectedProgram', 'summary'
+        ));
+    }
+
+    // Print all maintenance programs scheduled in one selected month and year.
+    public function printMonth(Request $request)
+    {
+        $data = $request->validate([
+            'month' => 'required|integer|min:1|max:12',
+            'year' => 'required|integer|min:2000|max:2100',
+        ]);
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $scheduledDatesByProgram = MonthlySchedule::query()
+            ->where('month', $data['month'])
+            ->where('year', $data['year'])
+            ->get(['checklist_item_id', 'dates'])
+            ->groupBy('checklist_item_id')
+            ->map(function ($items) {
+                return $items->pluck('dates')
+                        ->flatten()
+                        ->map(fn ($day) => (int) $day)
+                        ->unique()
+                        ->sort()
+                        ->values()
+                        ->all();
+            });
+
+        $categoryOrder = [
+            'Perawatan Software' => 1,
+            'Perawatan Hardware' => 2,
+            'Perawatan Networking' => 3,
+        ];
+
+        $programCategories = ChecklistItem::orderBy('sort_order')
+            ->get()
+            ->sortBy(function ($item) use ($categoryOrder) {
+                $category = $item->category ?: 'Lainnya';
+                return (($categoryOrder[$category] ?? 99) * 1000) + ($item->sort_order ?? 0);
+            })
+            ->groupBy(fn ($item) => $item->category ?: 'Lainnya')
+            ->map(function ($items) use ($scheduledDatesByProgram) {
+                return $items->map(fn ($item) => [
+                    'title' => $item->title,
+                    'color' => $item->schedule_color,
+                    'dates' => $scheduledDatesByProgram->get($item->id, []),
+                ]);
+            });
+
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $data['month'], $data['year']);
+
+        return view('monthly_schedules.print_month', [
+            'month' => $data['month'],
+            'year' => $data['year'],
+            'monthName' => $monthNames[$data['month']],
+            'daysInMonth' => $daysInMonth,
+            'programCategories' => $programCategories,
+        ]);
     }
 
     // Show monthly schedule detail: all equipment x months for this program & year
@@ -48,6 +145,9 @@ class MonthlyScheduleController extends Controller
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
 
+        $scheduledMonths = $rows->pluck('month')->filter()->unique()->sort()->values()->all();
+        $scheduledMonthLabels = array_map(fn ($month) => $monthNames[$month] ?? 'Bulan ' . $month, $scheduledMonths);
+
         // group per equipment, then per month
         $byEquipment = $rows->groupBy('equipment_id')->map(function ($items) {
             return [
@@ -56,7 +156,7 @@ class MonthlyScheduleController extends Controller
             ];
         })->sortBy(fn($g) => $g['equipment']->name ?? '');
 
-        return view('monthly_schedules.show', compact('checklistItem', 'year', 'byEquipment', 'monthNames'));
+        return view('monthly_schedules.show', compact('checklistItem', 'year', 'byEquipment', 'monthNames', 'scheduledMonths', 'scheduledMonthLabels'));
     }
 
     // Create form - list annual schedules to pick from
@@ -193,7 +293,26 @@ class MonthlyScheduleController extends Controller
             ];
         }
 
-        return view('monthly_schedules.edit', compact('checklistItem', 'equipment', 'monthsData', 'year'));
+        return view('monthly_schedules.edit', compact('checklistItem', 'equipment', 'monthsData', 'year', 'monthNames'))
+            ->with('items', ChecklistItem::orderBy('title')->get());
+    }
+
+    // AJAX: dates already saved for a given program + year + month, used as a template source
+    public function templateDates(Request $request)
+    {
+        $data = $request->validate([
+            'checklist_item_id' => 'required|exists:checklist_items,id',
+            'year' => 'required|integer|min:2000|max:2100',
+            'month' => 'required|integer|min:1|max:12',
+        ]);
+
+        $dates = MonthlySchedule::where('checklist_item_id', $data['checklist_item_id'])
+            ->where('year', $data['year'])
+            ->where('month', $data['month'])
+            ->get()
+            ->mapWithKeys(fn ($schedule) => [$schedule->equipment_id => $schedule->dates ?? []]);
+
+        return response()->json(['dates' => $dates]);
     }
 
     // Store monthly schedule (multiple months at once)

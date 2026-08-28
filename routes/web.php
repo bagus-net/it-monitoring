@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
 
 		Route::resource('maintenance-checklists', MaintenanceChecklistController::class)
 			->parameters(['maintenance-checklists' => 'maintenanceChecklist']);
+		Route::post('/maintenance-checklists/{maintenanceChecklist}/approve', [MaintenanceChecklistController::class, 'approve'])->name('maintenance-checklists.approve');
 
 		// Laporan jadwal
 		Route::get('/reports/schedules/annual', [ScheduleReportController::class, 'annual'])->name('reports.annual');
@@ -196,7 +197,9 @@ Route::middleware('auth')->group(function () {
 
 		// Monthly schedules
 		Route::get('/monthly-schedules', [MonthlyScheduleController::class, 'index'])->name('monthly_schedules.index');
+		Route::get('/monthly-schedules/print', [MonthlyScheduleController::class, 'printMonth'])->name('monthly_schedules.print_month');
 		Route::get('/monthly-schedules/create', [MonthlyScheduleController::class, 'create'])->name('monthly_schedules.create');
+		Route::get('/monthly-schedules/template-dates', [MonthlyScheduleController::class, 'templateDates'])->name('monthly_schedules.template_dates');
 		Route::post('/monthly-schedules', [MonthlyScheduleController::class, 'store'])->name('monthly_schedules.store');
 		Route::get('/monthly-schedules/{checklistItemId}/{year}/months', [MonthlyScheduleController::class, 'selectMonths'])->name('monthly_schedules.select_months');
 		Route::get('/monthly-schedules/{checklistItemId}/{year}/edit', [MonthlyScheduleController::class, 'edit'])->name('monthly_schedules.edit');

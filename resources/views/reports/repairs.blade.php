@@ -15,7 +15,7 @@
         <div class="col-6 col-lg-2"><div class="report-stat info"><span>Proses</span><strong>{{ $summary['in_progress'] }}</strong><small>dikerjakan</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat good"><span>Selesai</span><strong>{{ $summary['resolved'] }}</strong><small>tiket ditutup</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat neutral"><span>Hardware / Software</span><strong>{{ $summary['hardware'] }} / {{ $summary['software'] }}</strong><small>komposisi tiket</small></div></div>
-        <div class="col-6 col-lg-2"><div class="report-stat attention"><span>Rata-rata Selesai</span><strong>{{ $summary['avg_hours'] }} jam</strong><small>dari lapor ke selesai</small></div></div>
+        <div class="col-6 col-lg-2"><div class="report-stat attention"><span>Rata-rata Selesai</span><strong>{{ $summary['avg_hours'] }} jam</strong><small>dari mulai perbaikan ke selesai</small></div></div>
     </div>
     <div class="card report-filter mb-3">
         <div class="card-header"><strong>Filter Laporan</strong></div>

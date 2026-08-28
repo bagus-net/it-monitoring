@@ -256,6 +256,11 @@
         function enhanceDataTables() {
             document.querySelectorAll('table.table').forEach(table => {
                 if (table.dataset.enhanced || table.classList.contains('no-table-tools') || table.closest('form') || table.querySelector('input[type="radio"], input[type="checkbox"], select, textarea') || table.querySelector('th[rowspan], th[colspan]')) return;
+                const firstHeader = table.tHead?.rows?.[0]?.cells?.[0];
+                if (firstHeader && /^(no\.|nomor|no)$/.test((firstHeader.textContent || '').trim().toLowerCase().replace(/\s+/g, ''))) {
+                    table.dataset.enhanced = 'true';
+                    return;
+                }
                 const body = table.tBodies[0];
                 const headers = Array.from(table.tHead?.rows?.[0]?.cells || []);
                 if (!body || !headers.length) return;

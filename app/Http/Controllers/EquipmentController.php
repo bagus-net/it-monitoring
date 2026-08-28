@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use App\Models\EquipmentType;
+use App\Models\MonthlySchedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,6 +20,9 @@ class EquipmentController extends Controller
             'condition' => $request->input('condition'),
             'criticality' => $request->input('criticality'),
             'department' => $request->input('department'),
+            'purchase_year' => $request->input('purchase_year'),
+            'purchase_date_from' => $request->input('purchase_date_from'),
+            'purchase_date_to' => $request->input('purchase_date_to'),
         ];
         $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation'])
             ->when($filters['equipment_type_id'], fn ($query, $value) => $query->where('equipment_type_id', $value))
@@ -27,6 +31,9 @@ class EquipmentController extends Controller
             ->when($filters['condition'], fn ($query, $value) => $query->where('condition', $value))
             ->when($filters['criticality'], fn ($query, $value) => $query->where('criticality', $value))
             ->when($filters['department'], fn ($query, $value) => $query->where('department', $value))
+            ->when($filters['purchase_year'], fn ($query, $value) => $query->whereYear('purchase_date', $value))
+            ->when($filters['purchase_date_from'], fn ($query, $value) => $query->whereDate('purchase_date', '>=', $value))
+            ->when($filters['purchase_date_to'], fn ($query, $value) => $query->whereDate('purchase_date', '<=', $value))
             ->when($search !== '', function ($query) use ($search) {
                 $keyword = '%' . $search . '%';
                 $query->where(function ($inner) use ($keyword) {
@@ -85,6 +92,7 @@ class EquipmentController extends Controller
             'conditions' => Equipment::whereNotNull('condition')->distinct()->orderBy('condition')->pluck('condition'),
             'departments' => Equipment::whereNotNull('department')->where('department', '!=', '')->distinct()->orderBy('department')->pluck('department'),
             'criticalities' => $criticalityLabels,
+            'purchase_years' => Equipment::whereNotNull('purchase_date')->selectRaw('DISTINCT YEAR(purchase_date) as year')->orderByDesc('year')->pluck('year'),
         ];
 
         return view('equipments.index', compact('equipments', 'summary', 'search', 'typeRecap', 'criticalityRecap', 'filters', 'filterOptions'));
@@ -145,7 +153,21 @@ class EquipmentController extends Controller
             'assetLocation',
             'owner',
         ]);
-        return view('equipments.show', compact('equipment'));
+
+        $scheduledDatesByPeriod = MonthlySchedule::where('equipment_id', $equipment->id)
+            ->get(['checklist_item_id', 'year', 'month', 'dates'])
+            ->mapWithKeys(function ($schedule) {
+                $periodKey = $schedule->checklist_item_id . '|' . $schedule->year . '|' . $schedule->month;
+
+                return [$periodKey => collect($schedule->dates)
+                    ->map(fn ($day) => (int) $day)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all()];
+            });
+
+        return view('equipments.show', compact('equipment', 'scheduledDatesByPeriod'));
     }
 
     public function scan(Equipment $equipment)

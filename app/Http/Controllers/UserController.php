@@ -53,6 +53,19 @@ class UserController extends Controller
         return view('users.show', compact('user'));
     }
 
+    public function detachEquipment(User $user, Equipment $equipment)
+    {
+        abort_unless($equipment->user_id === $user->id, 404);
+
+        $equipment->update([
+            'user_id' => null,
+            'owner_name' => null,
+            'department' => null,
+        ]);
+
+        return redirect()->route('users.show', $user)->with('success', 'Peralatan berhasil dilepas dari user ini.');
+    }
+
     public function store(Request $request)
     {
         $data = $this->validateUser($request);

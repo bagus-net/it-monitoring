@@ -193,6 +193,14 @@ class EquipmentController extends Controller
         ]);
     }
 
+    public function downloadLabel(Equipment $equipment)
+    {
+        return view('equipments.label_download', [
+            'equipment' => $equipment,
+            'scanUrl' => rtrim(config('app.equipment_scan_url'), '/') . route('equipments.scan', $equipment, false),
+        ]);
+    }
+
     public function edit(Equipment $equipment)
     {
         $types = EquipmentType::orderBy('name')->get();

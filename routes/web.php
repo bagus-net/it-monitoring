@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipments/create', [EquipmentController::class, 'create'])->name('equipments.create');
 		Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
 		Route::get('/equipments/{equipment}/label', [EquipmentController::class, 'label'])->name('equipments.label');
+		Route::get('/equipments/{equipment}/label/download', [EquipmentController::class, 'downloadLabel'])->name('equipments.label.download');
 		Route::get('/equipments/{equipment}', [EquipmentController::class, 'show'])->name('equipments.show');
 		Route::get('/equipments/{equipment}/edit', [EquipmentController::class, 'edit'])->name('equipments.edit');
 		Route::put('/equipments/{equipment}', [EquipmentController::class, 'update'])->name('equipments.update');
@@ -208,6 +209,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/users/create', [\App\Http\Controllers\UserController::class, 'create'])->name('users.create');
 		Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
 		Route::get('/users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
+		Route::delete('/users/{user}/equipments/{equipment}', [\App\Http\Controllers\UserController::class, 'detachEquipment'])->name('users.equipments.detach');
 		Route::get('/users/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
 		Route::put('/users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
 		Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');

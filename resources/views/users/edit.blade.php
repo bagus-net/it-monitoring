@@ -14,7 +14,7 @@
         <div class="alert alert-danger"><ul class="mb-0 ps-3">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
     @endif
     <div class="card"><div class="card-body">
-        <form method="POST" action="{{ route('users.update', $user) }}">
+        <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data">
             @method('PUT')
             @include('users._form')
         </form>

@@ -22,15 +22,18 @@
             <nav class="sidebar-nav">
                 @if($currentUser && !$currentUser->isEmployee())
                 <a class="sidebar-link" href="{{ route('dashboard') }}">Dashboard Utama</a>
+                <a class="sidebar-link" href="{{ route('web-monitoring.index') }}">Web Monitoring</a>
                 @endif
                 <span class="sidebar-label">Operasional</span>
 
                 @if($currentUser && !$currentUser->isEmployee())
-                <a class="sidebar-link" href="{{ route('web-monitoring.index') }}">Web Monitoring</a>
+
+
                 <a class="sidebar-link" href="{{ route('equipments.index') }}">Peralatan IT / Asset</a>
                 <a class="sidebar-link sidebar-ticket-link" href="{{ route('equipment-transfers.index') }}"><span>Mutasi Peralatan</span><span class="ticket-badge-group"><span id="transferPendingApprovalBadge" class="ticket-notification-badge d-none" title="Mutasi baru menunggu approve">0</span><span id="transferMyUnfinishedBadge" class="ticket-notification-badge badge-progress d-none" title="Mutasi saya belum selesai">0</span></span></a>
                 @endif
                 <a class="sidebar-link sidebar-ticket-link" href="{{ route('it-repair-tickets.index') }}"><span>Perbaikan IT / Ticketing</span><span class="ticket-badge-group"><span id="ticketNotificationBadge" class="ticket-notification-badge d-none" title="Tiket open">0</span><span id="ticketProgressBadge" class="ticket-notification-badge badge-progress d-none" title="Tiket sedang dikerjakan">0</span></span></a>
+
                 @if($currentUser && !$currentUser->isEmployee())
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Checklist</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('web-monitoring-checklists.index') }}">Web Monitoring</a></li><li><a class="dropdown-item" href="{{ route('maintenance-checklists.index') }}">Peralatan IT</a></li></ul></div>
                 {{-- <a class="sidebar-link" href="{{ route('maintenances.grid') }}">Grid Perawatan</a> --}}
@@ -39,18 +42,21 @@
                 @if($currentUser->isMaster())
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Jadwal</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('maintenances.schedules') }}">Jadwal Tahunan</a></li><li><a class="dropdown-item" href="{{ route('monthly_schedules.index') }}">Jadwal Bulanan</a></li></ul></div>
                 @endif
+                <a class="sidebar-link" href="{{ route('innovations.index') }}">Inovasi IT</a>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Laporan</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('reports.annual') }}">Laporan Tahunan</a></li><li><a class="dropdown-item" href="{{ route('reports.monthly') }}">Laporan Bulanan</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="{{ route('reports.equipments') }}">Laporan Peralatan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.repairs') }}">Laporan Perbaikan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.checklists') }}">Laporan Checklist Web &amp; Peralatan IT</a></li>@if($currentUser->isMaster())<li><a class="dropdown-item" href="{{ route('reports.activities') }}">Laporan Log Aktivitas</a></li>@endif</ul></div>
                 <span class="sidebar-label">Master Data</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown">Pengaturan Master</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('masters.manufacturers.index') }}">Manufacturers</a></li><li><a class="dropdown-item" href="{{ route('masters.locations.index') }}">Lokasi</a></li><li><a class="dropdown-item" href="{{ route('masters.equipment-types.index') }}">Tipe Peralatan</a></li><li><a class="dropdown-item" href="{{ route('masters.checklist-items.index') }}">Program Perawatan</a></li></ul></div>
                 @endif
                 @if($currentUser && !$currentUser->isEmployee())
                 <span class="sidebar-label">Inventaris &amp; Persediaan</span>
-                <div class="sidebar-dropdown dropdown sidebar-manage-dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="sidebar-ink-icon">KG</span><span>Kelola</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('ink.index') }}"><span class="sidebar-ink-icon">IN</span>Kelola Tinta</a></li><li><a class="dropdown-item" href="{{ route('spareparts.index') }}"><span class="sidebar-ink-icon">SP</span>Kelola Sparepart</a></li><li><a class="dropdown-item" href="{{ route('licenses.index') }}"><span class="sidebar-ink-icon">LC</span>Kelola Lisensi</a></li><li><a class="dropdown-item" href="{{ route('cctv.index') }}"><span class="sidebar-ink-icon">TV</span>Kelola CCTV</a></li></ul></div>
+                <div class="sidebar-dropdown dropdown sidebar-manage-dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><span class="sidebar-ink-icon">KG</span><span>Kelola</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('ink.index') }}"><span class="sidebar-ink-icon">IN</span>Kelola Tinta</a></li><li><a class="dropdown-item" href="{{ route('it-wastes.index') }}"><span class="sidebar-ink-icon">LB</span>Limbah IT</a></li><li><a class="dropdown-item" href="{{ route('spareparts.index') }}"><span class="sidebar-ink-icon">SP</span>Kelola Sparepart</a></li><li><a class="dropdown-item" href="{{ route('licenses.index') }}"><span class="sidebar-ink-icon">LC</span>Kelola Lisensi</a></li><li><a class="dropdown-item" href="{{ route('cctv.index') }}"><span class="sidebar-ink-icon">TV</span>Kelola CCTV</a></li></ul></div>
                 @endif
                 @if($currentUser && !$currentUser->isEmployee())
                 <span class="sidebar-label">Jaringan</span>
                 <a class="sidebar-link sidebar-network-link" href="{{ route('network.topology') }}"><span class="sidebar-ink-icon">NT</span><span>Topologi Jaringan</span></a>
                 @endif
+                 <span class="sidebar-label">General</span>
+                <a class="sidebar-link" href="{{ route('iso-documents.index') }}">Dokumen ISO</a>
                 @if($currentUser && $currentUser->isMaster())
                 <span class="sidebar-label">Pengaturan</span>
                 <a class="sidebar-link" href="{{ route('users.index') }}">Pengaturan User</a>
@@ -59,6 +65,7 @@
             </nav>
             <div class="sidebar-footer">
                 @auth
+                <a class="sidebar-signature-link" href="{{ route('profile.show') }}">Profil Saya</a>
                 <a class="sidebar-signature-link" href="{{ route('signature.edit') }}">Tanda Tangan Digital</a>
                 @endauth
                 <button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle">Aktifkan notifikasi tiket</button>
@@ -69,7 +76,7 @@
     <main class="app-main py-4">
         <div class="app-topbar">
             @auth
-            <div class="topbar-user"><span class="topbar-user-name">{{ auth()->user()->name }}</span><span class="topbar-user-role">{{ auth()->user()->roleLabel() }}</span></div>
+            <a href="{{ route('profile.show') }}" class="topbar-user text-decoration-none"><span class="topbar-profile-photo"><img src="{{ auth()->user()->profile_photo_path ? asset('storage/' . auth()->user()->profile_photo_path) : asset('images/default-avatar.svg') }}" alt="Foto profil {{ auth()->user()->name }}"></span><span><span class="topbar-user-name">{{ auth()->user()->name }}</span><span class="topbar-user-role">{{ auth()->user()->roleLabel() }}</span></span></a>
             <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="topbar-logout">Keluar</button></form>
             @endauth
         </div>

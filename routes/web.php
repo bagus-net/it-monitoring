@@ -17,6 +17,10 @@ use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\NetworkTopologyController;
 use App\Http\Controllers\CctvController;
+use App\Http\Controllers\InnovationController;
+use App\Http\Controllers\ItWasteController;
+use App\Http\Controllers\IsoDocumentController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +46,10 @@ Route::middleware('auth')->group(function () {
 	Route::get('/profile/signature', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('signature.edit');
 	Route::put('/profile/signature', [\App\Http\Controllers\SignatureController::class, 'update'])->name('signature.update');
 	Route::delete('/profile/signature', [\App\Http\Controllers\SignatureController::class, 'destroy'])->name('signature.destroy');
+	Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+	Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+	Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
+	Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
 	// Tiket perbaikan IT: semua level boleh mengakses, karyawan hanya melihat tiket peralatannya sendiri
 	Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');	Route::get('/it-repair-tickets', [ItRepairTicketController::class, 'index'])->name('it-repair-tickets.index');
@@ -49,6 +57,10 @@ Route::middleware('auth')->group(function () {
 	Route::get('/it-repair-tickets/create', [ItRepairTicketController::class, 'create'])->name('it-repair-tickets.create');
 	Route::post('/it-repair-tickets', [ItRepairTicketController::class, 'store'])->name('it-repair-tickets.store');
 	Route::get('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'show'])->name('it-repair-tickets.show');
+
+	Route::get('/iso-documents/{isoDocument}/download', [IsoDocumentController::class, 'download'])->name('iso-documents.download');
+	Route::get('/iso-documents/{isoDocument}/preview', [IsoDocumentController::class, 'preview'])->name('iso-documents.preview');
+	Route::resource('iso-documents', IsoDocumentController::class);
 
 	// Master + Admin IT
 	Route::middleware('role:master,admin_it')->group(function () {
@@ -70,6 +82,15 @@ Route::middleware('auth')->group(function () {
 		Route::resource('web-monitoring-checklists', WebMonitoringChecklistController::class)
 			->only(['index', 'create', 'store', 'show', 'destroy'])
 			->parameters(['web-monitoring-checklists' => 'webMonitoringChecklist']);
+
+		Route::resource('innovations', InnovationController::class);
+
+		Route::get('/it-wastes/handover/print', [ItWasteController::class, 'printHandover'])->name('it-wastes.print-handover');
+		Route::get('/it-wastes/batches/{itWasteBatch}', [ItWasteController::class, 'show'])->name('it-wastes.show');
+		Route::post('/it-wastes/batches/{itWasteBatch}/wastes', [ItWasteController::class, 'storeWaste'])->name('it-wastes.wastes.store');
+		Route::put('/it-wastes/batches/{itWasteBatch}', [ItWasteController::class, 'updateBatch'])->name('it-wastes.batches.update');
+		Route::delete('/it-wastes/batches/{itWasteBatch}', [ItWasteController::class, 'destroyBatch'])->name('it-wastes.batches.destroy');
+		Route::resource('it-wastes', ItWasteController::class)->except('show');
 
 		// Equipment routes
 		Route::get('/equipments', [EquipmentController::class, 'index'])->name('equipments.index');

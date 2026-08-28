@@ -36,6 +36,7 @@ class User extends Authenticatable
         'is_active',
         'signature_path',
         'signature_title',
+        'profile_photo_path',
     ];
 
     /**
@@ -87,5 +88,10 @@ class User extends Authenticatable
     public function equipments()
     {
         return $this->hasMany(Equipment::class);
+    }
+
+    public function accessibleIsoDocuments()
+    {
+        return $this->belongsToMany(IsoDocument::class, 'iso_document_user')->withTimestamps();
     }
 }

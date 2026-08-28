@@ -9,6 +9,13 @@
         <label class="form-label">Email</label>
         <input type="email" name="email" value="{{ old('email', $user?->email) }}" class="form-control" required>
     </div>
+    <div class="col-md-6">
+        <label class="form-label">Foto Profil</label>
+        <div class="d-flex align-items-center gap-3">
+            <img class="user-form-avatar" src="{{ $user?->profile_photo_path ? asset('storage/' . $user->profile_photo_path) : asset('images/default-avatar.svg') }}" alt="Foto profil">
+            <div class="flex-grow-1"><input type="file" name="profile_photo" class="form-control @error('profile_photo') is-invalid @enderror" accept=".jpg,.jpeg,.png,.webp"><small class="text-muted">JPG, PNG, atau WebP. Maksimum 2 MB.</small>@error('profile_photo')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
+        </div>
+    </div>
     <div class="col-md-4">
         <label class="form-label">Departemen</label>
         <input type="text" name="department" value="{{ old('department', $user?->department) }}" class="form-control">
@@ -62,7 +69,7 @@
     <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Batal</a>
     <button type="submit" class="btn btn-brand">Simpan</button>
 </div>
-<style>.equipment-picker{max-height:290px;overflow:auto;border:1px solid #dbe5ef;border-radius:5px;background:#fff}.equipment-option{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;border-bottom:1px solid #eef2f7;cursor:pointer}.equipment-option:last-child{border-bottom:0}.equipment-option small{display:block;color:#64748b;font-size:.74rem}.equipment-option:hover{background:#f8fafc}</style>
+<style>.user-form-avatar{width:54px;height:54px;flex:0 0 54px;border:1px solid #cbd5e1;border-radius:50%;object-fit:cover;background:#e0f2fe}.equipment-picker{max-height:290px;overflow:auto;border:1px solid #dbe5ef;border-radius:5px;background:#fff}.equipment-option{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;border-bottom:1px solid #eef2f7;cursor:pointer}.equipment-option:last-child{border-bottom:0}.equipment-option small{display:block;color:#64748b;font-size:.74rem}.equipment-option:hover{background:#f8fafc}</style>
 <script>
     (function () {
         const input = document.getElementById('equipmentPickerSearch');

@@ -38,7 +38,7 @@
                     <tbody>
                         @forelse($users as $item)
                             <tr>
-                                <td><strong>{{ $item->name }}</strong></td>
+                                <td><div class="user-name-cell"><img src="{{ $item->profile_photo_path ? asset('storage/' . $item->profile_photo_path) : asset('images/default-avatar.svg') }}" alt="Foto profil {{ $item->name }}"><strong>{{ $item->name }}</strong></div></td>
                                 <td>{{ $item->email }}</td>
                                 <td>{{ $item->department ?: '-' }}</td>
                                 <td><span class="role-badge role-{{ $item->role }}">{{ $item->roleLabel() }}</span></td>
@@ -59,5 +59,5 @@
         </div>
     </div>
 </div>
-<style>.user-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.user-stat{padding:15px 17px;background:#fff;border:1px solid #dbe5ef;border-top:4px solid #64748b}.user-stat span,.user-stat small{display:block;color:#64748b;font-size:.76rem}.user-stat strong{display:block;font-size:1.65rem}.user-stat.total{border-top-color:#0b5ea8}.user-stat.master{border-top-color:#b91c1c}.user-stat.admin{border-top-color:#f6b322}.user-stat.employee{border-top-color:#159957}.user-list,.user-filter{border:1px solid #dbe5ef}.user-list .card-header,.user-filter .card-header{background:#f8fafc}.user-filter .form-label{font-size:.76rem;font-weight:700;color:#475569;margin-bottom:3px}.role-badge{display:inline-block;padding:4px 7px;border-radius:3px;font-size:.74rem;font-weight:700}.role-master{background:#fee2e2;color:#991b1b}.role-admin_it{background:#fef3c7;color:#92400e}.role-user{background:#dcfce7;color:#166534}.role-active{background:#dbeafe;color:#1d4ed8}.role-inactive{background:#e2e8f0;color:#475569}</style>
+<style>.user-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.user-stat{padding:15px 17px;background:#fff;border:1px solid #dbe5ef;border-top:4px solid #64748b}.user-stat span,.user-stat small{display:block;color:#64748b;font-size:.76rem}.user-stat strong{display:block;font-size:1.65rem}.user-stat.total{border-top-color:#0b5ea8}.user-stat.master{border-top-color:#b91c1c}.user-stat.admin{border-top-color:#f6b322}.user-stat.employee{border-top-color:#159957}.user-list,.user-filter{border:1px solid #dbe5ef}.user-list .card-header,.user-filter .card-header{background:#f8fafc}.user-filter .form-label{font-size:.76rem;font-weight:700;color:#475569;margin-bottom:3px}.user-name-cell{display:flex;align-items:center;gap:9px;min-width:170px}.user-name-cell img{width:32px;height:32px;flex:0 0 32px;border:1px solid #cbd5e1;border-radius:50%;object-fit:cover;background:#e0f2fe}.role-badge{display:inline-block;padding:4px 7px;border-radius:3px;font-size:.74rem;font-weight:700}.role-master{background:#fee2e2;color:#991b1b}.role-admin_it{background:#fef3c7;color:#92400e}.role-user{background:#dcfce7;color:#166534}.role-active{background:#dbeafe;color:#1d4ed8}.role-inactive{background:#e2e8f0;color:#475569}</style>
 @endsection

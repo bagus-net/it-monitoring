@@ -1,0 +1,8 @@
+<div class="row g-3">
+    <div class="col-md-4"><label class="form-label">Tanggal Inovasi</label><input type="date" name="innovation_date" class="form-control" value="{{ old('innovation_date', optional($innovation->innovation_date ?? null)->format('Y-m-d') ?? now()->format('Y-m-d')) }}" required></div>
+    <div class="col-md-8"><label class="form-label">Judul Inovasi</label><input name="title" class="form-control" value="{{ old('title', $innovation->title ?? '') }}" required></div>
+    <div class="col-md-8"><label class="form-label">Implementasi</label><textarea name="implementation" rows="4" class="form-control" placeholder="Langkah atau hasil implementasi">{{ old('implementation', $innovation->implementation ?? '') }}</textarea></div>
+    <div class="col-md-4"><label class="form-label">Tanggal Implementasi</label><input type="date" name="implementation_date" class="form-control" value="{{ old('implementation_date', optional($innovation->implementation_date ?? null)->format('Y-m-d')) }}"></div>
+    <div class="col-12"><label class="form-label">Keterangan</label><textarea name="notes" rows="3" class="form-control">{{ old('notes', $innovation->notes ?? '') }}</textarea></div>
+    <div class="col-12"><label class="form-label">Paper / Dokumen Pendukung</label><input type="file" name="paper" class="form-control" accept=".pdf,.doc,.docx"><small class="text-muted">PDF, DOC, atau DOCX. Maksimum 10 MB.</small>@if (!empty($innovation?->paper_path))<div class="mt-1"><a href="{{ asset('storage/' . $innovation->paper_path) }}" target="_blank">{{ $innovation->paper_name }}</a></div>@endif</div>
+</div>

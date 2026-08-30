@@ -100,13 +100,6 @@ Copy-Item .env.example .env
 1. Atur koneksi database pada `.env`:
 
 ```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=it_monitoring
-DB_USERNAME=root
-DB_PASSWORD=
-```
 
 1. Instal dependensi dan siapkan aplikasi:
 

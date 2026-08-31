@@ -131,6 +131,26 @@ class MaintenanceChecklistController extends Controller
         $equipmentId = $request->integer('equipment_id') ?: null;
         $year = $request->integer('year') ?: (int) date('Y');
         $month = $request->integer('month') ?: (int) date('n');
+        $monthlyScheduleGroups = MonthlySchedule::with('checklistItem')
+            ->where('year', $year)
+            ->get(['checklist_item_id', 'year', 'month'])
+            ->groupBy('checklist_item_id')
+            ->map(function ($schedules) {
+                $checklistItem = $schedules->first()->checklistItem;
+                $completedMonths = MaintenanceChecklist::where('checklist_item_id', $checklistItem->id)
+                    ->where('year', $schedules->first()->year)
+                    ->pluck('month')
+                    ->all();
+
+                return [
+                    'item' => $checklistItem,
+                    'months' => $schedules->pluck('month')->unique()->sort()->values(),
+                    'completed_months' => $completedMonths,
+                ];
+            })
+            ->filter(fn ($group) => $group['item'])
+            ->sortBy(fn ($group) => $group['item']->title)
+            ->values();
         $equipment = $checklistItemId
             ? ($equipmentId ? Equipment::whereKey($equipmentId)->get() : $this->scheduledEquipment($checklistItemId, $year, $month))
             : collect();
@@ -141,13 +161,22 @@ class MaintenanceChecklistController extends Controller
 
         return view('maintenance_checklists.create', compact(
             'items', 'checklistItemId', 'equipmentId', 'year', 'month', 'equipment',
-            'monthNames', 'scheduledDatesByEquipment'
+            'monthNames', 'scheduledDatesByEquipment', 'monthlyScheduleGroups'
         ));
     }
 
     public function store(Request $request)
     {
         $data = $this->validateChecklist($request);
+
+        if (MaintenanceChecklist::where('checklist_item_id', $data['checklist_item_id'])
+            ->where('year', $data['year'])
+            ->where('month', $data['month'])
+            ->exists()) {
+            return back()->withInput()->withErrors([
+                'month' => 'Checklist untuk Program Perawatan dan periode ini sudah dibuat.',
+            ]);
+        }
 
         DB::transaction(function () use ($data) {
             $checklist = MaintenanceChecklist::create([

@@ -17,16 +17,38 @@ class MonthlyScheduleController extends Controller
         $selectedMonth = $request->integer('month') ?: null;
         $selectedProgram = $request->integer('checklist_item_id') ?: null;
 
+        $annualScheduleRows = MaintenanceSchedule::query()
+            ->where('frequency', 'annual')
+            ->when($selectedProgram, fn ($query) => $query->where('checklist_item_id', $selectedProgram))
+            ->when($selectedYear, fn ($query) => $query->where(fn ($yearQuery) => $yearQuery
+                ->whereNull('year')
+                ->orWhere('year', $selectedYear)))
+            ->get(['checklist_item_id', 'year', 'month']);
+
         $availableYears = MonthlySchedule::query()
             ->select('year')
             ->distinct()
             ->orderByDesc('year')
-            ->pluck('year');
+            ->pluck('year')
+            ->merge($annualScheduleRows->pluck('year')->filter())
+            ->when($annualScheduleRows->contains(fn ($schedule) => is_null($schedule->year)), fn ($years) => $years->push(now()->year))
+            ->unique()
+            ->sortDesc()
+            ->values();
 
-        $programOptions = ChecklistItem::whereIn(
-            'id',
-            MonthlySchedule::select('checklist_item_id')->distinct()
-        )->orderBy('title')->get();
+        $programOptions = ChecklistItem::whereIn('id', MonthlySchedule::select('checklist_item_id')->distinct())
+            ->orWhereIn('id', $annualScheduleRows->pluck('checklist_item_id')->unique())
+            ->orderBy('title')
+            ->get();
+
+        $scheduledMonthsByGroup = MonthlySchedule::query()
+            ->when($selectedYear, fn ($query) => $query->where('year', $selectedYear))
+            ->when($selectedProgram, fn ($query) => $query->where('checklist_item_id', $selectedProgram))
+            ->get(['checklist_item_id', 'year', 'month'])
+            ->groupBy(fn ($schedule) => $schedule->checklist_item_id . '|' . $schedule->year)
+            ->map(fn ($schedules) => $schedules->pluck('month')->unique()->sort()->values()->all());
+
+        $annualSchedulesByProgram = $annualScheduleRows->groupBy('checklist_item_id');
 
         $rows = MonthlySchedule::with('checklistItem')
             ->when($selectedYear, fn ($query) => $query->where('year', $selectedYear))
@@ -40,10 +62,50 @@ class MonthlyScheduleController extends Controller
             9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
         ];
 
+        $missingMonthlyPrograms = $annualScheduleRows
+            ->groupBy(fn ($schedule) => $schedule->checklist_item_id . '|' . ($schedule->year ?? now()->year))
+            ->map(function ($annualSchedules, $key) use ($scheduledMonthsByGroup, $monthShort, $selectedMonth) {
+                [$checklistItemId, $year] = explode('|', $key);
+                $requiredMonths = $annualSchedules->contains(fn ($schedule) => is_null($schedule->month))
+                    ? range(1, 12)
+                    : $annualSchedules->pluck('month')->filter()->map(fn ($month) => (int) $month)->unique()->sort()->values()->all();
+                $scheduledMonths = $scheduledMonthsByGroup->get($key, []);
+                $missingMonths = array_values(array_diff($requiredMonths, $scheduledMonths));
+
+                if ($selectedMonth) {
+                    $missingMonths = in_array($selectedMonth, $missingMonths, true) ? [$selectedMonth] : [];
+                }
+
+                return [
+                    'checklist_item_id' => (int) $checklistItemId,
+                    'year' => (int) $year,
+                    'missing_month_labels' => array_map(fn ($month) => $monthShort[$month], $missingMonths),
+                ];
+            })
+            ->filter(fn ($program) => count($program['missing_month_labels']) > 0)
+            ->map(function ($program) {
+                $program['checklist_item'] = ChecklistItem::find($program['checklist_item_id']);
+                return $program;
+            })
+            ->filter(fn ($program) => $program['checklist_item'])
+            ->sortBy(fn ($program) => $program['checklist_item']->title)
+            ->values();
+
         $groups = $rows->groupBy(fn($r) => $r->checklist_item_id . '|' . $r->year)
-            ->map(function ($items) use ($monthShort) {
+            ->map(function ($items) use ($monthShort, $scheduledMonthsByGroup, $annualSchedulesByProgram) {
                 $first = $items->first();
                 $months = $items->pluck('month')->unique()->sort()->values()->toArray();
+                $allScheduledMonths = $scheduledMonthsByGroup->get(
+                    $first->checklist_item_id . '|' . $first->year,
+                    []
+                );
+                $annualSchedules = $annualSchedulesByProgram->get($first->checklist_item_id, collect())
+                    ->filter(fn ($schedule) => is_null($schedule->year) || (int) $schedule->year === (int) $first->year);
+                $requiredMonths = $annualSchedules->contains(fn ($schedule) => is_null($schedule->month))
+                    ? range(1, 12)
+                    : $annualSchedules->pluck('month')->filter()->map(fn ($month) => (int) $month)->unique()->sort()->values()->all();
+                $remainingMonths = array_values(array_diff($requiredMonths, $allScheduledMonths));
+
                 return [
                     'checklist_item_id' => $first->checklist_item_id,
                     'checklist_item' => $first->checklistItem,
@@ -51,6 +113,8 @@ class MonthlyScheduleController extends Controller
                     'equipment_count' => $items->pluck('equipment_id')->unique()->count(),
                     'months' => $months,
                     'month_labels' => array_map(fn ($m) => $monthShort[$m] ?? $m, $months),
+                    'remaining_months' => $remainingMonths,
+                    'remaining_month_labels' => array_map(fn ($m) => $monthShort[$m] ?? $m, $remainingMonths),
                 ];
             })
             ->sortByDesc('year')
@@ -60,11 +124,12 @@ class MonthlyScheduleController extends Controller
             'program_count' => $groups->count(),
             'equipment_count' => $rows->pluck('equipment_id')->unique()->count(),
             'month_count' => $rows->pluck('month')->unique()->count(),
+            'programs_missing_monthly_schedule' => $missingMonthlyPrograms->count(),
         ];
 
         return view('monthly_schedules.index', compact(
             'groups', 'availableYears', 'programOptions', 'selectedYear',
-            'selectedMonth', 'selectedProgram', 'summary'
+            'selectedMonth', 'selectedProgram', 'summary', 'missingMonthlyPrograms'
         ));
     }
 

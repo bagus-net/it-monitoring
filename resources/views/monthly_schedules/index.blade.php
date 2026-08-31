@@ -53,25 +53,48 @@
             </form>
 
             <div class="row g-3 mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="border rounded p-3 h-100 bg-white">
                         <div class="text-muted small">Program Terjadwal</div>
                         <strong class="fs-4">{{ $summary['program_count'] }}</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="border rounded p-3 h-100 bg-white">
                         <div class="text-muted small">Peralatan Terjadwal</div>
                         <strong class="fs-4">{{ $summary['equipment_count'] }}</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="border rounded p-3 h-100 bg-white">
                         <div class="text-muted small">Bulan Terjadwal</div>
                         <strong class="fs-4">{{ $summary['month_count'] }}</strong>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div class="border border-warning rounded p-3 h-100 bg-white">
+                        <div class="text-muted small">Program Belum Lengkap</div>
+                        <strong class="fs-4 text-warning">{{ $summary['programs_missing_monthly_schedule'] }}</strong>
+                    </div>
+                </div>
             </div>
+
+            @if ($missingMonthlyPrograms->isNotEmpty())
+                <div class="alert alert-warning border-warning mb-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                        <strong><i class="bi bi-exclamation-triangle"></i> Program Perawatan yang Belum Dibuat Jadwal Bulanannya</strong>
+                        <span class="badge bg-warning text-dark">{{ $missingMonthlyPrograms->count() }} program</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach ($missingMonthlyPrograms as $program)
+                            <a href="{{ route('monthly_schedules.select_months', [$program['checklist_item_id'], $program['year']]) }}"
+                               class="btn btn-sm btn-outline-dark">
+                                <span class="program-dot" style="background-color:{{ $program['checklist_item']->schedule_color }}"></span>{{ $program['checklist_item']->title }} ({{ $program['year'] }}): {{ implode(', ', $program['missing_month_labels']) }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             @if ($groups->count())
                 <form method="GET" action="{{ route('monthly_schedules.print_month') }}" target="_blank" class="d-flex flex-wrap align-items-end gap-2 mb-3 p-3 border rounded bg-light">
@@ -103,6 +126,7 @@
                                 <th>Program Perawatan</th>
                                 <th>Tahun</th>
                                 <th>Bulan Terjadwal</th>
+                                <th>Sisa Bulan Belum Dijadwalkan</th>
                                 <th>Jumlah Peralatan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -116,6 +140,16 @@
                                         @foreach ($group['month_labels'] as $label)
                                             <span class="badge bg-info">{{ $label }}</span>
                                         @endforeach
+                                    </td>
+                                    <td>
+                                        @if (count($group['remaining_month_labels']))
+                                            <span class="badge bg-warning text-dark">{{ count($group['remaining_month_labels']) }} bulan</span>
+                                            @foreach ($group['remaining_month_labels'] as $label)
+                                                <span class="badge bg-light text-dark border">{{ $label }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="badge bg-success">Lengkap 12 Bulan</span>
+                                        @endif
                                     </td>
                                     <td>{{ $group['equipment_count'] }}</td>
                                     <td>

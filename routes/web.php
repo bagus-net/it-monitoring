@@ -22,6 +22,7 @@ use App\Http\Controllers\ItWasteController;
 use App\Http\Controllers\IsoDocumentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecycleBinController;
+use App\Http\Controllers\TargetMonitoringController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,6 +67,8 @@ Route::middleware('auth')->group(function () {
 
 	// Master + Admin IT
 	Route::middleware('role:master,admin_it')->group(function () {
+		Route::get('/target-monitorings', [TargetMonitoringController::class, 'index'])->name('target-monitorings.index');
+		Route::post('/target-monitorings/manual', [TargetMonitoringController::class, 'updateManual'])->name('target-monitorings.manual.update');
 		Route::get('/it-repair-tickets/{itRepairTicket}/repair', [ItRepairTicketController::class, 'repair'])->name('it-repair-tickets.repair');
 		Route::put('/it-repair-tickets/{itRepairTicket}/repair', [ItRepairTicketController::class, 'updateRepair'])->name('it-repair-tickets.update-repair');
 		Route::get('/it-repair-tickets/{itRepairTicket}/edit', [ItRepairTicketController::class, 'edit'])->name('it-repair-tickets.edit');

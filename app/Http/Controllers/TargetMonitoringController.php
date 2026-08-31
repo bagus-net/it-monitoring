@@ -18,7 +18,7 @@ class TargetMonitoringController extends Controller
         $endMonth = max($startMonth, min(12, $request->integer('end_month') ?: 6));
         $months = collect(self::MONTHS)->slice($startMonth - 1, $endMonth - $startMonth + 1);
         $manualValues = TargetMonitoring::where('year', $year)->whereBetween('month', [$startMonth, $endMonth])->get()->keyBy(fn ($record) => $record->metric_key . '|' . $record->month);
-        $slowRepairs = ItRepairTicket::whereNotNull('started_at')->whereNotNull('resolved_at')->whereYear('resolved_at', $year)->get()->filter(fn ($ticket) => $ticket->resolved_at->diffInMinutes($ticket->started_at) > 180)->groupBy(fn ($ticket) => $ticket->resolved_at->month)->map->count();
+        $slowRepairs = ItRepairTicket::whereNotNull('started_at')->whereNotNull('resolved_at')->whereYear('resolved_at', $year)->get()->filter(fn ($ticket) => $ticket->resolved_at->diffInMinutes($ticket->started_at) > 60)->groupBy(fn ($ticket) => $ticket->resolved_at->month)->map->count();
         $innovations = Innovation::whereYear('innovation_date', $year)->get()->groupBy(fn ($innovation) => $innovation->innovation_date->month)->map->count();
 
         $metrics = [

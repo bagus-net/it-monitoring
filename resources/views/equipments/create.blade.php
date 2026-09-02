@@ -95,10 +95,21 @@
                 <input name="vendor_name" class="form-control" value="{{ old('vendor_name') }}">
             </div>
             <div class="col-md-4 mb-3">
-                <label class="form-label">Pemilik Aset / PIC</label>
-                <input name="owner_name" class="form-control" value="{{ old('owner_name') }}">
+                <label class="form-label">Akun User / Pemilik Peralatan</label>
+                <select name="user_id" class="form-control">
+                    <option value="">-- Pilih User --</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-md-4 mb-3">
+                <label class="form-label">Nama PIC (Kontak)</label>
+                <input name="owner_name" class="form-control" value="{{ old('owner_name') }}" placeholder="Nama orang yang bertanggung jawab">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
                 <label class="form-label">Unit / Departemen</label>
                 <input name="department" class="form-control" value="{{ old('department') }}">
             </div>

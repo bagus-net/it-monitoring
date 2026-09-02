@@ -103,7 +103,8 @@ class EquipmentController extends Controller
         $types = EquipmentType::orderBy('name')->get();
         $manufacturers = \App\Models\Manufacturer::orderBy('name')->get();
         $locations = \App\Models\Location::orderBy('name')->get();
-        return view('equipments.create', compact('types','manufacturers','locations'));
+        $users = \App\Models\User::orderBy('name')->get();
+        return view('equipments.create', compact('types','manufacturers','locations','users'));
     }
 
     public function store(Request $request)
@@ -119,6 +120,7 @@ class EquipmentController extends Controller
             'manufacturer_id' => 'nullable|exists:manufacturers,id',
             'vendor_name' => 'nullable|string|max:255',
             'location_id' => 'nullable|exists:locations,id',
+            'user_id' => 'nullable|exists:users,id',
             'owner_name' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'ip_address' => 'nullable|ip',
@@ -206,7 +208,8 @@ class EquipmentController extends Controller
         $types = EquipmentType::orderBy('name')->get();
         $manufacturers = \App\Models\Manufacturer::orderBy('name')->get();
         $locations = \App\Models\Location::orderBy('name')->get();
-        return view('equipments.edit', compact('equipment','types','manufacturers','locations'));
+        $users = \App\Models\User::orderBy('name')->get();
+        return view('equipments.edit', compact('equipment','types','manufacturers','locations','users'));
     }
 
     public function update(Request $request, Equipment $equipment)
@@ -222,6 +225,7 @@ class EquipmentController extends Controller
             'manufacturer_id' => 'nullable|exists:manufacturers,id',
             'vendor_name' => 'nullable|string|max:255',
             'location_id' => 'nullable|exists:locations,id',
+            'user_id' => 'nullable|exists:users,id',
             'owner_name' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:255',
             'ip_address' => 'nullable|ip',

@@ -11,6 +11,40 @@
 		technicianForm.parentElement.insertBefore(repairReference, technicianForm);
 	}
 </script>
+<script>
+	const technicianOptions = @json($technicians);
+	const repairTicketForm = document.querySelector('form[action*="/repair"]');
+	const assignedInput = repairTicketForm?.querySelector('[name="assigned_to"]');
+	const actionInput = repairTicketForm?.querySelector('[name="repair_action"]');
+	if (repairTicketForm && assignedInput && actionInput) {
+		const technicianField = document.createElement('div');
+		technicianField.className = 'col-md-4 repair-technician-field';
+		technicianField.innerHTML = '<label class="form-label">Teknisi Penanggung Jawab</label><select name="technician_id" class="form-select"><option value="">-- Pilih Teknisi --</option>' + technicianOptions.map(technician => '<option value="' + technician.id + '" data-name="' + (technician.name || '').replace(/"/g, '&quot;') + '" ' + (String(technician.id) === String(@json(old('technician_id', $itRepairTicket->technician_id))) ? 'selected' : '') + '>' + technician.name + (technician.department ? ' - ' + technician.department : '') + '</option>').join('') + '</select><div class="form-text">Nama teknisi akan tercatat pada riwayat tiket.</div>';
+		assignedInput.closest('.col-md-4')?.before(technicianField);
+		const technicianSelect = technicianField.querySelector('select');
+		const syncTechnician = () => { const option = technicianSelect.selectedOptions[0]; if (option?.dataset.name) assignedInput.value = option.dataset.name; };
+		technicianSelect.addEventListener('change', syncTechnician);
+		syncTechnician();
+
+		const equipmentType = @json(strtolower($itRepairTicket->equipment_category ?: ($itRepairTicket->equipment?->type?->name ?? '')));
+		const softwareName = @json($itRepairTicket->software_name);
+		const actionPresets = {
+			komputer: ['Pemeriksaan perangkat dan power supply', 'Perbaikan atau penggantian komponen hardware', 'Instalasi ulang driver dan sistem operasi', 'Pembersihan perangkat dan pengujian fungsi'],
+			laptop: ['Pemeriksaan charger, baterai, dan perangkat', 'Perbaikan atau penggantian komponen laptop', 'Instalasi ulang driver dan sistem operasi', 'Pembersihan perangkat dan pengujian fungsi'],
+			printer: ['Pembersihan printer dan jalur kertas', 'Penggantian tinta, toner, atau cartridge', 'Perbaikan koneksi dan instalasi ulang driver', 'Pengujian cetak dan kalibrasi hasil'],
+			monitor: ['Pemeriksaan kabel, adaptor, dan sumber sinyal', 'Penggantian kabel atau komponen pendukung', 'Penyesuaian resolusi dan konfigurasi display', 'Pengujian tampilan dan stabilitas perangkat'],
+			server: ['Pemeriksaan service, storage, dan koneksi jaringan', 'Perbaikan konfigurasi server dan service terkait', 'Pemulihan data atau database dari backup', 'Monitoring pascaperbaikan dan verifikasi layanan'],
+			'jaringan / router': ['Pemeriksaan kabel, port, dan indikator perangkat', 'Penyesuaian konfigurasi jaringan atau IP address', 'Penggantian kabel atau perangkat jaringan', 'Pengujian koneksi antar perangkat'],
+			default: ['Pemeriksaan awal dan identifikasi sumber masalah', 'Perbaikan atau penggantian komponen terkait', 'Penyesuaian konfigurasi dan instalasi software', 'Pengujian fungsi setelah perbaikan']
+		};
+		const presets = actionPresets[equipmentType] || actionPresets.default;
+		const presetField = document.createElement('div');
+		presetField.className = 'col-12 repair-action-presets';
+		presetField.innerHTML = '<label class="form-label">Pilihan Keterangan Perbaikan</label><select class="form-select"><option value="">-- Pilih template sesuai tindakan --</option>' + presets.map(preset => '<option>' + preset + '</option>').join('') + '<option value="custom">Tindakan lain / tulis manual</option></select><div class="form-text">Preset disesuaikan dengan jenis tiket: ' + (softwareName || equipmentType || 'peralatan') + '.</div>';
+		actionInput.closest('.col-12')?.before(presetField);
+		presetField.querySelector('select').addEventListener('change', event => { if (event.target.value && event.target.value !== 'custom') actionInput.value = event.target.value; if (event.target.value === 'custom') actionInput.focus(); });
+	}
+</script>
 <style>.repair-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.request-summary{border:1px solid #dbe5ef;background:#f8fafc}.request-summary .card-header{background:#edf5fc;color:#17324d;font-weight:700;font-size:.82rem}.request-summary span{display:block;color:#64748b;font-size:.72rem;font-weight:700;text-transform:uppercase}.request-summary strong{display:block;margin-top:3px}.request-summary p{margin-top:4px;white-space:pre-line}.repair-form{border:1px solid #dbe5ef}.repair-form .card-header{background:#fff6e4;color:#17324d;font-weight:700}.repair-reference{margin-top:14px}.reference-error-photo{max-width:100%;max-height:280px;object-fit:contain;border:1px solid #dbe5ef;border-radius:5px;background:#fff}</style>
 <style>
 	/* The complete user reference below replaces the earlier short summary. */
@@ -19,5 +53,8 @@
 	.repair-reference .request-summary { margin: 0; }
 	.repair-reference .reference-error-photo { width: 180px; max-width: 100%; max-height: 220px; object-fit: cover; }
 	.repair-reference .card-body { padding: 18px; }
+</style>
+<style>
+	.repair-page{max-width:1180px;margin-top:0!important}.repair-page>div:first-child{padding:4px 4px 18px;border-bottom:1px solid #e8edf4}.repair-page h2{font-size:1.75rem;font-weight:800;color:#18243d;letter-spacing:-.03em}.repair-page .repair-eyebrow{color:#7c5cfc;font-size:.68rem;font-weight:800;letter-spacing:.13em}.repair-page .repair-eyebrow:before{content:'\f3e2';font-family:'bootstrap-icons';margin-right:6px}.repair-page .request-summary,.repair-page .repair-form{border:1px solid #e7ebf2;border-radius:16px;box-shadow:0 7px 20px rgba(35,52,85,.05);overflow:hidden}.repair-page .request-summary{background:#fff}.repair-page .request-summary .card-body{padding:20px}.repair-page .request-summary span{color:#94a0b2;font-size:.65rem}.repair-page .request-summary strong{color:#34415a;font-size:.78rem}.repair-page .request-summary p{color:#536079;font-size:.78rem}.repair-page .repair-form .card-header{display:flex;align-items:center;gap:8px;padding:18px 22px;background:linear-gradient(135deg,#faf9ff,#f5f2ff);color:#18243d;font-size:.88rem;font-weight:800}.repair-page .repair-form .card-header:before{content:'\f4fe';font-family:'bootstrap-icons';display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:#efeafe;color:#7c5cfc;font-size:.86rem}.repair-page .repair-form .card-body{padding:24px}.repair-page .repair-form .form-label{margin-bottom:6px;color:#69758d;font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.repair-page .repair-form .form-control,.repair-page .repair-form .form-select{min-height:42px;border-radius:10px;border-color:#dfe5ee;background:#fbfcfe;font-size:.76rem}.repair-page .repair-form .form-control:focus,.repair-page .repair-form .form-select:focus{border-color:#c4b5fd;box-shadow:0 0 0 3px rgba(124,92,252,.12);background:#fff}.repair-page .repair-form textarea{min-height:105px;resize:vertical;line-height:1.55}.repair-page .repair-form .form-text{color:#94a0b2;font-size:.67rem}.repair-page .repair-technician-field{padding:14px;border:1px solid #d9f3ee;border-radius:13px;background:#f5fffd}.repair-page .repair-technician-field .form-label{color:#0f9c8a!important}.repair-page .repair-action-presets{padding:14px;border:1px solid #e7e1ff;border-radius:13px;background:#faf9ff}.repair-page .repair-action-presets .form-label{color:#6b46d9!important}.repair-page .repair-form .card-footer{padding:16px 22px;border-top:1px solid #edf0f5;background:#fbfcfe}.repair-page .repair-form .btn-brand{border:0;border-radius:10px;background:linear-gradient(135deg,#7c5cfc,#a78bfa);box-shadow:0 8px 16px rgba(124,92,252,.2);font-weight:700}.repair-page .repair-form .btn-brand:before{content:'\f26a';font-family:'bootstrap-icons';margin-right:7px}.repair-page .repair-form .btn-outline-secondary{border-radius:10px;font-weight:700}@media(max-width:767px){.repair-page>div:first-child{align-items:flex-start!important;gap:14px;flex-direction:column}.repair-page>div:first-child>.btn{align-self:stretch}.repair-page .repair-form .card-body{padding:16px}.repair-page .repair-form .card-footer{padding:14px 16px}.repair-page .repair-form .card-footer .btn{width:100%}}
 </style>
 @endsection

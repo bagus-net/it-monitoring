@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid mt-4" style="--program-color:{{ $checklistItem->schedule_color }}; --program-tint:{{ $checklistItem->schedule_tint }};">
+<div class="container-fluid mt-4 monthly-schedule-page monthly-schedule-form-page" style="--program-color:{{ $checklistItem->schedule_color }}; --program-tint:{{ $checklistItem->schedule_tint }};">
     <div class="row">
         <div class="col-md-12">
             <h2 style="color:var(--program-color);">

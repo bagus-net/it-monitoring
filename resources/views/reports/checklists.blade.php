@@ -10,10 +10,10 @@
         </div>
     </div>
     <div class="row g-3 mb-3">
-        <div class="col-6 col-lg-2"><div class="report-stat total"><span>Checklist Web</span><strong>{{ $summary['web_total'] }}</strong><small>dokumen</small></div></div>
+        <div class="col-6 col-lg-2"><div class="report-stat total"><span>Checklist Web</span><strong>{{ $summary['web_total'] }}</strong><div class="report-meter"><span style="width:{{ round($summary['web_total'] / max(1, $summary['web_total'] + $summary['equipment_total']) * 100) }}%"></span></div><small>dokumen</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat info"><span>Security</span><strong>{{ $summary['web_security'] }}</strong><small>checklist keamanan</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat accent"><span>Functional</span><strong>{{ $summary['web_functional'] }}</strong><small>checklist fungsional</small></div></div>
-        <div class="col-6 col-lg-2"><div class="report-stat neutral"><span>Checklist Peralatan</span><strong>{{ $summary['equipment_total'] }}</strong><small>dokumen</small></div></div>
+        <div class="col-6 col-lg-2"><div class="report-stat neutral"><span>Checklist Peralatan</span><strong>{{ $summary['equipment_total'] }}</strong><div class="report-meter teal"><span style="width:{{ round($summary['equipment_total'] / max(1, $summary['web_total'] + $summary['equipment_total']) * 100) }}%"></span></div><small>dokumen</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat good"><span>Hasil OK</span><strong>{{ $summary['equipment_ok'] }}</strong><small>item sesuai</small></div></div>
         <div class="col-6 col-lg-2"><div class="report-stat attention"><span>Hasil NOT OK</span><strong>{{ $summary['equipment_not_ok'] }}</strong><small>perlu tindak lanjut</small></div></div>
     </div>
@@ -77,5 +77,9 @@
         </div>
     </div>
 </div>
+@php
+    $checklistTotal = $summary['equipment_ok'] + $summary['equipment_not_ok'];
+@endphp
+<div class="report-insight checklist-insight"><i class="bi bi-check2-circle"></i><div><strong>Insight kepatuhan</strong><span>{{ $checklistTotal > 0 ? round($summary['equipment_ok'] / $checklistTotal * 100) . '% hasil checklist peralatan dinyatakan OK.' : 'Belum ada hasil checklist peralatan pada periode ini.' }} {{ $summary['equipment_not_ok'] > 0 ? $summary['equipment_not_ok'] . ' item perlu ditindaklanjuti.' : '' }}</span></div></div>
 @include('reports._styles')
 @endsection

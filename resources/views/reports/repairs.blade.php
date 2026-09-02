@@ -37,7 +37,7 @@
                     <thead><tr><th>Jenis Error</th><th class="text-end">Jumlah</th></tr></thead>
                     <tbody>
                         @forelse($byProblem as $row)
-                            <tr><td>{{ $row['problem'] }}</td><td class="text-end">{{ $row['total'] }}</td></tr>
+                            <tr><td><strong>{{ $row['problem'] }}</strong><div class="report-meter rose"><span style="width:{{ round($row['total'] / max(1, collect($byProblem)->max('total')) * 100) }}%"></span></div></td><td class="text-end">{{ $row['total'] }}</td></tr>
                         @empty
                             <tr><td colspan="2" class="text-center text-muted py-3">Tidak ada data.</td></tr>
                         @endforelse
@@ -75,5 +75,6 @@
         </div>
     </div>
 </div>
+<div class="report-insight repair-insight"><i class="bi bi-activity"></i><div><strong>Insight layanan</strong><span>{{ $summary['open'] + $summary['in_progress'] > 0 ? ($summary['open'] + $summary['in_progress']) . ' tiket masih membutuhkan penanganan.' : 'Tidak ada tiket yang sedang menunggu penanganan.' }} Rata-rata penyelesaian saat ini {{ $summary['avg_hours'] }} jam.</span></div></div>
 @include('reports._styles')
 @endsection

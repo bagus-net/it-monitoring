@@ -35,7 +35,7 @@
                     <thead><tr><th>Jenis</th><th class="text-end">Total</th><th class="text-end">Baik</th><th class="text-end">Rusak / Perbaikan</th></tr></thead>
                     <tbody>
                         @forelse($byType as $row)
-                            <tr><td>{{ $row['type'] }}</td><td class="text-end">{{ $row['total'] }}</td><td class="text-end">{{ $row['good'] }}</td><td class="text-end">{{ $row['attention'] }}</td></tr>
+                            <tr><td><strong>{{ $row['type'] }}</strong><div class="report-meter"><span style="width:{{ round($row['total'] / max(1, collect($byType)->max('total')) * 100) }}%"></span></div></td><td class="text-end">{{ $row['total'] }}</td><td class="text-end">{{ $row['good'] }}</td><td class="text-end">{{ $row['attention'] }}</td></tr>
                         @empty
                             <tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data.</td></tr>
                         @endforelse
@@ -71,5 +71,6 @@
         </div>
     </div>
 </div>
+<div class="report-insight"><i class="bi bi-lightbulb"></i><div><strong>Insight aset</strong><span>{{ $summary['attention'] > 0 ? $summary['attention'] . ' aset membutuhkan tindak lanjut.' : 'Semua aset dalam kondisi baik.' }} {{ $summary['unassigned'] > 0 ? $summary['unassigned'] . ' aset belum memiliki PIC.' : 'Seluruh aset sudah memiliki PIC.' }}</span></div></div>
 @include('reports._styles')
 @endsection

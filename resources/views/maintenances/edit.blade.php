@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container schedule-page schedule-form-page">
     <h1 style="color:{{ $item->schedule_color }}">Edit Jadwal Perawatan: {{ $item->title }}</h1>
     <form method="POST" action="{{ route('maintenances.schedules.update', $item->id) }}">
         @csrf

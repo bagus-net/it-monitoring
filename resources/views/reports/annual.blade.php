@@ -39,9 +39,9 @@
     </form>
 
     <section class="summary-grid mb-4">
-        <div class="summary-card"><span>Program Perawatan</span><strong>{{ $summary['programs'] }}</strong><small>tercakup dalam laporan</small></div>
-        <div class="summary-card success"><span>Peralatan Terjadwal</span><strong>{{ $summary['equipments'] }}</strong><small>peralatan IT</small></div>
-        <div class="summary-card info"><span>Jadwal Mingguan</span><strong>{{ $summary['planned_weeks'] }}</strong><small>slot minggu terjadwal</small></div>
+        <div class="summary-card"><span>Program Perawatan</span><strong>{{ $summary['programs'] }}</strong><div class="report-meter"><span style="width:{{ min(100, $summary['programs'] * 10) }}%"></span></div><small>tercakup dalam laporan</small></div>
+        <div class="summary-card success"><span>Peralatan Terjadwal</span><strong>{{ $summary['equipments'] }}</strong><div class="report-meter teal"><span style="width:{{ min(100, $summary['equipments'] * 10) }}%"></span></div><small>peralatan IT</small></div>
+        <div class="summary-card info"><span>Jadwal Mingguan</span><strong>{{ $summary['planned_weeks'] }}</strong><div class="report-meter rose"><span style="width:{{ min(100, $summary['planned_weeks'] * 5) }}%"></span></div><small>slot minggu terjadwal</small></div>
     </section>
 
     <section class="report-table-section">
@@ -87,6 +87,7 @@
         </div>
     </section>
 </div>
+<div class="report-insight"><i class="bi bi-calendar-check"></i><div><strong>Insight jadwal tahunan</strong><span>{{ $summary['programs'] }} program mencakup {{ $summary['equipments'] }} peralatan dengan {{ $summary['planned_weeks'] }} slot minggu terjadwal untuk {{ $periodLabel }}.</span></div></div>
 
 <style>
 .report-page { color: #263238; }

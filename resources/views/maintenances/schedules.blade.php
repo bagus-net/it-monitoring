@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container schedule-page">
     <div class="card card-colorful mb-3">
         <div class="card-header">Cetak Jadwal Perawatan IT Tahunan</div>
         <div class="card-body">

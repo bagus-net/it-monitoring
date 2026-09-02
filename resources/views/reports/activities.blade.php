@@ -35,7 +35,7 @@
                     <thead><tr><th>Nama User</th><th class="text-end">Jumlah Aktivitas</th></tr></thead>
                     <tbody>
                         @forelse($byUser as $row)
-                            <tr><td>{{ $row['actor'] }}</td><td class="text-end">{{ $row['total'] }}</td></tr>
+                            <tr><td><strong>{{ $row['actor'] }}</strong><div class="report-meter teal"><span style="width:{{ round($row['total'] / max(1, collect($byUser)->max('total')) * 100) }}%"></span></div></td><td class="text-end">{{ $row['total'] }}</td></tr>
                         @empty
                             <tr><td colspan="2" class="text-center text-muted py-3">Tidak ada data.</td></tr>
                         @endforelse
@@ -69,5 +69,9 @@
         </div>
     </div>
 </div>
+@php
+    $dominantAction = collect($summary)->except('total')->sortDesc()->keys()->first();
+@endphp
+<div class="report-insight activity-insight"><i class="bi bi-shield-check"></i><div><strong>Insight aktivitas</strong><span>{{ $summary['total'] > 0 ? $summary['total'] . ' aktivitas tercatat pada periode ini.' : 'Belum ada aktivitas pada periode ini.' }} {{ $dominantAction ? ucfirst($dominantAction) . ' menjadi jenis aktivitas terbanyak.' : '' }}</span></div></div>
 @include('reports._styles')
 @endsection

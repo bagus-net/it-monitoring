@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\ItRepairTicket;
 use App\Services\WhatsappNotificationService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ItRepairTicketController extends Controller
 {
@@ -203,15 +205,20 @@ class ItRepairTicketController extends Controller
     public function repair(ItRepairTicket $itRepairTicket)
     {
         $itRepairTicket->load('equipment');
+        $technicians = User::where('is_active', true)
+            ->whereIn('role', [User::ROLE_MASTER, User::ROLE_ADMIN_IT])
+            ->orderBy('name')
+            ->get(['id', 'name', 'department']);
 
-        return view('it_repair_tickets.repair', compact('itRepairTicket'));
+        return view('it_repair_tickets.repair', compact('itRepairTicket', 'technicians'));
     }
 
     public function updateRepair(Request $request, ItRepairTicket $itRepairTicket)
     {
         $data = $this->validateRepair($request);
-        $data['technician_id'] = auth()->id();
-        $data['assigned_to'] = $data['assigned_to'] ?: auth()->user()->name;
+        $data['technician_id'] = $data['technician_id'] ?: auth()->id();
+        $selectedTechnician = !empty($data['technician_id']) ? User::find($data['technician_id']) : null;
+        $data['assigned_to'] = $selectedTechnician?->name ?: ($data['assigned_to'] ?: auth()->user()->name);
         if ($request->hasFile('repair_attachment')) {
             if ($itRepairTicket->repair_attachment_path) {
                 Storage::disk('public')->delete($itRepairTicket->repair_attachment_path);
@@ -260,6 +267,7 @@ class ItRepairTicketController extends Controller
             'repair_attachment' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'status' => 'required|in:open,in_progress,resolved',
             'assigned_to' => 'nullable|string|max:255',
+            'technician_id' => ['nullable', 'exists:users,id', Rule::exists('users', 'id')->where('is_active', true)->whereIn('role', [User::ROLE_MASTER, User::ROLE_ADMIN_IT])],
             'started_at' => 'nullable|date',
             'resolved_at' => 'nullable|date',
             'notes' => 'nullable|string',

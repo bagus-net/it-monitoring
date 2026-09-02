@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container mt-4 maintenance-check-page">
     <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Edit Checklist Perawatan</h2><p class="text-muted mb-0">Perbarui kondisi dan keterangan peralatan.</p></div><a href="{{ route('maintenance-checklists.show', $maintenanceChecklist) }}" class="btn btn-outline-secondary">Kembali</a></div>
     <form method="POST" action="{{ route('maintenance-checklists.update', $maintenanceChecklist) }}">@csrf @method('PUT')
         @php

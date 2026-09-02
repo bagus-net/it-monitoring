@@ -7,10 +7,10 @@
     <div class="container mt-4 repair-page">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
-                <div class="repair-eyebrow">IT Service Desk</div>
+                <div class="repair-eyebrow"><i class="bi bi-headset"></i> IT Service Desk</div>
                 <h2 class="mb-1">Perbaikan IT</h2>
                 <p class="text-muted mb-0">Tiket permintaan perbaikan dan tindak lanjut peralatan IT.</p>
-            </div><a href="{{ route('it-repair-tickets.create') }}" class="btn btn-brand">Buat Tiket Perbaikan</a>
+            </div><a href="{{ route('it-repair-tickets.create') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Buat Tiket Perbaikan</a>
         </div>
         <div class="row g-3 mb-3">
             <div class="col-md-4"><a class="repair-stat open"
@@ -117,7 +117,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-6 col-lg-2"><label class="form-label"></label>Jenis Peralatan</label><select
+                    <div class="col-6 col-lg-2"><label class="form-label">Jenis Peralatan</label><select
                             name="category" class="form-select">
                             <option value="">Semua</option>
                             @foreach ($categories as $category)
@@ -169,10 +169,9 @@
                                 @if (!auth()->user()->isEmployee())
                                     <th>Durasi</th>
                                 @endif
-                                <th>
-                                    <th>Prioritas</th>
+                                <th>Prioritas</th>
                                 <th>Status</th>
-                                    Aksi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -453,5 +452,14 @@
             font-size: .7rem;
             font-weight: 700
         }
+    </style>
+    <style>
+        .repair-page{max-width:1480px;margin-top:0!important;color:#18243d}.repair-page>div:first-child{padding:4px 4px 18px;border-bottom:1px solid #e8edf4}.repair-page .repair-eyebrow{color:#f43f5e;font-size:.68rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.repair-page .repair-eyebrow i{margin-right:5px}.repair-page h2{color:#18243d;font-size:1.8rem;font-weight:800;letter-spacing:-.03em}.repair-page .text-muted{color:#8792a7!important;font-size:.78rem}.repair-page .btn-brand{border-radius:10px;padding:10px 16px;background:linear-gradient(135deg,#f43f5e,#fb7185);box-shadow:0 8px 16px rgba(244,63,94,.2);font-weight:700}.repair-page .btn-brand i{margin-right:7px}
+        .repair-page .repair-stat{position:relative;min-height:116px;padding:19px 20px;border:1px solid #fbe5e9;border-top:0;border-radius:16px;background:#fff;box-shadow:0 7px 20px rgba(196,61,88,.06);overflow:hidden}.repair-page .repair-stat:after{content:'';position:absolute;right:-22px;bottom:-34px;width:90px;height:90px;border-radius:50%;background:currentColor;opacity:.06}.repair-page .repair-stat span{color:#78849a;font-size:.72rem;font-weight:700}.repair-page .repair-stat strong{display:block;margin-top:9px;color:#18243d;font-size:1.85rem;font-weight:800}.repair-page .repair-stat small{color:#8792a7;font-size:.68rem}.repair-page .repair-stat.open{color:#f3b54b}.repair-page .repair-stat.repair-in-progress{color:#7c5cfc}.repair-page .repair-stat.resolved{color:#14b8a6}
+        .repair-page .card{border-radius:16px;border-color:#e7ebf2;box-shadow:0 5px 18px rgba(35,52,85,.045);overflow:hidden}.repair-page .card-header{padding:17px 20px;background:#fff;border-bottom:1px solid #edf0f5}.repair-page .card-header strong{font-size:.9rem}.repair-page .card-header span{color:#8792a7;font-size:.7rem}.repair-page .repair-filter .card-header strong:before{content:'\f3e5';font-family:'bootstrap-icons';margin-right:8px;color:#7c5cfc}.repair-page .form-label{font-size:.68rem;font-weight:700;color:#69758d;letter-spacing:.03em;text-transform:uppercase}.repair-page .form-control,.repair-page .form-select{min-height:39px;border-radius:9px;border-color:#dfe5ee;font-size:.75rem}.repair-page .form-control:focus,.repair-page .form-select:focus{border-color:#c4b5fd;box-shadow:0 0 0 3px rgba(124,92,252,.12)}
+        .repair-page .my-equipment-card{height:100%;padding:16px;border:1px solid #e7ebf2;border-radius:14px;background:#faf9ff}.repair-page .my-equipment-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:12px}.repair-page .my-equipment-head strong{color:#26324b;font-size:.8rem}.repair-page .condition-chip,.repair-page .repair-kind,.repair-page .priority,.repair-page .ticket-status{border-radius:999px!important;padding:5px 9px;font-size:.65rem;font-weight:700}.repair-page .chip-good,.repair-page .status-resolved{background:#e2f8f4;color:#0f9c8a}.repair-page .chip-attention,.repair-page .status-open{background:#ffeef0;color:#e11d48}.repair-page .my-equipment-card dl{display:grid;grid-template-columns:1fr 1.4fr;gap:6px 10px;margin:0 0 14px}.repair-page .my-equipment-card dt{color:#94a0b2;font-size:.65rem;font-weight:700;text-transform:uppercase}.repair-page .my-equipment-card dd{margin:0;color:#536079;font-size:.7rem;font-weight:600;overflow-wrap:anywhere}.repair-page .my-equipment-card .btn{border-radius:9px;font-weight:700}
+        .repair-page .repair-list .card-header{gap:12px}.repair-page .repair-kind-recap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.repair-page .repair-list .table{font-size:.74rem}.repair-page .repair-list .table thead th{padding:13px 14px;background:#fff7f8;color:#7d899e;font-size:.64rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}.repair-page .repair-list .table tbody td{padding:14px;border-color:#eef1f5;color:#536079}.repair-page .repair-list .table tbody tr:hover{background:#fffafb}.repair-page .repair-list .table td strong{color:#26324b}.repair-page .repair-list small{color:#94a0b2;font-size:.65rem}.repair-page .kind-hardware{background:#efeafe;color:#6b46d9}.repair-page .kind-software{background:#e0f7f5;color:#0f9c8a}.repair-page .priority-low{background:#edf1f6;color:#657188}.repair-page .priority-normal{background:#eef3ff;color:#2161f5}.repair-page .priority-high{background:#fff5dc;color:#b77908}.repair-page .priority-urgent{background:#ffeef0;color:#e11d48}.repair-page .status-in_progress{background:#efeafe;color:#6b46d9}.repair-page .btn-sm{border-radius:8px;font-weight:700;font-size:.69rem}.repair-page .table-pagination{padding:14px 20px;background:#fff}.repair-page .page-link{border-radius:8px;margin-left:4px!important}
+        .repair-page .repair-list .table{min-width:1080px}.repair-page .repair-list .table th,.repair-page .repair-list .table td{padding-left:10px;padding-right:10px}.repair-page .repair-list .table th:nth-child(7),.repair-page .repair-list .table td:nth-child(7){max-width:170px}.repair-page .repair-list .problem-cell{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.repair-page .repair-list .table th:last-child,.repair-page .repair-list .table td:last-child{position:sticky;right:0;z-index:2;background:#fff;box-shadow:-8px 0 12px rgba(35,52,85,.06)}.repair-page .repair-list .table tbody tr:hover td:last-child{background:#fffafb}.repair-page .repair-list .table td:last-child .btn{padding:6px 9px}.repair-page .repair-list .table-responsive{overflow-x:auto;scrollbar-color:#c4b5fd #f5f3ff;scrollbar-width:thin}
+        @media(max-width:767px){.repair-page>div:first-child{gap:14px;flex-direction:column!important}.repair-page>div:first-child>.btn{align-self:stretch}.repair-page .repair-list .card-header{align-items:flex-start!important;flex-direction:column}.repair-page .my-equipment-card dl{grid-template-columns:1fr 1.2fr}.repair-page .repair-list .table{min-width:980px}}
     </style>
 @endsection

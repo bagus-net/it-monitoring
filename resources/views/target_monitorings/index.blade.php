@@ -27,7 +27,7 @@
 @endphp
 
 @section('content')
-    <div class="container-fluid mt-4 target-monitoring-page">
+    <div class="container-fluid mt-4 target-monitoring-page target-modern-page">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
             <div>
                 <div class="target-kicker">IT PERFORMANCE CONTROL</div>
@@ -577,6 +577,14 @@
                 size: landscape;
                 margin: 6mm;
             }
+        }
+        @media print {
+            .target-modern-page .target-sheet { border: none; background: #fff; box-shadow: none; }
+            .target-modern-page .target-table thead th { background: #f8fafc; color: #17324d; }
+            .target-modern-page .target-table th,
+            .target-modern-page .target-table td { border-color: #334155; }
+            .target-modern-page .target-result { border-radius: 3px; }
+            .target-modern-page .target-actions { background: #f8fafc; }
         }
     </style>
 @endsection

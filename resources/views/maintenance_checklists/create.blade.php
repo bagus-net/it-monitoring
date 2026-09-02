@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container mt-4 maintenance-check-page">
     <div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="mb-1">Buat Checklist Perawatan</h2><p class="text-muted mb-0">Pilih periode untuk menampilkan peralatan yang dijadwalkan.</p></div><a href="{{ route('maintenance-checklists.index') }}" class="btn btn-outline-secondary">Kembali</a></div>
 
     <form method="GET" class="card mb-3 checklist-filter">

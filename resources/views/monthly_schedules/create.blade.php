@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4">
+<div class="container mt-4 monthly-schedule-page monthly-schedule-form-page">
     <div class="row">
         <div class="col-md-10 offset-md-1">
             <h2 style="color: #ff9800;">📋 Buat Jadwal Bulanan</h2>

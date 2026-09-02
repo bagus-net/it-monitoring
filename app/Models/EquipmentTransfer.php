@@ -10,7 +10,7 @@ class EquipmentTransfer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'equipment_id', 'from_user_id', 'to_user_id', 'from_owner_name', 'to_owner_name',
+        'equipment_id', 'swap_group', 'from_user_id', 'to_user_id', 'from_owner_name', 'to_owner_name',
         'from_department', 'to_department', 'from_location_id', 'to_location_id', 'reason',
         'effective_date', 'status', 'requested_by', 'approved_by', 'approved_at',
         'completed_by', 'completed_at', 'notes',

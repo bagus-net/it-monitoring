@@ -13,6 +13,12 @@
     <link href="/css/it-theme.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>if (localStorage.getItem('it-monitoring-dark-mode') === '1') document.documentElement.classList.add('app-dark-mode');</script>
+    <style>
+        /* Higher invert + brightness push dark text closer to bright white while keeping backgrounds dark, not washed-out gray. */
+        html.app-dark-mode { filter: invert(94%) hue-rotate(180deg) brightness(1.08) contrast(105%); background: #0f0f10; }
+        html.app-dark-mode img, html.app-dark-mode video, html.app-dark-mode iframe, html.app-dark-mode canvas, html.app-dark-mode svg image { filter: invert(94%) hue-rotate(180deg) brightness(1.08) contrast(105%); }
+    </style>
 </head>
 <body>
     <button class="sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Buka navigasi">Menu</button>
@@ -606,6 +612,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const popover = document.getElementById('topbarPopover');
+            const safeToast = msg => { if (typeof showToast === 'function') showToast(msg); };
             const buttons = {
                 language: document.getElementById('topbarLanguageButton'),
                 apps: document.getElementById('topbarAppsButton'),
@@ -623,16 +630,23 @@
                 openPopover('<div class="topbar-popover-heading">Notifikasi</div><a class="popover-link" href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i><span>Tiket terbuka</span><strong>' + ticketCount + '</strong></a>@if(auth()->user() && !auth()->user()->isEmployee())<a class="popover-link" href="{{ route('equipment-transfers.index') }}"><i class="bi bi-arrow-left-right"></i><span>Mutasi menunggu approval</span><strong>' + transferCount + '</strong></a>@endif<button id="popoverNotificationPermission" class="popover-action"><i class="bi bi-bell"></i>Aktifkan notifikasi browser</button>');
                 document.getElementById('popoverNotificationPermission')?.addEventListener('click', () => document.getElementById('enableTicketAlerts')?.click());
             };
-            const openSettings = () => openPopover('<div class="topbar-popover-heading">Pengaturan Cepat</div><button id="popoverSidebarToggle" class="popover-link"><i class="bi bi-layout-sidebar-inset"></i><span>Hide / show navbar</span><strong>' + (document.body.classList.contains('sidebar-collapsed') ? 'Show' : 'Hide') + '</strong></button><a class="popover-link" href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i><span>Profil Saya</span><strong><i class="bi bi-arrow-up-right"></i></strong></a><div class="popover-note">Pengaturan lanjutan tersedia di profil akun.</div>');
+            const openSettings = () => openPopover('<div class="topbar-popover-heading">Pengaturan Cepat</div><button id="popoverSidebarToggle" class="popover-link"><i class="bi bi-layout-sidebar-inset"></i><span>Hide / show navbar</span><strong>' + (document.body.classList.contains('sidebar-collapsed') ? 'Show' : 'Hide') + '</strong></button><button id="popoverDarkModeToggle" class="popover-link"><i class="bi ' + (document.documentElement.classList.contains('app-dark-mode') ? 'bi-sun' : 'bi-moon-stars') + '"></i><span>Mode Gelap</span><strong>' + (document.documentElement.classList.contains('app-dark-mode') ? 'Nyala' : 'Mati') + '</strong></button><a class="popover-link" href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i><span>Profil Saya</span><strong><i class="bi bi-arrow-up-right"></i></strong></a><div class="popover-note">Pengaturan lanjutan tersedia di profil akun.</div>');
             buttons.language?.addEventListener('click', event => { event.stopPropagation(); popover.hidden ? openLanguage() : closePopover(); });
             buttons.apps?.addEventListener('click', event => { event.stopPropagation(); popover.hidden ? openApps() : closePopover(); });
             buttons.notifications?.addEventListener('click', event => { event.stopPropagation(); popover.hidden ? openNotifications() : closePopover(); });
             buttons.settings?.addEventListener('click', event => { event.stopPropagation(); popover.hidden ? openSettings() : closePopover(); });
             popover.addEventListener('click', event => {
                 const languageButton = event.target.closest('[data-language]');
-                if (languageButton) { localStorage.setItem('it-monitoring-language', languageButton.dataset.language); document.documentElement.lang = languageButton.dataset.language; showToast(languageButton.dataset.language === 'en' ? 'Language set to English' : 'Bahasa diatur ke Indonesia'); closePopover(); }
+                if (languageButton) { localStorage.setItem('it-monitoring-language', languageButton.dataset.language); document.documentElement.lang = languageButton.dataset.language; safeToast(languageButton.dataset.language === 'en' ? 'Language set to English' : 'Bahasa diatur ke Indonesia'); closePopover(); }
                 const sidebarButton = event.target.closest('#popoverSidebarToggle');
                 if (sidebarButton) { document.getElementById('sidebarCollapseToggle')?.click(); closePopover(); }
+                const darkModeButton = event.target.closest('#popoverDarkModeToggle');
+                if (darkModeButton) {
+                    const enabled = document.documentElement.classList.toggle('app-dark-mode');
+                    localStorage.setItem('it-monitoring-dark-mode', enabled ? '1' : '0');
+                    safeToast(enabled ? 'Mode gelap diaktifkan' : 'Mode gelap dimatikan');
+                    closePopover();
+                }
             });
             document.addEventListener('click', event => { if (!popover.hidden && !popover.contains(event.target) && !Object.values(buttons).some(button => button?.contains(event.target))) closePopover(); });
             document.documentElement.lang = localStorage.getItem('it-monitoring-language') || 'id';

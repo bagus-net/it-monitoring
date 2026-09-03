@@ -45,6 +45,7 @@
   .analytics-head{margin-bottom:18px}.analytics-head h2,.panel-head h2{color:#18243d;font-size:.98rem;font-weight:800}.analytics-head p,.panel-subtitle{color:#8a95a8;font-size:.72rem}
   .trend-chart{border-bottom-color:#e9edf4;background:repeating-linear-gradient(to bottom,transparent 0,transparent 46px,#f0f3f7 47px)}
   .trend-bar{border-radius:5px 5px 0 0;box-shadow:none}.trend-bar.ticket{background:#ef6671}.trend-bar.checklist{background:#8b65e8}.trend-bar.stock{background:#36b6c1}.trend-bar.license{background:#f2b34c}
+  .trend-chart-wrap{position:relative;height:260px;margin-bottom:6px}
   .trend-filter select{border:1px solid #e7ebf2;border-radius:10px;background:#f7f9fc;color:#3f4a63;font-weight:600}
   .trend-filter button{border-radius:10px;font-weight:700}.download-chart{border-radius:10px}
   .chart-legend{gap:8px}.chart-legend span{display:inline-flex;align-items:center;padding:5px 11px;border-radius:999px;background:#f7f9fc;font-weight:600;color:#57627a}.chart-legend i{width:7px;height:7px;border-radius:50%}
@@ -85,11 +86,8 @@
   <section class="dashboard-analytics">
     <div class="analytics-panel">
       <div class="analytics-head"><div><h2>Tren Aktivitas Sistem</h2><p>Jumlah aktivitas berdasarkan periode yang dipilih.</p></div><div class="trend-controls"><form method="GET" action="{{ route('dashboard') }}" class="trend-filter"><label>Tampilkan</label><select name="period" aria-label="Panjang periode">@foreach($periodOptions as $value => $label)<option value="{{ $value }}" @selected($selectedPeriod === $value)>{{ $label }}</option>@endforeach</select><select name="month" aria-label="Bulan akhir">@foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber + 1 }}" @selected($selectedMonth === $monthNumber + 1)>{{ $monthName }}</option>@endforeach</select><select name="year" aria-label="Tahun akhir">@foreach($yearOptions as $year)<option value="{{ $year }}" @selected($selectedYear === $year)>{{ $year }}</option>@endforeach</select><button type="submit">Terapkan</button></form><button type="button" class="download-chart" onclick="downloadTrendChart()">Unduh Grafik</button></div></div>
-      <div class="trend-chart">
-        @php($trendMax = max(1, $dashboardTrend->flatMap(fn ($item) => [$item['tickets'], $item['checklists'], $item['stock'], $item['licenses']])->max()))
-        @foreach($dashboardTrend as $trend)
-          <div><div class="trend-column"><span class="trend-bar ticket" style="height:{{ round(($trend['tickets'] / $trendMax) * 150) }}px" title="Tiket: {{ $trend['tickets'] }}"><b>{{ $trend['tickets'] }}</b></span><span class="trend-bar checklist" style="height:{{ round(($trend['checklists'] / $trendMax) * 150) }}px" title="Checklist: {{ $trend['checklists'] }}"><b>{{ $trend['checklists'] }}</b></span><span class="trend-bar stock" style="height:{{ round(($trend['stock'] / $trendMax) * 150) }}px" title="Stok: {{ $trend['stock'] }}"><b>{{ $trend['stock'] }}</b></span><span class="trend-bar license" style="height:{{ round(($trend['licenses'] / $trendMax) * 150) }}px" title="Lisensi: {{ $trend['licenses'] }}"><b>{{ $trend['licenses'] }}</b></span></div><div class="trend-label">{{ $trend['label'] }}</div></div>
-        @endforeach
+      <div class="trend-chart-wrap">
+        <canvas id="trendChart"></canvas>
       </div>
       <div class="chart-legend"><span><i style="background:#dc2626"></i>Tiket</span><span><i style="background:#7c3aed"></i>Checklist</span><span><i style="background:#0891b2"></i>Stok</span><span><i style="background:#f59e0b"></i>Lisensi</span></div>
       <div class="trend-summary"><div class="trend-summary-item ticket"><span>Total Tiket</span><strong>{{ $dashboardTrend->sum('tickets') }}</strong></div><div class="trend-summary-item checklist"><span>Total Checklist</span><strong>{{ $dashboardTrend->sum('checklists') }}</strong></div><div class="trend-summary-item stock"><span>Total Stok</span><strong>{{ $dashboardTrend->sum('stock') }}</strong></div><div class="trend-summary-item license"><span>Total Lisensi</span><strong>{{ $dashboardTrend->sum('licenses') }}</strong></div></div>
@@ -151,8 +149,39 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
   const trendDownloadData = @json($dashboardTrend);
+  const trendLabels = trendDownloadData.map(t => t.label);
+  const trendCanvas = document.getElementById('trendChart');
+  if(trendCanvas){
+    new Chart(trendCanvas, {
+      type: 'bar',
+      data: {
+        labels: trendLabels,
+        datasets: [
+          { label: 'Tiket', data: trendDownloadData.map(t => t.tickets), backgroundColor: '#ef6671', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Checklist', data: trendDownloadData.map(t => t.checklists), backgroundColor: '#8b65e8', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Stok', data: trendDownloadData.map(t => t.stock), backgroundColor: '#36b6c1', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Lisensi', data: trendDownloadData.map(t => t.licenses), backgroundColor: '#f2b34c', borderRadius: 4, maxBarThickness: 16 },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1200, easing: 'easeOutQuart' },
+        animations: { y: { duration: 1200, easing: 'easeOutBounce' } },
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8a95a8', font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: '#f0f3f7' }, ticks: { color: '#8a95a8', font: { size: 11 }, precision: 0 } },
+        },
+      },
+    });
+  }
   function downloadTrendChart(){
     const canvas = document.createElement('canvas');
     const scale = 2;

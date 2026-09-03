@@ -63,8 +63,10 @@ Route::middleware('auth')->group(function () {
 	Route::post('/it-repair-tickets', [ItRepairTicketController::class, 'store'])->name('it-repair-tickets.store');
 	Route::get('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'show'])->name('it-repair-tickets.show');
 
-	Route::get('/iso-documents/{isoDocument}/download', [IsoDocumentController::class, 'download'])->name('iso-documents.download');
-	Route::get('/iso-documents/{isoDocument}/preview', [IsoDocumentController::class, 'preview'])->name('iso-documents.preview');
+	Route::post('/iso-documents/{isoDocument}/files', [IsoDocumentController::class, 'storeFile'])->name('iso-documents.files.store');
+	Route::get('/iso-documents/{isoDocument}/files/{file}/download', [IsoDocumentController::class, 'downloadFile'])->name('iso-documents.files.download');
+	Route::get('/iso-documents/{isoDocument}/files/{file}/preview', [IsoDocumentController::class, 'previewFile'])->name('iso-documents.files.preview');
+	Route::delete('/iso-documents/{isoDocument}/files/{file}', [IsoDocumentController::class, 'destroyFile'])->name('iso-documents.files.destroy');
 	Route::resource('iso-documents', IsoDocumentController::class);
 
 	// Master + Admin IT

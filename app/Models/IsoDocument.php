@@ -29,6 +29,11 @@ class IsoDocument extends Model
         return $this->belongsTo(User::class, 'created_by_user_id');
     }
 
+    public function files()
+    {
+        return $this->hasMany(IsoDocumentFile::class)->latest();
+    }
+
     public function permittedUsers()
     {
         return $this->belongsToMany(User::class, 'iso_document_user')->withTimestamps();

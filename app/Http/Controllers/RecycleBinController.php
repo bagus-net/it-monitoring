@@ -74,6 +74,9 @@ class RecycleBinController extends Controller
         if ($record instanceof IsoDocument && $record->file_path) {
             Storage::delete($record->file_path);
         }
+        if ($record instanceof IsoDocument) {
+            $record->files->each(fn ($file) => Storage::delete($file->file_path));
+        }
     }
 
     private function recordTypes(): array

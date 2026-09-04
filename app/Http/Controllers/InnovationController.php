@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Innovation;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,6 +32,57 @@ class InnovationController extends Controller
             ->withQueryString();
 
         return view('innovations.index', compact('innovations', 'availableYears', 'year', 'search'));
+    }
+
+    public function print(Request $request)
+    {
+        $year = $request->integer('year') ?: now()->year;
+        $month = $request->integer('month') ?: null;
+
+        $availableYears = Innovation::selectRaw('YEAR(innovation_date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->push(now()->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $query = Innovation::whereYear('innovation_date', $year)->orderBy('innovation_date')->orderBy('id');
+        if ($month) {
+            $query->whereMonth('innovation_date', $month);
+        }
+        $innovations = $query->get();
+
+        $monthsList = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        if ($month && isset($monthsList[$month])) {
+            $activeMonths = [$month => $monthsList[$month]];
+        } else {
+            $activeMonths = $monthsList;
+        }
+
+        $groupedInnovations = [];
+        foreach ($activeMonths as $mNum => $mName) {
+            $items = $innovations->filter(fn ($item) => (int) $item->innovation_date?->month === $mNum)->values();
+            $groupedInnovations[$mNum] = [
+                'name' => $mName,
+                'items' => $items,
+            ];
+        }
+
+        $signatures = User::documentSignatories();
+        $signatureNames = [
+            'reporter' => $signatures['reporter']?->name ?? 'Bagus',
+        ];
+
+        return view('innovations.print', compact(
+            'year', 'month', 'availableYears', 'monthsList', 'groupedInnovations', 'signatures', 'signatureNames'
+        ));
     }
 
     public function create()

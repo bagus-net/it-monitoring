@@ -30,10 +30,12 @@
         .signatures { display: grid; grid-template-columns: 1fr 1fr; min-height: 138px; padding: 28px 74px 10px; font-size: 10px; font-weight: 700; }
         .signature { width: 150px; text-align: center; }
         .signature:last-child { justify-self: end; }
-        .signature-line { height: 78px; border-bottom: 1px solid #334155; }
+        .signature-line { height: 78px; border-bottom: 1px solid #334155; display: flex; align-items: flex-end; justify-content: center; }
+        .signature-image { max-height: 72px; max-width: 145px; object-fit: contain; }
+        .signature-name { margin-top: 4px; text-transform: capitalize; }
         .empty-row td { height: 42px; color: #64748b; font-size: 9px; }
         @media print {
-            body { background: #fff; }
+            body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .print-actions { display: none; }
             .sheet { max-width: none; margin: 0; }
         }
@@ -83,8 +85,24 @@
         </table>
 
         <div class="signatures">
-            <div class="signature">Dibuat oleh,<div class="signature-line"></div></div>
-            <div class="signature">Mengetahui,<div class="signature-line"></div></div>
+            <div class="signature">
+                Dibuat oleh,
+                <div class="signature-line">
+                    @if($signatures['reporter']?->signature_path)
+                        <img class="signature-image" src="{{ asset('storage/' . $signatures['reporter']->signature_path) }}" alt="Tanda tangan dibuat oleh">
+                    @endif
+                </div>
+                <div class="signature-name">{{ $signatureNames['reporter'] }}</div>
+            </div>
+            <div class="signature">
+                Mengetahui,
+                <div class="signature-line">
+                    @if($signatures['acknowledger']?->signature_path)
+                        <img class="signature-image" src="{{ asset('storage/' . $signatures['acknowledger']->signature_path) }}" alt="Tanda tangan mengetahui">
+                    @endif
+                </div>
+                <div class="signature-name">{{ $signatureNames['acknowledger'] }}</div>
+            </div>
         </div>
     </main>
 

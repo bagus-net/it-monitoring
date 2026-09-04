@@ -6,6 +6,7 @@ use App\Models\ChecklistItem;
 use App\Models\MonthlySchedule;
 use App\Models\Equipment;
 use App\Models\MaintenanceSchedule;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class MonthlyScheduleController extends Controller
@@ -185,12 +186,19 @@ class MonthlyScheduleController extends Controller
 
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $data['month'], $data['year']);
 
+        $signatures = User::documentSignatories();
+
         return view('monthly_schedules.print_month', [
             'month' => $data['month'],
             'year' => $data['year'],
             'monthName' => $monthNames[$data['month']],
             'daysInMonth' => $daysInMonth,
             'programCategories' => $programCategories,
+            'signatures' => $signatures,
+            'signatureNames' => [
+                'reporter' => $signatures['reporter']?->name ?? 'Bagus',
+                'acknowledger' => $signatures['acknowledger']?->name ?? 'Arifin',
+            ],
         ]);
     }
 
@@ -221,7 +229,16 @@ class MonthlyScheduleController extends Controller
             ];
         })->sortBy(fn($g) => $g['equipment']->name ?? '');
 
-        return view('monthly_schedules.show', compact('checklistItem', 'year', 'byEquipment', 'monthNames', 'scheduledMonths', 'scheduledMonthLabels'));
+        $signatures = User::documentSignatories();
+        $signatureNames = [
+            'reporter' => $signatures['reporter']?->name ?? 'Bagus',
+            'acknowledger' => $signatures['acknowledger']?->name ?? 'Arifin',
+        ];
+
+        return view('monthly_schedules.show', compact(
+            'checklistItem', 'year', 'byEquipment', 'monthNames', 'scheduledMonths', 'scheduledMonthLabels',
+            'signatures', 'signatureNames'
+        ));
     }
 
     // Create form - list annual schedules to pick from

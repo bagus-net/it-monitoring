@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Innovation;
 use App\Models\ItRepairTicket;
 use App\Models\TargetMonitoring;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TargetMonitoringController extends Controller
@@ -30,7 +31,16 @@ class TargetMonitoringController extends Controller
 
         $monthOptions = self::MONTHS;
 
-        return view('target_monitorings.index', compact('year', 'startMonth', 'endMonth', 'months', 'monthOptions', 'metrics', 'manualValues'));
+        $signatures = User::documentSignatories();
+        $signatureNames = [
+            'reporter' => $signatures['reporter']?->name ?? 'Bagus',
+            'acknowledger' => $signatures['acknowledger']?->name ?? 'Arifin',
+        ];
+
+        return view('target_monitorings.index', compact(
+            'year', 'startMonth', 'endMonth', 'months', 'monthOptions', 'metrics', 'manualValues',
+            'signatures', 'signatureNames'
+        ));
     }
 
     public function updateManual(Request $request)

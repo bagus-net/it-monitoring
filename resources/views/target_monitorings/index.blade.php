@@ -22,8 +22,8 @@
         ];
 
     // Default penandatangan (bisa diganti dengan data dari controller: $preparedBy / $approvedBy)
-    $preparedBy = $preparedBy ?? 'Bagus';
-    $approvedBy = $approvedBy ?? 'Arifin S.';
+    $preparedBy = $preparedBy ?? ($signatureNames['reporter'] ?? 'Bagus');
+    $approvedBy = $approvedBy ?? ($signatureNames['acknowledger'] ?? 'Arifin');
 @endphp
 
 @section('content')
@@ -175,12 +175,20 @@
                 <div class="sign-section">
                     <div class="sign-box">
                         <div class="sign-title">Dibuat Oleh</div>
-                        <div class="sign-space"></div>
+                        <div class="sign-space">
+                            @if($signatures['reporter']?->signature_path)
+                                <img src="{{ asset('storage/' . $signatures['reporter']->signature_path) }}" alt="Tanda tangan dibuat oleh">
+                            @endif
+                        </div>
                         <div class="sign-name">{{ $preparedBy }}</div>
                     </div>
                     <div class="sign-box">
                         <div class="sign-title">Disetujui Oleh</div>
-                        <div class="sign-space"></div>
+                        <div class="sign-space">
+                            @if($signatures['acknowledger']?->signature_path)
+                                <img src="{{ asset('storage/' . $signatures['acknowledger']->signature_path) }}" alt="Tanda tangan disetujui oleh">
+                            @endif
+                        </div>
                         <div class="sign-name">{{ $approvedBy }}</div>
                     </div>
                 </div>
@@ -423,6 +431,15 @@
 
         .sign-space {
             height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sign-space img {
+            max-height: 64px;
+            max-width: 180px;
+            object-fit: contain;
         }
 
         .sign-name {
@@ -560,7 +577,12 @@
             }
 
             .sign-space {
-                height: 30px;
+                height: 48px;
+            }
+
+            .sign-space img {
+                max-height: 44px;
+                max-width: 150px;
             }
 
             .sign-name {

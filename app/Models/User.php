@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -94,5 +95,28 @@ class User extends Authenticatable
     public function accessibleIsoDocuments()
     {
         return $this->belongsToMany(IsoDocument::class, 'iso_document_user')->withTimestamps();
+    }
+
+    public function canCreateIsoFolders(): bool
+    {
+        if ($this->isMaster() || $this->isAdminIt()) {
+            return true;
+        }
+
+        return DB::table('iso_document_creators')->where('user_id', $this->id)->exists();
+    }
+
+    /** Penanda tangan tetap pada dokumen cetak: Bagus (dibuat oleh) dan Arifin (mengetahui). */
+    public static function documentSignatories(): array
+    {
+        $reporter = self::where(fn ($query) => $query
+            ->where('name', 'like', '%bagus%')
+            ->orWhere('name', 'like', '%admin it%')
+            ->orWhere('name', 'like', '%adminit%'))->first();
+
+        return [
+            'reporter' => $reporter,
+            'acknowledger' => self::where('name', 'like', '%arifin%')->first(),
+        ];
     }
 }

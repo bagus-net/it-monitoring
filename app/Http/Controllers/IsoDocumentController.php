@@ -185,7 +185,7 @@ class IsoDocumentController extends Controller
 
     private function canManage(User $user): bool
     {
-        return $user->isMaster() || $user->isAdminIt();
+        return $user->canCreateIsoFolders();
     }
 
     private function nextDocumentNumber(): string

@@ -20,6 +20,7 @@ use App\Http\Controllers\CctvController;
 use App\Http\Controllers\InnovationController;
 use App\Http\Controllers\ItWasteController;
 use App\Http\Controllers\IsoDocumentController;
+use App\Http\Controllers\IsoDocumentAdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecycleBinController;
 use App\Http\Controllers\TargetMonitoringController;
@@ -67,6 +68,10 @@ Route::middleware('auth')->group(function () {
 	Route::get('/iso-documents/{isoDocument}/files/{file}/download', [IsoDocumentController::class, 'downloadFile'])->name('iso-documents.files.download');
 	Route::get('/iso-documents/{isoDocument}/files/{file}/preview', [IsoDocumentController::class, 'previewFile'])->name('iso-documents.files.preview');
 	Route::delete('/iso-documents/{isoDocument}/files/{file}', [IsoDocumentController::class, 'destroyFile'])->name('iso-documents.files.destroy');
+	Route::middleware('role:master')->group(function () {
+		Route::get('/iso-documents/allowed-creators', [IsoDocumentAdminController::class, 'editAllowedUsers'])->name('iso-documents.allowed-creators.edit');
+		Route::post('/iso-documents/allowed-creators', [IsoDocumentAdminController::class, 'updateAllowedUsers'])->name('iso-documents.allowed-creators.update');
+	});
 	Route::resource('iso-documents', IsoDocumentController::class);
 
 	// Master + Admin IT
@@ -99,6 +104,7 @@ Route::middleware('auth')->group(function () {
 			->only(['index', 'create', 'store', 'show', 'destroy'])
 			->parameters(['web-monitoring-checklists' => 'webMonitoringChecklist']);
 
+		Route::get('/innovations/print', [InnovationController::class, 'print'])->name('innovations.print');
 		Route::resource('innovations', InnovationController::class);
 
 		Route::get('/it-wastes/handover/print', [ItWasteController::class, 'printHandover'])->name('it-wastes.print-handover');
@@ -229,6 +235,7 @@ Route::middleware('auth')->group(function () {
 		Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 
 		Route::get('/maintenances/schedules', [MaintenanceController::class, 'schedules'])->name('maintenances.schedules');
+
 		Route::get('/maintenances/schedules/create', [MaintenanceController::class, 'createSchedule'])->name('maintenances.create_schedule');
 		Route::post('/maintenances/schedules', [MaintenanceController::class, 'storeSchedule'])->name('maintenances.store_schedule');
 		Route::get('/maintenances/schedules/new', [MaintenanceController::class, 'create'])->name('maintenances.schedules.new');

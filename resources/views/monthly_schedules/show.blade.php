@@ -129,8 +129,24 @@
         </table>
 
         <div class="monthly-sign-row">
-            <div><span>Dibuat oleh,</span><div class="monthly-sign-space"></div></div>
-            <div><span>Mengetahui,</span><div class="monthly-sign-space"></div></div>
+            <div>
+                <span>Dibuat oleh,</span>
+                <div class="monthly-sign-space">
+                    @if($signatures['reporter']?->signature_path)
+                        <img src="{{ asset('storage/' . $signatures['reporter']->signature_path) }}" alt="Tanda tangan dibuat oleh">
+                    @endif
+                </div>
+                <strong class="monthly-sign-name">{{ $signatureNames['reporter'] }}</strong>
+            </div>
+            <div>
+                <span>Mengetahui,</span>
+                <div class="monthly-sign-space">
+                    @if($signatures['acknowledger']?->signature_path)
+                        <img src="{{ asset('storage/' . $signatures['acknowledger']->signature_path) }}" alt="Tanda tangan mengetahui">
+                    @endif
+                </div>
+                <strong class="monthly-sign-name">{{ $signatureNames['acknowledger'] }}</strong>
+            </div>
         </div>
     </div>
 </div>
@@ -161,7 +177,9 @@
     .monthly-sign-row{display:flex;justify-content:flex-end;gap:60px;margin-top:20px;padding:0 20px 8px}
     .monthly-sign-row div{text-align:center;font-size:10px}
     .monthly-sign-row span{display:block;font-weight:700;margin-bottom:6px}
-    .monthly-sign-space{height:55px;width:130px;border-bottom:1px solid #17324d;margin-top:4px}
+    .monthly-sign-space{height:55px;width:130px;border-bottom:1px solid #17324d;margin-top:4px;display:flex;align-items:flex-end;justify-content:center}
+    .monthly-sign-space img{max-height:50px;max-width:125px;object-fit:contain}
+    .monthly-sign-name{display:block;margin-top:4px;font-size:10px;text-transform:capitalize}
 </script>
 <script>
     document.getElementById('printMonthlyScheduleButton')?.addEventListener('click', () => {
@@ -174,9 +192,15 @@
         doc.open();
         doc.write('<html><head><meta charset="utf-8"><title>Jadwal Bulanan {{ $checklistItem->title }} {{ $year }}</title><style>' + css + '</style></head><body>' + sheet.innerHTML + '</body></html>');
         doc.close();
-        frame.contentWindow.focus();
-        frame.contentWindow.print();
-        setTimeout(() => frame.remove(), 1500);
+
+        // Tunggu logo & tanda tangan termuat, kalau tidak gambarnya hilang saat dicetak.
+        const images = Array.from(doc.images);
+        const ready = images.map(img => img.complete ? Promise.resolve() : new Promise(resolve => { img.onload = img.onerror = resolve; }));
+        Promise.all(ready).then(() => {
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+            setTimeout(() => frame.remove(), 1500);
+        });
     });
 
     // Triggered from the "Cetak" link in the schedule list (?autoprint=1)

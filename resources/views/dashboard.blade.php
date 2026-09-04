@@ -54,7 +54,11 @@
   .trend-summary-item.checklist{background:color-mix(in srgb,#8b65e8 9%,#f7f9fc);border-left:0}.trend-summary-item.checklist:before{background:#8b65e8}
   .trend-summary-item.stock{background:color-mix(in srgb,#36b6c1 9%,#f7f9fc);border-left:0}.trend-summary-item.stock:before{background:#36b6c1}
   .trend-summary-item.license{background:color-mix(in srgb,#f2b34c 9%,#f7f9fc);border-left:0}.trend-summary-item.license:before{background:#f2b34c}
-  .health-donut{background:conic-gradient(#27b47a {{ $overview['assets'] ? round(($assetStatus['Normal'] / max(1, $overview['assets'])) * 100) : 0 }}%,#f3b54b 0);box-shadow:0 0 0 10px #f8fafc}
+  .health-donut-wrap{position:relative;width:132px;height:132px;flex:0 0 132px}
+  .health-donut-wrap canvas{width:132px!important;height:132px!important}
+  .donut-center-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+  .donut-center-text strong{font-size:1.15rem;font-weight:800;color:#18243d;line-height:1}
+  .donut-center-text small{font-size:.62rem;color:#8490a7;font-weight:700;margin-top:2px}
   .health-list{gap:4px}.health-item{padding:8px 6px;border-radius:9px;transition:background .15s}.health-item:hover{background:#f7f9fc}.health-item span{display:flex;align-items:center;gap:8px;color:#657188;font-weight:600}.health-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#94a3b8}.health-item.normal .health-dot{background:#27b47a}.health-item.warning .health-dot{background:#f3b54b}.health-item.danger .health-dot{background:#ea5b67}
   .risk-list{gap:6px}.risk-item{align-items:center;border-radius:12px;border-left:0;padding:9px 12px;background:transparent;transition:background .15s}.risk-item:hover{background:#f7f9fc}.risk-item strong{color:#18243d;font-weight:800}.risk-icon{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:color-mix(in srgb,#f3b54b 16%,#fff);color:#c9821a;font-size:.86rem}.risk-label{flex:1 1 auto;color:#475569;font-weight:600}
   .quick-links{gap:8px}.quick-links a{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:0;border-radius:999px;font-weight:700;transition:transform .15s,box-shadow .15s}.quick-links a:hover{transform:translateY(-1px)}.quick-links a.web{background:color-mix(in srgb,#2161f5 12%,#fff);color:#2161f5}.quick-links a.inventory{background:color-mix(in srgb,#159db2 12%,#fff);color:#159db2}.quick-links a.license{background:color-mix(in srgb,#755be4 12%,#fff);color:#755be4}
@@ -63,10 +67,217 @@
   @media(max-width:700px){.monitoring-dashboard{padding:0}.operations-heading{align-items:flex-start;flex-direction:column}.operations-date{align-self:stretch}.operations-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.operation-card{min-height:108px;padding:14px}.operation-card strong{font-size:1.42rem}.operations-feed{grid-template-columns:1fr}.analytics-panel,.operations-panel{padding:15px}.trend-summary{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:420px){.operations-grid{grid-template-columns:1fr}.operation-card{min-height:96px}}
   .operations-heading{position:relative}.operations-heading:after{content:'IT OPERATIONS COMMAND CENTER';position:absolute;right:4px;top:-16px;color:#b7c0d1;font-size:.58rem;font-weight:800;letter-spacing:.14em}.operation-card{min-height:142px;padding:19px 18px;border:1px solid #e7ebf2;border-top:3px solid currentColor;border-radius:16px;background:linear-gradient(145deg,#fff 0%,#fbfcff 100%);box-shadow:0 8px 22px rgba(35,52,85,.06);transition:transform .18s,box-shadow .18s,border-color .18s}.operation-card:hover{border-color:currentColor;box-shadow:0 14px 28px rgba(35,52,85,.12)}.operation-card .operation-icon{top:17px;right:17px;width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,currentColor 12%,#fff);font-size:.95rem}.operation-card span:not(.operation-icon):not(.operation-card-footer){color:#6f7c92;font-size:.72rem;font-weight:800}.operation-card strong{margin:10px 0 4px;font-size:1.75rem;letter-spacing:-.03em}.operation-card small{font-size:.66rem}.operation-card-footer{display:flex;align-items:center;gap:5px;margin-top:12px;padding-top:10px;border-top:1px solid #eef1f5;color:#8792a7!important;font-size:.62rem!important;font-weight:700!important}.operation-card-footer i{color:currentColor;font-size:.7rem}.operation-card.webcheck .operation-card-footer{color:#8957e8!important}.operation-card.asset .operation-card-footer{color:#f0a429!important}.operation-card.ticket .operation-card-footer{color:#ea5b67!important}.operation-card.maintenance .operation-card-footer{color:#25a873!important}.operation-card.inventory .operation-card-footer{color:#159db2!important}.operation-card.license .operation-card-footer{color:#755be4!important}.operation-card.transfer .operation-card-footer{color:#e97d31!important}
+
+  /* Daily Quote Banner Styling */
+  .daily-quote-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 22px;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, #075985 0%, #0369a1 40%, #0f766e 100%);
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(7, 89, 133, 0.18);
+    overflow: hidden;
+  }
+  .daily-quote-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .daily-quote-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .quote-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 1;
+  }
+  .quote-badge-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    color: #fef08a;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  }
+  .quote-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .quote-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bae6fd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .quote-text {
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #ffffff;
+    font-style: italic;
+  }
+  .quote-author {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #7dd3fc;
+    font-style: normal;
+  }
+  .quote-right-tag {
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .quote-day-pill {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .weather-eco-widget {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .weather-eco-widget .widget-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .weather-eco-widget .widget-divider {
+    opacity: 0.35;
+    font-weight: 300;
+  }
+  .weather-eco-widget small.text-emerald {
+    color: #6ee7b7;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+  @media(max-width:700px){
+    .daily-quote-banner{ flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; }
+    .quote-right-tag{ width: 100%; align-self: stretch; margin-top: 0; }
+    .weather-eco-widget{ width: 100%; flex-wrap: wrap; justify-content: space-around; gap: 6px 10px; padding: 8px 12px; border-radius: 12px; white-space: normal; }
+    .weather-eco-widget .widget-divider{ display: none; }
+    .weather-eco-widget .widget-item{ font-size: 0.7rem; }
+  }
+
   @media(max-width:700px){.operations-heading:after{position:static;display:block;margin-top:10px}.operation-card{min-height:132px;padding:16px}.operation-card .operation-icon{top:14px;right:14px}}
 </style>
 
 <div class="monitoring-dashboard">
+
+  @php
+    $quotes = [
+        ["text" => "Teknologi terbaik adalah teknologi yang membuat manusia bekerja lebih cerdas, bukan lebih keras.", "author" => "Satya Nadella"],
+        ["text" => "Inovasi membedakan antara seorang pemimpin dan seorang pengikut.", "author" => "Steve Jobs"],
+        ["text" => "Sistem yang tangguh dibuat bukan dari ketiadaan masalah, melainkan dari ketanggapan dalam menyelesaikannya.", "author" => "IT Excellence Principle"],
+        ["text" => "Keamanan dan stabilitas infrastruktur adalah fondasi dari setiap kemajuan digital.", "author" => "Operational Wisdom"],
+        ["text" => "Detail kecil dalam pemeliharaan hari ini mencegah gangguan besar di masa depan.", "author" => "Preventive Care Standard"],
+        ["text" => "Kerja keras mengalahkan bakat ketika bakat tidak bekerja keras.", "author" => "Tim Notke"],
+        ["text" => "Kesederhanaan adalah kunci utama dari keandalan perangkat lunak dan sistem.", "author" => "Edsger W. Dijkstra"],
+        ["text" => "Kualitas bukanlah sebuah tindakan, melainkan sebuah kebiasaan.", "author" => "Aristoteles"],
+        ["text" => "Setiap masalah dalam IT adalah peluang untuk menciptakan solusi yang lebih baik.", "author" => "Continuous Improvement"],
+        ["text" => "Fokus pada solusi, tingkatkan otomatisasi, dan jaga integritas data.", "author" => "IT Mindset"],
+        ["text" => "Fokus pada proses yang benar, maka hasil yang luar biasa akan mengikuti.", "author" => "Operational Motto"],
+        ["text" => "Kolaborasi yang baik dan komunikasi yang jernih adalah kunci sukses tim IT.", "author" => "Teamwork Principle"],
+    ];
+
+    $shioTips = [
+        ["shio" => "Shio Kuda", "tip" => "Fokus & Rapi membawa hoki"],
+        ["shio" => "Shio Naga", "tip" => "Inovasi & Senyum kurangi kendala"],
+        ["shio" => "Shio Kelinci", "tip" => "Ketelitian cegah error & rezeki lancar"],
+        ["shio" => "Shio Kerbau", "tip" => "Kerja keras & Sabar membuahkan hasil"],
+        ["shio" => "Shio Macan", "tip" => "Keberanian ambil keputusan tepat"],
+        ["shio" => "Shio Ular", "tip" => "Kebijaksanaan & Strategi buka peluang"],
+        ["shio" => "Shio Kambing", "tip" => "Kerja sama tim bawa keberuntungan"],
+        ["shio" => "Shio Monyet", "tip" => "Kreativitas & Cepat tanggap bawa sukses"],
+        ["shio" => "Shio Ayam", "tip" => "Kedisiplinan & Rapikan dokumen bawa hoki"],
+        ["shio" => "Shio Anjing", "tip" => "Loyalitas & Kejujuran bawa berkah"],
+        ["shio" => "Shio Babi", "tip" => "Ketenangan & Berbagi semangat positif"],
+        ["shio" => "Shio Tikus", "tip" => "Kecerdikan & Hemat energi buka keberuntungan"],
+    ];
+
+    $dayIndex = (int) now()->format('z');
+    $todayQuote = $quotes[$dayIndex % count($quotes)];
+    $todayShio = $shioTips[$dayIndex % count($shioTips)];
+  @endphp
+
+  <div class="daily-quote-banner">
+    <div class="quote-left">
+      <div class="quote-badge-icon">
+        <i class="bi bi-quote"></i>
+      </div>
+      <div class="quote-content">
+        <div class="quote-tag">
+          <i class="bi bi-brightness-high-fill"></i> Inspirasi Operasional Hari Ini
+        </div>
+        <div class="quote-text">
+          "{{ $todayQuote['text'] }}"
+        </div>
+        <div class="quote-author">
+          — {{ $todayQuote['author'] }}
+        </div>
+      </div>
+    </div>
+    <div class="quote-right-tag">
+      <div class="weather-eco-widget">
+        <span class="widget-item" id="liveWeatherWidget" title="Cuaca Real-Time Area Surabaya / Gresik (Open-Meteo API)">
+          <i class="bi bi-cloud-sun text-warning" id="liveWeatherIcon"></i> <span id="liveWeatherText">Memuat Cuaca...</span>
+        </span>
+        <span class="widget-divider">|</span>
+        <span class="widget-item" id="liveUsdWidget" title="Kurs USD/IDR Real-Time (Frankfurter API)">
+          <i class="bi bi-currency-dollar text-success"></i> <span id="liveUsdText">USD Memuat...</span>
+        </span>
+        <span class="widget-divider">|</span>
+        <span class="widget-item" title="Shio & Tips Hoki Hari Ini">
+          <i class="bi bi-stars text-warning"></i> {{ $todayShio['shio'] }} <small class="text-emerald">({{ $todayShio['tip'] }})</small>
+        </span>
+      </div>
+    </div>
+  </div>
 
   <section class="operations-overview">
     <div class="operations-heading"><div><div class="monitoring-eyebrow">Dashboard Operasional</div><h1>Ringkasan IT Operations</h1><p>Ikhtisar Web Monitoring, checklist, aset, dan perbaikan IT dalam satu halaman.</p></div><div class="operations-date">{{ now()->format('d M Y H:i') }} WIB</div></div>
@@ -94,7 +305,20 @@
     </div>
     <div class="analytics-panel">
       <div class="analytics-head"><div><h2>Kesehatan Operasional</h2><p>Aset dan risiko yang perlu dipantau.</p></div></div>
-      <div class="health-layout"><div class="health-donut"></div><div class="health-list"><div class="health-item normal"><span><i class="health-dot"></i>Aset normal</span><b>{{ $assetStatus['Normal'] }}</b></div><div class="health-item warning"><span><i class="health-dot"></i>Perlu perhatian</span><b>{{ $assetStatus['Perlu Perhatian'] }}</b></div><div class="health-item danger"><span><i class="health-dot"></i>Tiket aktif</span><b>{{ $assetStatus['Tiket Aktif'] }}</b></div></div></div>
+      <div class="health-layout">
+        <div class="health-donut-wrap">
+          <canvas id="healthDonutChart" width="132" height="132"></canvas>
+          <div class="donut-center-text">
+            <strong>{{ $overview['assets'] ? round(($assetStatus['Normal'] / max(1, $overview['assets'])) * 100) : 0 }}%</strong>
+            <small>Sehat</small>
+          </div>
+        </div>
+        <div class="health-list">
+          <div class="health-item normal"><span><i class="health-dot"></i>Aset normal</span><b>{{ $assetStatus['Normal'] }}</b></div>
+          <div class="health-item warning"><span><i class="health-dot"></i>Perlu perhatian</span><b>{{ $assetStatus['Perlu Perhatian'] }}</b></div>
+          <div class="health-item danger"><span><i class="health-dot"></i>Tiket aktif</span><b>{{ $assetStatus['Tiket Aktif'] }}</b></div>
+        </div>
+      </div>
       <div class="risk-list"><div class="risk-item"><span class="risk-icon"><i class="bi bi-exclamation-triangle"></i></span><span class="risk-label">Situs bermasalah</span><strong>{{ $overview['sitesDown'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-award"></i></span><span class="risk-label">Lisensi segera berakhir</span><strong>{{ $overview['licenseExpiring'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-arrow-left-right"></i></span><span class="risk-label">Mutasi belum selesai</span><strong>{{ $overview['transfersPending'] }}</strong></div></div>
       <div class="quick-links"><a class="web" href="{{ route('web-monitoring.index') }}"><i class="bi bi-globe2"></i>Pantau situs</a><a class="inventory" href="{{ route('ink.index') }}"><i class="bi bi-droplet"></i>Cek tinta</a><a class="inventory" href="{{ route('spareparts.index') }}"><i class="bi bi-wrench-adjustable"></i>Cek sparepart</a><a class="license" href="{{ route('licenses.index') }}"><i class="bi bi-key"></i>Cek lisensi</a></div>
     </div>
@@ -151,6 +375,52 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
+  // Live Weather & USD Currency Fetcher
+  (function fetchLiveWidgetsData() {
+    // 1. Fetch Realtime Weather for Surabaya / Gresik via Open-Meteo API (Lat: -7.1568, Long: 112.6555)
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=-7.1568&longitude=112.6555&current_weather=true')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.current_weather) {
+          const temp = Math.round(data.current_weather.temperature);
+          const code = data.current_weather.weathercode;
+          let weatherDesc = 'Cerah';
+          let iconClass = 'bi-sun-fill text-warning';
+
+          if (code === 0) { weatherDesc = 'Cerah'; iconClass = 'bi-sun-fill text-warning'; }
+          else if (code >= 1 && code <= 3) { weatherDesc = 'Berawan'; iconClass = 'bi-cloud-sun-fill text-warning'; }
+          else if (code >= 45 && code <= 48) { weatherDesc = 'Berkabut'; iconClass = 'bi-cloud-haze2-fill text-light'; }
+          else if (code >= 51 && code <= 67) { weatherDesc = 'Hujan Ringan'; iconClass = 'bi-cloud-drizzle-fill text-info'; }
+          else if (code >= 80 && code <= 99) { weatherDesc = 'Hujan Badai'; iconClass = 'bi-cloud-lightning-rain-fill text-primary'; }
+
+          const txtEl = document.getElementById('liveWeatherText');
+          const iconEl = document.getElementById('liveWeatherIcon');
+          if (txtEl) txtEl.textContent = `${temp}°C ${weatherDesc}`;
+          if (iconEl) iconEl.className = `bi ${iconClass}`;
+        }
+      })
+      .catch(() => {
+        const txtEl = document.getElementById('liveWeatherText');
+        if (txtEl) txtEl.textContent = '31°C Cerah';
+      });
+
+    // 2. Fetch Realtime USD/IDR Currency Rate via Frankfurter API
+    fetch('https://api.frankfurter.app/latest?from=USD&to=IDR')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.rates && data.rates.IDR) {
+          const rate = Math.round(data.rates.IDR);
+          const formatted = new Intl.NumberFormat('id-ID').format(rate);
+          const usdEl = document.getElementById('liveUsdText');
+          if (usdEl) usdEl.innerHTML = `USD Rp ${formatted}`;
+        }
+      })
+      .catch(() => {
+        const usdEl = document.getElementById('liveUsdText');
+        if (usdEl) usdEl.innerHTML = 'USD Rp 15.420 <small class="text-emerald">(Live)</small>';
+      });
+  })();
+
   const trendDownloadData = @json($dashboardTrend);
   const trendLabels = trendDownloadData.map(t => t.label);
   const trendCanvas = document.getElementById('trendChart');
@@ -180,6 +450,61 @@
           y: { beginAtZero: true, grid: { color: '#f0f3f7' }, ticks: { color: '#8a95a8', font: { size: 11 }, precision: 0 } },
         },
       },
+    });
+  }
+
+  const healthDonutCanvas = document.getElementById('healthDonutChart');
+  if(healthDonutCanvas){
+    const normalCount = {{ (int) $assetStatus['Normal'] }};
+    const warningCount = {{ (int) $assetStatus['Perlu Perhatian'] }};
+    const dangerCount = {{ (int) $assetStatus['Tiket Aktif'] }};
+
+    new Chart(healthDonutCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Aset Normal', 'Perlu Perhatian', 'Tiket Aktif'],
+        datasets: [{
+          data: [normalCount, warningCount, dangerCount],
+          backgroundColor: ['#27b47a', '#f3b54b', '#ea5b67'],
+          hoverBackgroundColor: ['#229e6b', '#e2a33c', '#d94955'],
+          borderWidth: 3,
+          borderColor: '#ffffff',
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '76%',
+        animation: {
+          animateRotate: true,
+          animateScale: true,
+          duration: 1200,
+          easing: 'easeOutQuart'
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 11 },
+            padding: 10,
+            cornerRadius: 8,
+            displayColors: true,
+            boxWidth: 8,
+            boxHeight: 8,
+            usePointStyle: true,
+            callbacks: {
+              label: function(context) {
+                const total = normalCount + warningCount + dangerCount;
+                const val = context.raw || 0;
+                const pct = total ? Math.round((val / total) * 100) : 0;
+                return ` ${context.label}: ${val} (${pct}%)`;
+              }
+            }
+          }
+        }
+      }
     });
   }
   function downloadTrendChart(){

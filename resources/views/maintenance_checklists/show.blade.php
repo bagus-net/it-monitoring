@@ -91,9 +91,14 @@
 			</div>
 			<div>
 				<span>Mengetahui</span>
-				<i>@if($signatures['acknowledger']?->signature_path)<img src="{{ asset('storage/' . $signatures['acknowledger']->signature_path) }}" alt="Tanda tangan approval">@endif</i>
-				<strong>{{ $signatureNames['acknowledger'] ?: '(...........................)' }}</strong>
-				<em>{{ $signatures['acknowledger']?->signature_title ?: 'Arifin' }}</em>
+				<i>@if($maintenanceChecklist->acknowledged_at && $signatures['acknowledger']?->signature_path)<img src="{{ asset('storage/' . $signatures['acknowledger']->signature_path) }}" alt="Tanda tangan approval">@endif</i>
+				@if($maintenanceChecklist->acknowledged_at)
+					<strong>{{ $signatureNames['acknowledger'] ?: '(...........................)' }}</strong>
+					<em>{{ $signatures['acknowledger']?->signature_title ?: 'Arifin' }}</em>
+				@else
+					<strong>(...........................)</strong>
+					<em class="sign-pending">Menunggu persetujuan</em>
+				@endif
 			</div>
 			<div class="sheet-print-time">No. Form : FR-IT-03 &nbsp;|&nbsp; Revisi : 00 &nbsp;|&nbsp; Dicetak: {{ now()->translatedFormat('d F Y H:i') }} WIB</div>
 		</footer>
@@ -132,6 +137,7 @@
 	.sheet-sign i img{max-height:44px;max-width:150px;object-fit:contain}
 	.sheet-sign strong{display:block;padding-top:3px;border-top:1px solid #94a3b8;font-size:10.5px}
 	.sheet-sign em{display:block;font-style:normal;font-size:9px;color:#64748b}
+	.sheet-sign em.sign-pending{color:#b45309}
 	.sheet-print-time{position:absolute;right:16px;bottom:4px;font-size:8.5px;color:#94a3b8}
 </script>
 <script>

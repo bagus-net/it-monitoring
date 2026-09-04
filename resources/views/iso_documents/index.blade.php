@@ -2,7 +2,16 @@
 
 @section('content')
 <div class="container mt-4 iso-library">
-    <div class="iso-hero mb-4"><div><div class="iso-kicker">ISO DOCUMENT CONTROL</div><h1>Ruang Dokumen ISO</h1><p>Folder dokumen terkendali yang dibagikan hanya kepada penerima yang ditetapkan.</p></div>@if(auth()->user()->isMaster() || auth()->user()->isAdminIt())<a href="{{ route('iso-documents.create') }}" class="btn btn-light">Buat Folder</a>@endif</div>
+    <div class="iso-hero mb-4"><div><div class="iso-kicker">ISO DOCUMENT CONTROL</div><h1>Ruang Dokumen ISO</h1><p>Folder dokumen terkendali yang dibagikan hanya kepada penerima yang ditetapkan.</p></div>
+        <div class="d-flex gap-2">
+            @if(auth()->user()->isMaster())
+                <a href="{{ route('iso-documents.allowed-creators.edit') }}" class="btn btn-outline-light">Kelola Pengguna Pembuat</a>
+            @endif
+            @if(auth()->user()->canCreateIsoFolders())
+                <a href="{{ route('iso-documents.create') }}" class="btn btn-light">Buat Folder</a>
+            @endif
+        </div>
+    </div>
     <div class="row g-3 mb-4"><div class="col-md-4"><div class="iso-stat"><span>Dokumen Tersedia</span><strong>{{ $summary['available'] }}</strong><small>sesuai akses Anda</small></div></div><div class="col-md-4"><div class="iso-stat iso-stat-teal"><span>Kategori Dokumen</span><strong>{{ $summary['categories'] }}</strong><small>klasifikasi tersedia</small></div></div><div class="col-md-4"><div class="iso-stat iso-stat-gold"><span>Dibagikan Kepada Saya</span><strong>{{ $summary['shared_with_me'] }}</strong><small>dokumen yang Anda terima</small></div></div></div>
     <section class="card iso-panel"><div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><div><div class="iso-kicker">DOCUMENT LIBRARY</div><h2>Dokumen Tersedia</h2></div><form method="GET" class="iso-search"><input name="search" value="{{ $search }}" class="form-control" placeholder="Cari nomor, judul, kategori"><button class="btn btn-outline-primary">Cari</button></form></div><div class="card-body"><div class="row g-3">@forelse ($documents as $document)<div class="col-md-6 col-xl-4"><article class="iso-document"><div class="iso-document-top"><span>{{ $document->document_number }}</span><span>{{ $document->revision ? 'Rev. ' . $document->revision : 'Tanpa Revisi' }}</span></div><h3>{{ $document->title }}</h3><p>{{ \Illuminate\Support\Str::limit($document->description, 120) ?: 'Tidak ada deskripsi dokumen.' }}</p><div class="iso-document-meta"><span>{{ $document->category }}</span><span>{{ $document->document_date?->format('d M Y') ?? '-' }}</span></div><div class="iso-document-footer"><small>Oleh {{ $document->creator->name ?? '-' }}</small><span class="iso-file-count"><i class="bi bi-folder2-open"></i> {{ $document->files_count }} file</span><a href="{{ route('iso-documents.show', $document) }}" class="btn btn-sm btn-outline-primary">Buka</a></div></article></div>@empty<div class="col-12 text-center text-muted py-5">Tidak ada dokumen yang dapat diakses.</div>@endforelse</div></div></section>
     <div class="table-pagination">{{ $documents->links() }}</div>

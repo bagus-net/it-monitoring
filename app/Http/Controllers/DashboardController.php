@@ -56,10 +56,19 @@ class DashboardController extends Controller
             'Perlu Perhatian' => $overview['assetAttention'],
             'Tiket Aktif' => $overview['ticketsOpen'],
         ];
-        $months = collect(range($selectedPeriod - 1, 0))->map(function (int $monthsAgo) use ($periodEnd) {
-            $date = $periodEnd->copy()->subMonths($monthsAgo);
-            return ['key' => $date->format('Y-m'), 'label' => $date->translatedFormat('M')];
-        });
+        $months = collect();
+        $cursor = $periodEnd->copy()->startOfMonth();
+        $limitDate = $periodStart->copy()->startOfMonth();
+
+        while ($cursor->greaterThanOrEqualTo($limitDate)) {
+            $months->push([
+                'key' => $cursor->format('Y-m'),
+                'label' => $cursor->translatedFormat('M Y'),
+            ]);
+            $cursor->subMonth();
+        }
+
+        $months = $months->reverse()->values();
         $monthKeys = $months->pluck('key');
         $monthlyCount = function (string $model, string $column = 'created_at') use ($periodStart, $periodEnd) {
             return $model::query()->whereBetween($column, [$periodStart, $periodEnd])->get()->groupBy(fn ($item) => $item->{$column}->format('Y-m'))->map->count();

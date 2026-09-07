@@ -268,7 +268,7 @@
           <i class="bi bi-cloud-sun text-warning" id="liveWeatherIcon"></i> <span id="liveWeatherText">Memuat Cuaca...</span>
         </span>
         <span class="widget-divider">|</span>
-        <span class="widget-item" id="liveUsdWidget" title="Kurs USD/IDR Real-Time (Frankfurter API)">
+        <span class="widget-item" id="liveUsdWidget" title="Kurs USD/IDR terbaru dari ExchangeRate-API">
           <i class="bi bi-currency-dollar text-success"></i> <span id="liveUsdText">USD Memuat...</span>
         </span>
         <span class="widget-divider">|</span>
@@ -296,7 +296,7 @@
 
   <section class="dashboard-analytics">
     <div class="analytics-panel">
-      <div class="analytics-head"><div><h2>Tren Aktivitas Sistem</h2><p>Jumlah aktivitas berdasarkan periode yang dipilih.</p></div><div class="trend-controls"><form method="GET" action="{{ route('dashboard') }}" class="trend-filter"><label>Tampilkan</label><select name="period" aria-label="Panjang periode">@foreach($periodOptions as $value => $label)<option value="{{ $value }}" @selected($selectedPeriod === $value)>{{ $label }}</option>@endforeach</select><select name="month" aria-label="Bulan akhir">@foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber + 1 }}" @selected($selectedMonth === $monthNumber + 1)>{{ $monthName }}</option>@endforeach</select><select name="year" aria-label="Tahun akhir">@foreach($yearOptions as $year)<option value="{{ $year }}" @selected($selectedYear === $year)>{{ $year }}</option>@endforeach</select><button type="submit">Terapkan</button></form><button type="button" class="download-chart" onclick="downloadTrendChart()">Unduh Grafik</button></div></div>
+      <div class="analytics-head"><div><h2>Tren Aktivitas Sistem</h2><p>Jumlah aktivitas berdasarkan periode yang dipilih.</p></div><div class="trend-controls"><form method="GET" action="{{ route('dashboard') }}" class="trend-filter"><label>Periode</label><select name="period" aria-label="Panjang periode">@foreach($periodOptions as $value => $label)<option value="{{ $value }}" @selected($selectedPeriod === $value)>{{ $label }}</option>@endforeach</select><label>Bulan</label><select name="month" aria-label="Bulan akhir">@foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber + 1 }}" @selected($selectedMonth === $monthNumber + 1)>{{ $monthName }}</option>@endforeach</select><label>Tahun</label><select name="year" aria-label="Tahun akhir">@foreach($yearOptions as $year)<option value="{{ $year }}" @selected($selectedYear === $year)>{{ $year }}</option>@endforeach</select><button type="submit">Terapkan</button></form><button type="button" class="download-chart" onclick="downloadTrendChart()">Unduh Grafik</button></div></div>
       <div class="trend-chart-wrap">
         <canvas id="trendChart"></canvas>
       </div>
@@ -314,13 +314,13 @@
           </div>
         </div>
         <div class="health-list">
-          <div class="health-item normal"><span><i class="health-dot"></i>Aset normal</span><b>{{ $assetStatus['Normal'] }}</b></div>
-          <div class="health-item warning"><span><i class="health-dot"></i>Perlu perhatian</span><b>{{ $assetStatus['Perlu Perhatian'] }}</b></div>
-          <div class="health-item danger"><span><i class="health-dot"></i>Tiket aktif</span><b>{{ $assetStatus['Tiket Aktif'] }}</b></div>
+          <div class="health-item normal"><span><i class="health-dot"></i>Aset Normal</span><b>{{ $assetStatus['Normal'] }}</b></div>
+          <div class="health-item warning"><span><i class="health-dot"></i>Perlu Perhatian</span><b>{{ $assetStatus['Perlu Perhatian'] }}</b></div>
+          <div class="health-item danger"><span><i class="health-dot"></i>Tiket Aktif</span><b>{{ $assetStatus['Tiket Aktif'] }}</b></div>
         </div>
       </div>
-      <div class="risk-list"><div class="risk-item"><span class="risk-icon"><i class="bi bi-exclamation-triangle"></i></span><span class="risk-label">Situs bermasalah</span><strong>{{ $overview['sitesDown'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-award"></i></span><span class="risk-label">Lisensi segera berakhir</span><strong>{{ $overview['licenseExpiring'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-arrow-left-right"></i></span><span class="risk-label">Mutasi belum selesai</span><strong>{{ $overview['transfersPending'] }}</strong></div></div>
-      <div class="quick-links"><a class="web" href="{{ route('web-monitoring.index') }}"><i class="bi bi-globe2"></i>Pantau situs</a><a class="inventory" href="{{ route('ink.index') }}"><i class="bi bi-droplet"></i>Cek tinta</a><a class="inventory" href="{{ route('spareparts.index') }}"><i class="bi bi-wrench-adjustable"></i>Cek sparepart</a><a class="license" href="{{ route('licenses.index') }}"><i class="bi bi-key"></i>Cek lisensi</a></div>
+      <div class="risk-list"><div class="risk-item"><span class="risk-icon"><i class="bi bi-exclamation-triangle"></i></span><span class="risk-label">Situs Bermasalah</span><strong>{{ $overview['sitesDown'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-award"></i></span><span class="risk-label">Lisensi Segera Berakhir</span><strong>{{ $overview['licenseExpiring'] }}</strong></div><div class="risk-item"><span class="risk-icon"><i class="bi bi-arrow-left-right"></i></span><span class="risk-label">Mutasi Belum Selesai</span><strong>{{ $overview['transfersPending'] }}</strong></div></div>
+      <div class="quick-links"><a class="web" href="{{ route('web-monitoring.index') }}"><i class="bi bi-globe2"></i>Pantau Situs</a><a class="inventory" href="{{ route('ink.index') }}"><i class="bi bi-droplet"></i>Cek Stok Tinta</a><a class="inventory" href="{{ route('spareparts.index') }}"><i class="bi bi-wrench-adjustable"></i>Cek Stok Sparepart</a><a class="license" href="{{ route('licenses.index') }}"><i class="bi bi-key"></i>Cek Lisensi</a></div>
     </div>
   </section>
 
@@ -404,25 +404,40 @@
         if (txtEl) txtEl.textContent = '31°C Cerah';
       });
 
-    // 2. Fetch Realtime USD/IDR Currency Rate via Frankfurter API
-    fetch('https://api.frankfurter.app/latest?from=USD&to=IDR')
+    // 2. Fetch the latest USD/IDR rate from a free, keyless exchange-rate API.
+    fetch('https://open.er-api.com/v6/latest/USD')
       .then(res => res.json())
       .then(data => {
-        if (data && data.rates && data.rates.IDR) {
-          const rate = Math.round(data.rates.IDR);
+        if (data && data.result === 'success' && data.rates && data.rates.IDR) {
+          const rate = Math.round(Number(data.rates.IDR));
           const formatted = new Intl.NumberFormat('id-ID').format(rate);
           const usdEl = document.getElementById('liveUsdText');
-          if (usdEl) usdEl.innerHTML = `USD Rp ${formatted}`;
+          const updatedAt = data.time_last_update_utc
+            ? new Date(data.time_last_update_utc).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+            : 'terbaru';
+          if (usdEl) usdEl.innerHTML = `USD Rp ${formatted} <small class="text-emerald">(${updatedAt})</small>`;
+        } else {
+          throw new Error('Kurs USD/IDR tidak tersedia');
         }
       })
       .catch(() => {
         const usdEl = document.getElementById('liveUsdText');
-        if (usdEl) usdEl.innerHTML = 'USD Rp 15.420 <small class="text-emerald">(Live)</small>';
+        if (usdEl) usdEl.innerHTML = 'USD/IDR tidak tersedia';
       });
   })();
 
   const trendDownloadData = @json($dashboardTrend);
-  const trendLabels = trendDownloadData.map(t => t.label);
+  const uniqueTrendData = [];
+  const seenTrendLabels = new Set();
+  trendDownloadData.forEach((item) => {
+    const label = item && item.label ? String(item.label) : '';
+    if (!seenTrendLabels.has(label)) {
+      seenTrendLabels.add(label);
+      uniqueTrendData.push(item);
+    }
+  });
+  const chartTrendData = uniqueTrendData.length ? uniqueTrendData : trendDownloadData;
+  const trendLabels = chartTrendData.map(t => t.label);
   const trendCanvas = document.getElementById('trendChart');
   if(trendCanvas){
     new Chart(trendCanvas, {
@@ -430,10 +445,10 @@
       data: {
         labels: trendLabels,
         datasets: [
-          { label: 'Tiket', data: trendDownloadData.map(t => t.tickets), backgroundColor: '#ef6671', borderRadius: 4, maxBarThickness: 16 },
-          { label: 'Checklist', data: trendDownloadData.map(t => t.checklists), backgroundColor: '#8b65e8', borderRadius: 4, maxBarThickness: 16 },
-          { label: 'Stok', data: trendDownloadData.map(t => t.stock), backgroundColor: '#36b6c1', borderRadius: 4, maxBarThickness: 16 },
-          { label: 'Lisensi', data: trendDownloadData.map(t => t.licenses), backgroundColor: '#f2b34c', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Tiket', data: chartTrendData.map(t => t.tickets), backgroundColor: '#ef6671', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Checklist', data: chartTrendData.map(t => t.checklists), backgroundColor: '#8b65e8', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Stok', data: chartTrendData.map(t => t.stock), backgroundColor: '#36b6c1', borderRadius: 4, maxBarThickness: 16 },
+          { label: 'Lisensi', data: chartTrendData.map(t => t.licenses), backgroundColor: '#f2b34c', borderRadius: 4, maxBarThickness: 16 },
         ],
       },
       options: {

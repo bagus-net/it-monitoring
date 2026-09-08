@@ -32,6 +32,8 @@
         <a href="{{ route('equipments.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i>Kembali</a>
         <a href="{{ route('equipments.label', $equipment) }}" class="btn btn-outline-dark" target="_blank" rel="noopener"><i class="bi bi-qr-code"></i>Cetak Label QR</a>
         <a href="{{ route('equipments.label.download', $equipment) }}" class="btn btn-outline-success" target="_blank" rel="noopener"><i class="bi bi-download"></i>Unduh Label JPEG</a>
+        <button type="button" class="btn btn-outline-dark" id="printEquipmentDetailButton"><i class="bi bi-printer"></i>Print Detail Peralatan</button>
+        <button type="button" class="btn btn-outline-success" id="downloadEquipmentDetailButton"><i class="bi bi-filetype-jpg"></i>Unduh Detail JPG</button>
         <a href="{{ route('equipment-transfers.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left-right"></i>Ajukan Mutasi</a>
         <a href="{{ route('equipments.edit', $equipment) }}" class="btn btn-brand"><i class="bi bi-pencil-square"></i>Edit Peralatan</a>
     </div>
@@ -80,6 +82,64 @@
                 @endfor
             </tbody>
         </table>
+    </div>
+</div>
+
+<div id="equipmentDetailPrintSheet" hidden>
+    <div class="equipment-detail-print">
+        <header class="equipment-print-header">
+            <div class="equipment-print-brand">PT MULIA GRAND<br>MANUFACTURE</div>
+            <div><div class="equipment-print-kicker">IT ASSET RECORD</div><h1>DETAIL PERALATAN IT</h1><span>{{ $equipment->name ?: 'Peralatan IT' }}</span></div>
+            @if ($equipment->photo_path)
+                <img src="{{ asset('storage/' . $equipment->photo_path) }}" alt="Foto {{ $equipment->name }}" class="equipment-print-photo">
+            @else
+                <div class="equipment-print-photo equipment-print-photo-empty">IT</div>
+            @endif
+        </header>
+        <section class="equipment-print-section">
+            <h2>Identitas Aset</h2>
+            <div class="equipment-print-grid">
+                <div><strong>Kode Aset</strong><span>{{ $equipment->asset_tag ?: '-' }}</span></div>
+                <div><strong>No. Seri</strong><span>{{ $equipment->serial_number ?: '-' }}</span></div>
+                <div><strong>Tipe</strong><span>{{ $equipment->type->name ?? '-' }}</span></div>
+                <div><strong>Manufacturer</strong><span>{{ $equipment->manufacturer->name ?? '-' }}</span></div>
+                <div><strong>Model</strong><span>{{ $equipment->model ?: '-' }}</span></div>
+                <div><strong>Kapasitas</strong><span>{{ $equipment->capacity ?: '-' }}</span></div>
+                <div><strong>Sistem Operasi</strong><span>{{ $equipment->operating_system ?: '-' }}</span></div>
+                @foreach(($equipment->technical_details ?? []) as $label => $value)
+                    <div><strong>{{ str_replace('_', ' ', $label) }}</strong><span>{{ is_scalar($value) ? $value : json_encode($value) }}</span></div>
+                @endforeach
+            </div>
+        </section>
+        <section class="equipment-print-section">
+            <h2>Penempatan & Kepemilikan</h2>
+            <div class="equipment-print-grid">
+                <div><strong>Lokasi</strong><span>{{ $locationName ?: '-' }}</span></div>
+                <div><strong>IP Address</strong><span>{{ $equipment->ip_address ?: '-' }}</span></div>
+                <div><strong>Pemilik</strong><span>{{ $equipment->owner?->name ?: ($equipment->owner_name ?: '-') }}</span></div>
+                <div><strong>Email Pemilik</strong><span>{{ $equipment->owner?->email ?: '-' }}</span></div>
+                <div><strong>Departemen</strong><span>{{ $equipment->owner?->department ?: ($equipment->department ?: '-') }}</span></div>
+                <div><strong>Vendor / Pemasok</strong><span>{{ $equipment->vendor_name ?: '-' }}</span></div>
+                <div><strong>Kondisi</strong><span>{{ ucfirst($condition) }}</span></div>
+                <div><strong>Kritikalitas</strong><span>{{ $criticalityLabels[$equipment->criticality] ?? '-' }}</span></div>
+            </div>
+        </section>
+        <section class="equipment-print-section">
+            <h2>Siklus Hidup & Dukungan</h2>
+            <div class="equipment-print-grid">
+                <div><strong>Tanggal Pembelian</strong><span>{{ $equipment->purchase_date?->format('d M Y') ?: '-' }}</span></div>
+                <div><strong>Tahun Pembuatan</strong><span>{{ $equipment->manufacture_year ?: '-' }}</span></div>
+                <div><strong>Akhir Garansi</strong><span>{{ $equipment->warranty_expiry?->format('d M Y') ?: '-' }}</span></div>
+                <div><strong>Akhir Kontrak Dukungan</strong><span>{{ $equipment->support_contract_end?->format('d M Y') ?: '-' }}</span></div>
+                <div><strong>Status Operasional</strong><span>{{ ucfirst($equipment->status ?: '-') }}</span></div>
+            </div>
+        </section>
+        <section class="equipment-print-section equipment-print-notes">
+            <h2>Spesifikasi & Catatan</h2>
+            <p><strong>Spesifikasi:</strong> {{ $equipment->specification ?: '-' }}</p>
+            <p><strong>Catatan:</strong> {{ $equipment->notes ?: '-' }}</p>
+        </section>
+        <footer class="equipment-print-footer">Dicetak: {{ now()->format('d M Y H:i') }} WIB</footer>
     </div>
 </div>
 
@@ -185,6 +245,83 @@
         printWindow.document.close();
         printWindow.focus();
         setTimeout(() => { printWindow.print(); printWindow.close(); }, 350);
+    });
+</script>
+<style id="equipmentDetailPrintCss">
+@media print {
+    body > *:not(#equipmentDetailPrintSheet) { display:none!important; }
+    #equipmentDetailPrintSheet { display:block!important; }
+    @page { size:A4 portrait; margin:0; }
+    .equipment-detail-print { width:148mm; max-height:140mm; box-sizing:border-box; padding:6mm; color:#172039; background:#fff; font-family:Arial,Helvetica,sans-serif; font-size:7.5px; }
+    .equipment-print-header { display:grid; grid-template-columns:30% 49% 21%; align-items:center; gap:3mm; min-height:21mm; padding:3mm; border:1.2px solid #172039; background:#f7f9fc; }
+    .equipment-print-brand { padding-right:3mm; border-right:1px solid #cbd5e1; text-align:center; font-size:9px; font-weight:800; line-height:1.35; }
+    .equipment-print-kicker { color:#2161f5; font-size:7px; font-weight:800; letter-spacing:.12em; }
+    .equipment-print-header h1 { margin:1mm 0; font-size:12px; line-height:1.1; }
+    .equipment-print-header span { color:#64748b; font-size:7px; font-weight:700; }
+    .equipment-print-photo { width:20mm; height:17mm; justify-self:end; object-fit:cover; border:1px solid #94a3b8; border-radius:1mm; background:#fff; }
+    .equipment-print-photo-empty { display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:11px; font-weight:800; }
+    .equipment-print-section { margin-top:2mm; border:1px solid #cbd5e1; break-inside:avoid; }
+    .equipment-print-section h2 { margin:0; padding:1.2mm 2mm; border-bottom:1px solid #cbd5e1; background:#eef3ff; color:#1d4ed8; font-size:7.5px; text-transform:uppercase; letter-spacing:.05em; }
+    .equipment-print-grid { display:grid; grid-template-columns:1fr 1fr; }
+    .equipment-print-grid div { display:grid; grid-template-columns:42% 58%; min-height:4.8mm; border-bottom:1px solid #e2e8f0; }
+    .equipment-print-grid div:nth-last-child(-n+2) { border-bottom:0; }
+    .equipment-print-grid strong,.equipment-print-grid span { padding:.8mm 1.4mm; }
+    .equipment-print-grid strong { color:#64748b; border-right:1px solid #e2e8f0; font-size:6px; text-transform:uppercase; }
+    .equipment-print-grid span { color:#172039; font-weight:600; overflow-wrap:anywhere; }
+    .equipment-print-notes p { margin:0; padding:1.2mm 2mm; border-bottom:1px solid #e2e8f0; line-height:1.2; }
+    .equipment-print-notes p:last-child { border-bottom:0; }
+    .equipment-print-footer { margin-top:2mm; color:#94a3b8; text-align:right; font-size:6px; }
+}
+</style>
+<script>
+    document.getElementById('printEquipmentDetailButton')?.addEventListener('click', () => {
+        const sheet = document.getElementById('equipmentDetailPrintSheet');
+        const printWindow = window.open('', '_blank', 'width=800,height=1000');
+        if (!printWindow) return;
+        const css = document.getElementById('equipmentDetailPrintCss').textContent.replace(/@media print\s*\{([\s\S]*)\}\s*$/, '$1');
+        printWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Detail Peralatan - {{ $equipment->asset_tag ?: $equipment->name }}</title><style>' + css + '</style></head><body><div id="equipmentDetailPrintSheet">' + sheet.innerHTML + '</div></body></html>');
+        printWindow.document.close();
+        const images = Array.from(printWindow.document.images);
+        const startPrint = () => { printWindow.focus(); printWindow.print(); printWindow.close(); };
+        if (!images.length) return setTimeout(startPrint, 250);
+        let loaded = 0;
+        images.forEach(image => {
+            const done = () => { if (++loaded === images.length) startPrint(); };
+            image.complete ? done() : (image.onload = image.onerror = done);
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+    document.getElementById('downloadEquipmentDetailButton')?.addEventListener('click', async () => {
+        const source = document.querySelector('#equipmentDetailPrintSheet .equipment-detail-print');
+        const button = document.getElementById('downloadEquipmentDetailButton');
+        if (!source || typeof html2canvas === 'undefined') return;
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i>Menyiapkan JPG...';
+        const canvasHost = document.createElement('div');
+        const printCss = document.getElementById('equipmentDetailPrintCss').textContent
+            .replace(/@media print\s*\{([\s\S]*)\}\s*$/, '$1')
+            .replace(/body > \*:not\(#equipmentDetailPrintSheet\)\s*\{[^}]*\}/, '')
+            .replace(/#equipmentDetailPrintSheet\s*\{[^}]*\}/, '');
+        const style = document.createElement('style');
+        style.textContent = printCss;
+        const clone = source.cloneNode(true);
+        canvasHost.style.cssText = 'position:fixed;left:-10000px;top:0;width:560px;background:#fff;z-index:-1;';
+        clone.style.cssText = 'display:block!important;width:560px!important;max-height:none!important;height:auto!important;padding:23px!important;box-sizing:border-box!important;';
+        canvasHost.append(style, clone);
+        document.body.appendChild(canvasHost);
+        try {
+            const canvas = await html2canvas(clone, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+            const link = document.createElement('a');
+            link.download = 'detail-peralatan-{{ $equipment->asset_tag ?: 'asset' }}.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.click();
+        } finally {
+            canvasHost.remove();
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-filetype-jpg"></i>Unduh Detail JPG';
+        }
     });
 </script>
 @endsection

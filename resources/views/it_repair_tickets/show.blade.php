@@ -18,8 +18,8 @@
 				<img class="sheet-logo" src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture">
 				<div>
 					<strong>PT MULIA GRAND MANUFACTURE</strong>
-					<small>Formulir Tiket Perbaikan IT</small>
-					<span class="sheet-form-no">No. Form : FR-IT-04</span>
+					<small>Permintaan Perbaikan Peralatan IT</small>
+					<span class="sheet-form-no">No. Form : FR-IT-04 | Revisi : 00</span>
 				</div>
 			</div>
 			<div class="sheet-id">

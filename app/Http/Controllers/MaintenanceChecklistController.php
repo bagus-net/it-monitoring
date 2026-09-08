@@ -124,6 +124,94 @@ class MaintenanceChecklistController extends Controller
         ));
     }
 
+    public function bulkPdf(Request $request)
+    {
+        $year = $request->integer('year') ?: null;
+        $month = $request->integer('month') ?: null;
+        $program = $request->integer('checklist_item_id') ?: null;
+        $approval = in_array($request->input('approval'), ['approved', 'pending'], true) ? $request->input('approval') : null;
+        $search = trim((string) $request->input('search'));
+
+        $checklists = MaintenanceChecklist::with(['checklistItem', 'entries.equipment'])
+            ->when($year, fn ($query) => $query->where('year', $year))
+            ->when($month, fn ($query) => $query->where('month', $month))
+            ->when($program, fn ($query) => $query->where('checklist_item_id', $program))
+            ->when($approval === 'approved', fn ($query) => $query->whereNotNull('acknowledged_at'))
+            ->when($approval === 'pending', fn ($query) => $query->whereNull('acknowledged_at'))
+            ->when($search !== '', function ($query) use ($search) {
+                $keyword = '%' . $search . '%';
+                $query->where(function ($inner) use ($keyword) {
+                    $inner->where('reported_by', 'like', $keyword)
+                        ->orWhere('notes', 'like', $keyword)
+                        ->orWhereHas('checklistItem', fn ($relation) => $relation->where('title', 'like', $keyword));
+                });
+            })
+            ->orderByDesc('checked_at')
+            ->get();
+
+        $documents = $checklists->map(function ($checklist) {
+            $scheduledDates = $this->scheduledDatesByEquipment($checklist->checklist_item_id, $checklist->year, $checklist->month);
+
+            return [
+                'id' => $checklist->id,
+                'program' => $checklist->checklistItem?->title ?: 'Checklist Perawatan',
+                'year' => $checklist->year,
+                'month' => self::MONTH_NAMES[$checklist->month] ?? $checklist->month,
+                'checkedAt' => $checklist->checked_at?->format('d M Y') ?: '-',
+                'reportedBy' => $checklist->reported_by ?: '-',
+                'approvedBy' => $checklist->acknowledged_at ? ($checklist->acknowledged_by ?: '-') : 'Menunggu persetujuan',
+                'approved' => (bool) $checklist->acknowledged_at,
+                'notes' => $checklist->notes ?: '-',
+                'entries' => $checklist->entries->sortBy(fn ($entry) => $entry->equipment?->name)->values()->map(fn ($entry) => [
+                    'name' => $entry->equipment?->name ?: '-',
+                    'assetTag' => $entry->equipment?->asset_tag ?: ($entry->equipment?->serial_number ?: '-'),
+                    'dates' => count($scheduledDates->get($entry->equipment_id, [])) ? implode(', ', $scheduledDates->get($entry->equipment_id)) : '-',
+                    'result' => $entry->result === 'ok' ? 'OK' : 'NOT OK',
+                    'remarks' => $entry->remarks ?: '-',
+                ])->all(),
+            ];
+        })->values();
+
+        return response()->json(['documents' => $documents]);
+    }
+
+    public function bulkPrint(Request $request)
+    {
+        $year = $request->integer('year') ?: null;
+        $month = $request->integer('month') ?: null;
+        $program = $request->integer('checklist_item_id') ?: null;
+        $approval = in_array($request->input('approval'), ['approved', 'pending'], true) ? $request->input('approval') : null;
+        $search = trim((string) $request->input('search'));
+        $checklists = MaintenanceChecklist::with(['checklistItem', 'entries.equipment', 'reporter', 'acknowledger'])
+            ->when($year, fn ($query) => $query->where('year', $year))
+            ->when($month, fn ($query) => $query->where('month', $month))
+            ->when($program, fn ($query) => $query->where('checklist_item_id', $program))
+            ->when($approval === 'approved', fn ($query) => $query->whereNotNull('acknowledged_at'))
+            ->when($approval === 'pending', fn ($query) => $query->whereNull('acknowledged_at'))
+            ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner
+                ->where('reported_by', 'like', '%' . $search . '%')
+                ->orWhere('notes', 'like', '%' . $search . '%')
+                ->orWhereHas('checklistItem', fn ($relation) => $relation->where('title', 'like', '%' . $search . '%'))))
+            ->orderByDesc('checked_at')
+            ->get();
+
+        $documents = $checklists->map(function ($checklist) {
+            $scheduledDates = $this->scheduledDatesByEquipment($checklist->checklist_item_id, $checklist->year, $checklist->month);
+            return [
+                'checklist' => $checklist,
+                'monthName' => self::MONTH_NAMES[$checklist->month] ?? $checklist->month,
+                'scheduledDates' => $scheduledDates,
+                'summary' => [
+                    'total' => $checklist->entries->count(),
+                    'ok' => $checklist->entries->where('result', 'ok')->count(),
+                    'not_ok' => $checklist->entries->where('result', 'not_ok')->count(),
+                ],
+            ];
+        });
+
+        return view('maintenance_checklists.bulk_print', compact('documents'));
+    }
+
     public function create(Request $request)
     {
         $items = ChecklistItem::orderBy('title')->get();

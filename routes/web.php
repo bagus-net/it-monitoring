@@ -172,6 +172,8 @@ Route::middleware('auth')->group(function () {
 		Route::post('/maintenances/logs', [MaintenanceController::class, 'storeLog'])->name('maintenances.store_log');
 		Route::get('/maintenances/grid', [MaintenanceController::class, 'grid'])->name('maintenances.grid');
 
+		Route::get('/maintenance-checklists/bulk-pdf', [MaintenanceChecklistController::class, 'bulkPdf'])->name('maintenance-checklists.bulk-pdf');
+		Route::get('/maintenance-checklists/bulk-print', [MaintenanceChecklistController::class, 'bulkPrint'])->name('maintenance-checklists.bulk-print');
 		Route::resource('maintenance-checklists', MaintenanceChecklistController::class)
 			->parameters(['maintenance-checklists' => 'maintenanceChecklist']);
 		Route::post('/maintenance-checklists/{maintenanceChecklist}/approve', [MaintenanceChecklistController::class, 'approve'])->name('maintenance-checklists.approve');

@@ -196,6 +196,9 @@
     font-size: 0.65rem;
     font-weight: 600;
   }
+  .crypto-change { margin-left: 2px; font-size: 0.65rem; }
+  .crypto-up { color: #bbf7d0; }
+  .crypto-down { color: #fecaca; }
   @media(max-width:700px){
     .daily-quote-banner{ flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; }
     .quote-right-tag{ width: 100%; align-self: stretch; margin-top: 0; }
@@ -225,24 +228,8 @@
         ["text" => "Kolaborasi yang baik dan komunikasi yang jernih adalah kunci sukses tim IT.", "author" => "Teamwork Principle"],
     ];
 
-    $shioTips = [
-        ["shio" => "Shio Kuda", "tip" => "Fokus & Rapi membawa hoki"],
-        ["shio" => "Shio Naga", "tip" => "Inovasi & Senyum kurangi kendala"],
-        ["shio" => "Shio Kelinci", "tip" => "Ketelitian cegah error & rezeki lancar"],
-        ["shio" => "Shio Kerbau", "tip" => "Kerja keras & Sabar membuahkan hasil"],
-        ["shio" => "Shio Macan", "tip" => "Keberanian ambil keputusan tepat"],
-        ["shio" => "Shio Ular", "tip" => "Kebijaksanaan & Strategi buka peluang"],
-        ["shio" => "Shio Kambing", "tip" => "Kerja sama tim bawa keberuntungan"],
-        ["shio" => "Shio Monyet", "tip" => "Kreativitas & Cepat tanggap bawa sukses"],
-        ["shio" => "Shio Ayam", "tip" => "Kedisiplinan & Rapikan dokumen bawa hoki"],
-        ["shio" => "Shio Anjing", "tip" => "Loyalitas & Kejujuran bawa berkah"],
-        ["shio" => "Shio Babi", "tip" => "Ketenangan & Berbagi semangat positif"],
-        ["shio" => "Shio Tikus", "tip" => "Kecerdikan & Hemat energi buka keberuntungan"],
-    ];
-
     $dayIndex = (int) now()->format('z');
     $todayQuote = $quotes[$dayIndex % count($quotes)];
-    $todayShio = $shioTips[$dayIndex % count($shioTips)];
   @endphp
 
   <div class="daily-quote-banner">
@@ -252,7 +239,7 @@
       </div>
       <div class="quote-content">
         <div class="quote-tag">
-          <i class="bi bi-brightness-high-fill"></i> Inspirasi Operasional Hari Ini
+          <i class="bi bi-brightness-high-fill"></i> Quote of the Day
         </div>
         <div class="quote-text">
           "{{ $todayQuote['text'] }}"
@@ -272,8 +259,8 @@
           <i class="bi bi-currency-dollar text-success"></i> <span id="liveUsdText">USD Memuat...</span>
         </span>
         <span class="widget-divider">|</span>
-        <span class="widget-item" title="Shio & Tips Hoki Hari Ini">
-          <i class="bi bi-stars text-warning"></i> {{ $todayShio['shio'] }} <small class="text-emerald">({{ $todayShio['tip'] }})</small>
+        <span class="widget-item crypto-widget" title="Harga crypto realtime dari CoinGecko">
+          <i class="bi bi-currency-bitcoin text-warning"></i> <span id="liveCryptoText">Crypto memuat...</span>
         </span>
       </div>
     </div>
@@ -375,7 +362,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
-  // Live Weather & USD Currency Fetcher
+  // Live Weather, USD Currency, and Crypto Fetcher
   (function fetchLiveWidgetsData() {
     // 1. Fetch Realtime Weather for Surabaya / Gresik via Open-Meteo API (Lat: -7.1568, Long: 112.6555)
     fetch('https://api.open-meteo.com/v1/forecast?latitude=-7.1568&longitude=112.6555&current_weather=true')
@@ -424,7 +411,33 @@
         const usdEl = document.getElementById('liveUsdText');
         if (usdEl) usdEl.innerHTML = 'USD/IDR tidak tersedia';
       });
+
   })();
+
+  function fetchCryptoPrices() {
+    fetch('{{ route('dashboard.crypto') }}')
+      .then(res => {
+        if (!res.ok) throw new Error('Harga crypto tidak tersedia');
+        return res.json();
+      })
+      .then(data => {
+        const formatPrice = value => value === null || value === undefined
+          ? '-'
+          : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: value >= 100 ? 0 : 2 }).format(value);
+        const formatChange = value => value === null || value === undefined ? '' : `<span class="${Number(value) >= 0 ? 'crypto-up' : 'crypto-down'}">${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(2)}%</span>`;
+        const bitcoin = data.prices?.bitcoin;
+        const ethereum = data.prices?.ethereum;
+        const cryptoEl = document.getElementById('liveCryptoText');
+        if (cryptoEl) cryptoEl.innerHTML = `BTC ${formatPrice(bitcoin?.usd)}<small class="crypto-change">${formatChange(bitcoin?.change24h)}</small> · ETH ${formatPrice(ethereum?.usd)}<small class="crypto-change">${formatChange(ethereum?.change24h)}</small>`;
+      })
+      .catch(() => {
+        const cryptoEl = document.getElementById('liveCryptoText');
+        if (cryptoEl) cryptoEl.textContent = 'Crypto tidak tersedia';
+      });
+  }
+
+  fetchCryptoPrices();
+  setInterval(fetchCryptoPrices, 30000);
 
   const trendDownloadData = @json($dashboardTrend);
   const uniqueTrendData = [];

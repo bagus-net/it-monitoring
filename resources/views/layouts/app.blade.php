@@ -33,10 +33,10 @@
             <nav class="sidebar-nav">
                 @if($currentUser && !$currentUser->isEmployee())
                 <a @class(['sidebar-link','active'=>request()->routeIs('dashboard')]) href="{{ route('dashboard') }}"><i class="bi bi-grid-1x2-fill"></i>Dashboard Utama</a>
-                @if($currentUser->isMaster())
+                @endif
                 <a @class(['sidebar-link','active'=>request()->routeIs('campaigns.*')]) href="{{ route('campaigns.index') }}"><i class="bi bi-megaphone"></i>Campaign</a>
                 <a @class(['sidebar-link','active'=>request()->routeIs('todo-list.*')]) href="{{ route('todo-list.index') }}"><i class="bi bi-check2-square"></i>To-do List</a>
-                @endif
+                @if($currentUser && !$currentUser->isEmployee())
                 <a @class(['sidebar-link','active'=>request()->routeIs('web-monitoring.*')]) href="{{ route('web-monitoring.index') }}"><i class="bi bi-globe2"></i>Web Monitoring</a>
                 @endif
                 <span class="sidebar-label">Operasional</span>

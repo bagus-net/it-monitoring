@@ -14,7 +14,7 @@ class CampaignController extends Controller
     {
         $status = $request->input('status');
         $search = trim((string) $request->input('search'));
-        $campaigns = Campaign::with('owner')
+        $campaigns = $this->accessibleCampaigns()->with('owner')
             ->when($status, fn ($query, $value) => $query->where('status', $value))
             ->when($search !== '', fn ($query) => $query->where(fn ($inner) => $inner->where('name', 'like', '%' . $search . '%')->orWhere('channel', 'like', '%' . $search . '%')->orWhere('audience', 'like', '%' . $search . '%')))
             ->orderByRaw("FIELD(status, 'active', 'planned', 'paused', 'completed', 'archived')")
@@ -22,10 +22,10 @@ class CampaignController extends Controller
             ->paginate($this->resolvePerPage($request))
             ->withQueryString();
         $summary = [
-            'total' => Campaign::count(),
-            'active' => Campaign::where('status', 'active')->count(),
-            'planned' => Campaign::where('status', 'planned')->count(),
-            'completed' => Campaign::where('status', 'completed')->count(),
+            'total' => $this->accessibleCampaigns()->count(),
+            'active' => $this->accessibleCampaigns()->where('status', 'active')->count(),
+            'planned' => $this->accessibleCampaigns()->where('status', 'planned')->count(),
+            'completed' => $this->accessibleCampaigns()->where('status', 'completed')->count(),
         ];
         return view('campaigns.index', compact('campaigns', 'summary', 'status', 'search'));
     }
@@ -47,6 +47,7 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign)
     {
+        $this->authorizeCampaign($campaign);
         $campaign->load(['owner', 'creator', 'tasks.assignee']);
         $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'department']);
         return view('campaigns.show', compact('campaign', 'users'));
@@ -54,24 +55,28 @@ class CampaignController extends Controller
 
     public function edit(Campaign $campaign)
     {
+        $this->authorizeCampaign($campaign);
         $users = User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'department']);
         return view('campaigns.edit', compact('campaign', 'users'));
     }
 
     public function update(Request $request, Campaign $campaign)
     {
+        $this->authorizeCampaign($campaign);
         $campaign->update($this->validated($request));
         return redirect()->route('campaigns.show', $campaign)->with('success', 'Campaign berhasil diperbarui.');
     }
 
     public function destroy(Campaign $campaign)
     {
+        $this->authorizeCampaign($campaign);
         $campaign->delete();
         return redirect()->route('campaigns.index')->with('success', 'Campaign dipindahkan ke Sampah Data.');
     }
 
     public function storeTask(Request $request, Campaign $campaign)
     {
+        $this->authorizeCampaign($campaign);
         $data = $request->merge(['status' => $request->input('status', 'todo')]);
         $campaign->tasks()->create($this->validatedTask($data) + ['sort_order' => $campaign->tasks()->count()]);
         return back()->with('success', 'Task campaign berhasil ditambahkan.');
@@ -79,6 +84,7 @@ class CampaignController extends Controller
 
     public function updateTask(Request $request, Campaign $campaign, CampaignTask $campaignTask)
     {
+        $this->authorizeCampaign($campaign);
         abort_unless($campaignTask->campaign_id === $campaign->id, 404);
         $campaignTask->update($this->validatedTask($request));
         return back()->with('success', 'Task campaign berhasil diperbarui.');
@@ -86,6 +92,7 @@ class CampaignController extends Controller
 
     public function destroyTask(Campaign $campaign, CampaignTask $campaignTask)
     {
+        $this->authorizeCampaign($campaign);
         abort_unless($campaignTask->campaign_id === $campaign->id, 404);
         $campaignTask->delete();
         return back()->with('success', 'Task campaign berhasil dihapus.');
@@ -121,5 +128,15 @@ class CampaignController extends Controller
             'assignee_id' => ['nullable', 'exists:users,id'],
             'due_date' => ['nullable', 'date'],
         ]);
+    }
+
+    private function accessibleCampaigns()
+    {
+        return Campaign::query()->when(!auth()->user()->isMaster(), fn ($query) => $query->where('created_by_user_id', auth()->id()));
+    }
+
+    private function authorizeCampaign(Campaign $campaign): void
+    {
+        abort_unless(auth()->user()->isMaster() || $campaign->created_by_user_id === auth()->id(), 404);
     }
 }

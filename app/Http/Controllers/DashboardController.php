@@ -19,6 +19,8 @@ use App\Services\SiteMonitorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -107,6 +109,35 @@ class DashboardController extends Controller
                 'recentLogs' => [],
                 'generatedAt' => now()->toIso8601String(),
             ]);
+        }
+    }
+
+    public function crypto(): JsonResponse
+    {
+        try {
+            $prices = Cache::remember('dashboard.crypto.prices', now()->addSeconds(20), function () {
+                $response = Http::acceptJson()->timeout(8)->get('https://api.coingecko.com/api/v3/simple/price', [
+                    'ids' => 'bitcoin,ethereum',
+                    'vs_currencies' => 'usd',
+                    'include_24hr_change' => 'true',
+                ]);
+
+                $response->throw();
+
+                return $response->json();
+            });
+
+            return response()->json([
+                'prices' => collect(['bitcoin', 'ethereum'])->mapWithKeys(fn ($coin) => [$coin => [
+                    'usd' => data_get($prices, $coin . '.usd'),
+                    'change24h' => data_get($prices, $coin . '.usd_24h_change'),
+                ]]),
+                'updatedAt' => now()->toIso8601String(),
+            ]);
+        } catch (\Throwable $exception) {
+            logger()->warning('Crypto price update failed: ' . $exception->getMessage());
+
+            return response()->json(['message' => 'Harga crypto tidak tersedia saat ini.'], 503);
         }
     }
 

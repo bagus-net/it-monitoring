@@ -74,6 +74,13 @@ Route::middleware('auth')->group(function () {
 	});
 	Route::resource('iso-documents', IsoDocumentController::class);
 
+	// Campaign dan to-do list: user hanya melihat data yang dibuatnya sendiri.
+	Route::resource('campaigns', CampaignController::class);
+	Route::resource('todo-list', TodoListController::class)->except('show')->parameters(['todo-list' => 'todoList']);
+	Route::post('/campaigns/{campaign}/tasks', [CampaignController::class, 'storeTask'])->name('campaigns.tasks.store');
+	Route::put('/campaigns/{campaign}/tasks/{campaignTask}', [CampaignController::class, 'updateTask'])->name('campaigns.tasks.update');
+	Route::delete('/campaigns/{campaign}/tasks/{campaignTask}', [CampaignController::class, 'destroyTask'])->name('campaigns.tasks.destroy');
+
 	// Master + Admin IT
 	Route::middleware('role:master,admin_it')->group(function () {
 		Route::get('/target-monitorings', [TargetMonitoringController::class, 'index'])->name('target-monitorings.index');
@@ -85,13 +92,7 @@ Route::middleware('auth')->group(function () {
 		Route::delete('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'destroy'])->name('it-repair-tickets.destroy');
 
 		Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-		Route::middleware('role:master')->group(function () {
-			Route::resource('campaigns', CampaignController::class);
-			Route::resource('todo-list', TodoListController::class)->except('show')->parameters(['todo-list' => 'todoList']);
-			Route::post('/campaigns/{campaign}/tasks', [CampaignController::class, 'storeTask'])->name('campaigns.tasks.store');
-			Route::put('/campaigns/{campaign}/tasks/{campaignTask}', [CampaignController::class, 'updateTask'])->name('campaigns.tasks.update');
-			Route::delete('/campaigns/{campaign}/tasks/{campaignTask}', [CampaignController::class, 'destroyTask'])->name('campaigns.tasks.destroy');
-		});
+		Route::get('/dashboard/crypto', [DashboardController::class, 'crypto'])->name('dashboard.crypto');
 		Route::get('/web-monitoring', [DashboardController::class, 'monitoring'])->name('web-monitoring.index');
 		Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 		Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->name('dashboard.check-now');

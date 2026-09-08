@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\EquipmentType;
 use App\Models\MonthlySchedule;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -169,7 +170,9 @@ class EquipmentController extends Controller
                     ->all()];
             });
 
-        return view('equipments.show', compact('equipment', 'scheduledDatesByPeriod'));
+        $signatures = User::documentSignatories();
+
+        return view('equipments.show', compact('equipment', 'scheduledDatesByPeriod', 'signatures'));
     }
 
     public function scan(Equipment $equipment)

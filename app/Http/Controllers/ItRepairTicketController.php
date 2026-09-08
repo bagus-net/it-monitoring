@@ -63,6 +63,11 @@ class ItRepairTicketController extends Controller
     public function index(Request $request)
     {
         $status = $request->input('status');
+        $approval = $request->input('approval');
+        $approval = in_array($approval, ['approved', 'pending'], true) ? $approval : null;
+        if (auth()->user()->isEmployee()) {
+            $approval = null;
+        }
         $search = trim((string) $request->input('search'));
         $filters = [
             'priority' => $request->input('priority'),
@@ -75,6 +80,8 @@ class ItRepairTicketController extends Controller
         $tickets = ItRepairTicket::with('equipment.assetLocation')
             ->tap(fn ($query) => $this->applyOwnershipScope($query))
             ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($approval === 'approved', fn ($query) => $query->whereNotNull('approved_at'))
+            ->when($approval === 'pending', fn ($query) => $query->whereNull('approved_at'))
             ->when($filters['priority'], fn ($query, $priority) => $query->where('priority', $priority))
             ->when($filters['category'], fn ($query, $category) => $query->where('equipment_category', $category))
             ->when($filters['repair_category'], fn ($query, $value) => $query->where('repair_category', $value))
@@ -105,6 +112,8 @@ class ItRepairTicketController extends Controller
             'open' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'open')->count(),
             'in_progress' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'in_progress')->count(),
             'resolved' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'resolved')->count(),
+            'approved' => $this->applyOwnershipScope(ItRepairTicket::query())->whereNotNull('approved_at')->count(),
+            'pending_approval' => $this->applyOwnershipScope(ItRepairTicket::query())->whereNull('approved_at')->count(),
             'hardware' => $this->applyOwnershipScope(ItRepairTicket::query())->where('repair_category', 'hardware')->count(),
             'software' => $this->applyOwnershipScope(ItRepairTicket::query())->where('repair_category', 'software')->count(),
         ];
@@ -117,7 +126,7 @@ class ItRepairTicketController extends Controller
                 ->get()
             : collect();
 
-        return view('it_repair_tickets.index', compact('tickets', 'summary', 'status', 'search', 'filters', 'categories', 'locations', 'myEquipments'));
+        return view('it_repair_tickets.index', compact('tickets', 'summary', 'status', 'approval', 'search', 'filters', 'categories', 'locations', 'myEquipments'));
     }
 
     public function create()

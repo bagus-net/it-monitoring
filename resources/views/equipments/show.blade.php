@@ -52,9 +52,35 @@
         <div class="table-responsive"><table class="table asset-log-table align-middle mb-0"><thead><tr><th>Tanggal Efektif</th><th>Dari</th><th>Ke</th><th>Lokasi</th><th>Status</th><th></th></tr></thead><tbody>@forelse ($equipment->transfers->sortByDesc('effective_date') as $transfer)<tr><td>{{ $transfer->effective_date?->format('d M Y') ?? '-' }}</td><td>{{ $transfer->from_owner_name ?: '-' }}</td><td>{{ $transfer->to_owner_name ?: '-' }}</td><td>{{ $transfer->toLocation->name ?? 'Tidak diubah' }}</td><td><span class="transfer-history-status transfer-history-{{ $transfer->status }}">{{ ['pending_approval'=>'Menunggu Persetujuan','approved'=>'Disetujui','completed'=>'Selesai','rejected'=>'Ditolak','cancelled'=>'Dibatalkan'][$transfer->status] ?? $transfer->status }}</span></td><td><a href="{{ route('equipment-transfers.show', $transfer) }}" class="btn btn-sm btn-outline-secondary">Detail</a></td></tr>@empty<tr><td colspan="6" class="asset-empty">Belum ada riwayat mutasi untuk peralatan ini.</td></tr>@endforelse</tbody></table></div>
     </section>
     <section class="asset-section repair-history-section">
-        <div class="section-heading"><div><h2><i class="bi bi-tools"></i>Kartu Riwayat Perbaikan</h2><p>Riwayat tiket Perbaikan IT untuk peralatan ini.</p></div><a href="{{ route('it-repair-tickets.index') }}" class="btn btn-sm btn-outline-primary">Perbaikan IT</a></div>
+        <div class="section-heading"><div><h2><i class="bi bi-tools"></i>Kartu Riwayat Perbaikan</h2><p>Riwayat tiket Perbaikan IT untuk peralatan ini.</p></div><div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-dark" id="printRepairHistoryButton"><i class="bi bi-printer"></i>Print Kartu</button><a href="{{ route('it-repair-tickets.index') }}" class="btn btn-sm btn-outline-primary">Perbaikan IT</a></div></div>
         <div class="repair-history-grid">@forelse($equipment->repairTickets->sortByDesc('reported_at') as $ticket)<a href="{{ route('it-repair-tickets.show', $ticket) }}" class="repair-history-card"><div class="repair-history-top"><strong>{{ $ticket->ticket_number }}</strong><span class="repair-ticket-status repair-status-{{ $ticket->status }}">{{ ['open'=>'Open','in_progress'=>'Proses','resolved'=>'Selesai'][$ticket->status] }}</span></div><span class="repair-history-time">{{ $ticket->reported_at?->format('d M Y H:i') }}</span><p>{{ $ticket->problem_description }}</p><div class="repair-history-meta"><span>{{ $ticket->equipment_category ?? 'Kategori belum dicatat' }}</span><span>{{ $ticket->error_type ?? '-' }}</span></div><div class="repair-history-footer"><span>{{ $ticket->assigned_to ? 'Teknisi: ' . $ticket->assigned_to : 'Belum ditugaskan' }}</span><span>Lihat tiket</span></div></a>@empty<div class="asset-empty">Belum ada riwayat tiket perbaikan untuk peralatan ini.</div>@endforelse</div>
     </section>
+</div>
+
+<div id="repairHistoryPrintSheet" hidden>
+    <div class="repair-history-print">
+        <header class="repair-print-header">
+            <div class="repair-print-company">PT MULIA GRAND<br>MANUFACTURE</div>
+            <div class="repair-print-title">KARTU RIWAYAT<br>PERALATAN IT</div>
+            <div class="repair-print-meta"><div><strong>No. Form</strong><span>: FR-IT-05</span></div><div><strong>Revisi</strong><span>: 00</span></div></div>
+        </header>
+        <section class="repair-print-identity">
+            <div><strong>Fasilitas Umum</strong><span>{{ $equipment->type->name ?? '-' }}</span></div>
+            <div><strong>Tipe</strong><span>:{{ $equipment->asset_tag ?: ($equipment->name ?: '-') }}</span></div>
+        </section>
+        <table class="repair-print-table">
+            <thead><tr><th>Tanggal</th><th>Jenis Kerusakan</th><th>Penggantian Spare Part</th><th>Paraf</th></tr></thead>
+            <tbody>
+                @php $printTickets = $equipment->repairTickets->sortBy('reported_at')->take(18); @endphp
+                @foreach($printTickets as $ticket)
+                    <tr><td>{{ $ticket->reported_at?->format('d/m/Y') }}</td><td>{{ $ticket->problem_description }}{{ $ticket->error_type ? ' (' . $ticket->error_type . ')' : '' }}</td><td>{{ $ticket->repair_action ?: ($ticket->notes ?: '') }}</td><td>@if($signatures['reporter']?->signature_path)<img class="repair-print-signature" src="{{ asset('storage/' . $signatures['reporter']->signature_path) }}" alt="Tanda tangan Bagus">@endif</td></tr>
+                @endforeach
+                @for($row = $printTickets->count(); $row < 18; $row++)
+                    <tr><td></td><td></td><td></td><td></td></tr>
+                @endfor
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <style>
@@ -63,6 +89,7 @@
 .repair-ticket-status { font-size: .7rem; }
 .transfer-history-section { margin-top:16px; padding:0; overflow:hidden; }.transfer-history-status { display:inline-block; padding:3px 7px; border-radius:3px; font-size:.72rem; font-weight:700; }.transfer-history-pending_approval { background:#fef3c7; color:#92400e; }.transfer-history-approved { background:#dbeafe; color:#1d4ed8; }.transfer-history-completed { background:#dcfce7; color:#166534; }.transfer-history-rejected { background:#fee2e2; color:#991b1b; }
 .asset-owner{display:flex;align-items:center;gap:8px}.asset-owner img{width:38px;height:38px;flex:0 0 38px;border:1px solid #cbd5e1;border-radius:50%;object-fit:cover;background:#e0f2fe}.asset-owner strong,.asset-owner small{display:block}.asset-owner small{color:#64748b;font-size:.72rem;font-weight:400}
+.repair-print-header,.repair-print-identity,.repair-print-table{display:none}
 </style>
 
 <style>
@@ -119,4 +146,45 @@
 .asset-empty{border-radius:12px}
 @media(max-width:767px){.asset-hero{padding:20px}.asset-section{padding:16px}.section-heading{padding:16px}}
 </style>
+<style id="repairHistoryPrintCss">
+@media print {
+    body > *:not(#repairHistoryPrintSheet) { display:none!important; }
+    #repairHistoryPrintSheet { display:block!important; }
+    @page { size:A4 portrait; margin:0; }
+    .repair-history-print { width:210mm; height:282mm; max-height:282mm; box-sizing:border-box; padding:6mm 8mm; color:#000; background:#fff; font-family:Arial,Helvetica,sans-serif; font-size:10px; overflow:hidden; }
+    .repair-print-header { display:grid; grid-template-columns:29% 46% 25%; height:23mm; border:1.4px solid #000; }
+    .repair-print-company { display:flex; align-items:center; justify-content:center; padding:3mm; border-right:1.4px solid #000; text-align:center; font-size:12px; font-weight:700; line-height:1.35; }
+    .repair-print-title { display:flex; align-items:center; justify-content:center; border-right:1.4px solid #000; text-align:center; font-size:22px; font-weight:700; line-height:1.35; }
+    .repair-print-meta { display:grid; grid-template-rows:1fr 1fr; }
+    .repair-print-meta div { display:grid; grid-template-columns:43% 57%; align-items:center; border-bottom:1px solid #000; }
+    .repair-print-meta div:last-child { border-bottom:0; }
+    .repair-print-meta strong,.repair-print-meta span { padding:0 3px; }
+    .repair-print-meta strong { border-right:1px solid #000; height:100%; display:flex; align-items:center; }
+    .repair-print-identity { display:grid; grid-template-columns:37% 63%; height:24mm; border:1.4px solid #000; border-top:0; }
+    .repair-print-identity div { display:grid; grid-template-columns:34% 66%; align-items:center; border-bottom:1px solid #000; }
+    .repair-print-identity div:last-child { grid-column:1 / -1; border-bottom:0; }
+    .repair-print-identity strong { padding:0 4px; }
+    .repair-print-identity span { padding:0 4px; border-left:1px solid #000; height:100%; display:flex; align-items:center; }
+    .repair-print-table { display:table; width:100%; border:1.4px solid #000; border-collapse:collapse; table-layout:fixed; }
+    .repair-print-table th,.repair-print-table td { border:1px solid #b8b8b8; }
+    .repair-print-table th { height:9mm; border:1.4px solid #000; font-size:11px; }
+    .repair-print-table td { height:8.5mm; padding:1mm 1.3mm; vertical-align:top; overflow:hidden; word-wrap:break-word; line-height:1.1; }
+    .repair-print-signature { display:block; width:auto; max-width:24mm; height:7mm; margin:0 auto; object-fit:contain; }
+    .repair-print-table th:nth-child(1),.repair-print-table td:nth-child(1) { width:9%; }
+    .repair-print-table th:nth-child(2),.repair-print-table td:nth-child(2) { width:38%; }
+    .repair-print-table th:nth-child(3),.repair-print-table td:nth-child(3) { width:27%; }
+    .repair-print-table th:nth-child(4),.repair-print-table td:nth-child(4) { width:26%; }
+}
+</style>
+<script>
+    document.getElementById('printRepairHistoryButton')?.addEventListener('click', () => {
+        const sheet = document.getElementById('repairHistoryPrintSheet');
+        const printWindow = window.open('', '_blank', 'width=900,height=1200');
+        if (!printWindow) return;
+        printWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Kartu Riwayat Peralatan IT - {{ $equipment->asset_tag ?: $equipment->name }}</title><style>' + document.getElementById('repairHistoryPrintCss').textContent.replace(/@media print\s*\{([\s\S]*)\}\s*$/, '$1') + '</style></head><body><div id="repairHistoryPrintSheet">' + sheet.innerHTML + '</div></body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => { printWindow.print(); printWindow.close(); }, 350);
+    });
+</script>
 @endsection

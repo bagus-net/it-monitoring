@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\Innovation;
 use App\Models\IsoDocument;
+use App\Models\ItRepairTicket;
 use App\Models\ItWaste;
 use App\Models\ItWasteBatch;
 use App\Models\MaintenanceChecklist;
@@ -77,6 +78,14 @@ class RecycleBinController extends Controller
         if ($record instanceof IsoDocument) {
             $record->files->each(fn ($file) => Storage::delete($file->file_path));
         }
+        if ($record instanceof ItRepairTicket) {
+            if ($record->error_photo_path) {
+                Storage::disk('public')->delete($record->error_photo_path);
+            }
+            if ($record->repair_attachment_path) {
+                Storage::disk('public')->delete($record->repair_attachment_path);
+            }
+        }
     }
 
     private function recordTypes(): array
@@ -87,6 +96,7 @@ class RecycleBinController extends Controller
             'maintenance_checklist' => ['model' => MaintenanceChecklist::class, 'label' => 'Checklist Perawatan', 'name' => fn ($record) => 'Checklist #' . $record->id],
             'innovation' => ['model' => Innovation::class, 'label' => 'Inovasi IT', 'name' => fn ($record) => $record->title],
             'iso_document' => ['model' => IsoDocument::class, 'label' => 'Dokumen ISO', 'name' => fn ($record) => $record->title],
+            'it_repair_ticket' => ['model' => ItRepairTicket::class, 'label' => 'Tiket Perbaikan IT', 'name' => fn ($record) => $record->ticket_number],
             'it_waste' => ['model' => ItWaste::class, 'label' => 'Limbah IT', 'name' => fn ($record) => $record->waste_code ?: $record->description],
             'it_waste_batch' => ['model' => ItWasteBatch::class, 'label' => 'Box Limbah', 'name' => fn ($record) => $record->box_code],
         ];

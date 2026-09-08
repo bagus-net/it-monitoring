@@ -161,7 +161,9 @@ class ItRepairTicketController extends Controller
         $ticket = ItRepairTicket::create($data);
         $whatsapp->notifyNewTicket($ticket->load('equipment'));
 
-        return redirect()->route('it-repair-tickets.index')->with('success', 'Tiket perbaikan IT berhasil dibuat.');
+        return redirect()->route('it-repair-tickets.index')->with('ticket_success', [
+            'number' => $ticket->ticket_number,
+        ]);
     }
 
     public function show(ItRepairTicket $itRepairTicket)
@@ -241,15 +243,9 @@ class ItRepairTicketController extends Controller
 
     public function destroy(ItRepairTicket $itRepairTicket)
     {
-        if ($itRepairTicket->error_photo_path) {
-            Storage::disk('public')->delete($itRepairTicket->error_photo_path);
-        }
-        if ($itRepairTicket->repair_attachment_path) {
-            Storage::disk('public')->delete($itRepairTicket->repair_attachment_path);
-        }
         $itRepairTicket->delete();
 
-        return redirect()->route('it-repair-tickets.index')->with('success', 'Tiket perbaikan IT berhasil dihapus.');
+            return redirect()->route('it-repair-tickets.index')->with('success', 'Tiket perbaikan IT dipindahkan ke Trash.');
     }
 
     private function validateRequestTicket(Request $request): array
@@ -286,7 +282,8 @@ class ItRepairTicketController extends Controller
     private function nextTicketNumber(): string
     {
         $prefix = 'IT-' . now()->format('Y') . '-';
-        $lastNumber = ItRepairTicket::where('ticket_number', 'like', $prefix . '%')
+        $lastNumber = ItRepairTicket::withTrashed()
+            ->where('ticket_number', 'like', $prefix . '%')
             ->orderByDesc('id')
             ->value('ticket_number');
         $sequence = $lastNumber ? ((int) substr($lastNumber, -4)) + 1 : 1;

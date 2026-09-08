@@ -206,6 +206,21 @@ class EquipmentController extends Controller
         ]);
     }
 
+    public function downloadAllLabels()
+    {
+        $equipments = Equipment::orderBy('name')->orderBy('id')->get();
+        abort_if($equipments->isEmpty(), 404, 'Belum ada peralatan untuk dibuatkan label.');
+
+        $labels = $equipments->map(fn ($equipment) => [
+            'id' => $equipment->id,
+            'name' => $equipment->name,
+            'assetTag' => $equipment->asset_tag,
+            'scanUrl' => rtrim(config('app.equipment_scan_url'), '/') . route('equipments.scan', $equipment, false),
+        ])->values();
+
+        return view('equipments.labels_download_all', compact('labels'));
+    }
+
     public function edit(Equipment $equipment)
     {
         $types = EquipmentType::orderBy('name')->get();

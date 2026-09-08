@@ -38,7 +38,7 @@
 								<td>{{ $file->created_at->format('d M Y H:i') }}</td>
 								<td class="text-end text-nowrap">
 									@if($previewable)<button type="button" class="btn btn-sm btn-outline-primary iso-preview-btn" data-name="{{ $file->file_name }}" data-type="{{ $ext }}" data-src="{{ route('iso-documents.files.preview', [$isoDocument, $file]) }}"><i class="bi bi-eye"></i></button>@endif
-									<a href="{{ route('iso-documents.files.download', [$isoDocument, $file]) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></a>
+									{{-- <a href="{{ route('iso-documents.files.download', [$isoDocument, $file]) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></a> --}}
 									@if($canManage)<form method="POST" action="{{ route('iso-documents.files.destroy', [$isoDocument, $file]) }}" class="d-inline" onsubmit="return confirm('Hapus file ini dari folder?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>@endif
 								</td>
 							</tr>

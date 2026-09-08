@@ -77,6 +77,7 @@
                 <span class="sidebar-label">Pengaturan</span>
                 <a @class(['sidebar-link','active'=>request()->routeIs('users.*')]) href="{{ route('users.index') }}"><i class="bi bi-people"></i>Pengaturan User</a>
                 <a @class(['sidebar-link','active'=>request()->routeIs('activity-logs.*')]) href="{{ route('activity-logs.index') }}"><i class="bi bi-clock-history"></i>Log Aktivitas User</a>
+                <a @class(['sidebar-link','active'=>request()->routeIs('settings.backup.*')]) href="{{ route('settings.backup.index') }}"><i class="bi bi-database-down"></i>Backup Data</a>
                 <a @class(['sidebar-link','active'=>request()->routeIs('recycle-bin.*')]) href="{{ route('recycle-bin.index') }}"><i class="bi bi-trash3"></i>Trash</a>
                 @endif
             </nav>
@@ -86,7 +87,7 @@
                 <a class="sidebar-signature-link" href="{{ route('signature.edit') }}"><i class="bi bi-pen"></i>Tanda Tangan Digital</a>
                 <a class="sidebar-signature-link" href="{{ route('privacy-policy') }}"><i class="bi bi-shield-check"></i>Privacy Policy</a>
                 @endauth
-                <button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle"><i class="bi bi-bell"></i>Aktifkan notifikasi tiket</button>
+                    <button id="enableTicketAlerts" type="button" class="sidebar-alert-toggle"><i class="bi bi-bell"></i>Aktifkan notifikasi tiket</button>
                 <span>IT Maintenance System</span>
                 <span>Dibuat oleh ITMGM 2026</span>
             </div>
@@ -114,6 +115,32 @@
         @endif
         @if(session('error'))
             <div class="container-fluid app-content"><div class="alert alert-danger">{{ session('error') }}</div></div>
+        @endif
+        @if(session('ticket_success'))
+            <div class="ticket-success-popup" id="ticketSuccessPopup" role="status" aria-live="polite">
+                <button type="button" class="ticket-success-close" id="ticketSuccessClose" aria-label="Tutup notifikasi"><i class="bi bi-x-lg"></i></button>
+                <div class="ticket-success-icon"><i class="bi bi-check2"></i></div>
+                <div class="ticket-success-content">
+                    <span class="ticket-success-kicker">Permintaan berhasil dikirim</span>
+                    <strong>Tiket Anda Berhasil Terdaftar!</strong>
+                    <p>Nomor tiket <b>{{ session('ticket_success.number') }}</b> sudah tercatat. Tim IT akan segera menindaklanjuti laporan Anda.</p>
+                    <a href="{{ route('it-repair-tickets.index') }}">Lihat daftar tiket <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <style>
+                .ticket-success-popup{position:fixed;z-index:1080;right:24px;top:24px;display:flex;align-items:flex-start;gap:14px;width:min(430px,calc(100vw - 32px));padding:19px 20px;border:1px solid rgba(255,255,255,.7);border-radius:18px;background:linear-gradient(135deg,#ffffff,#f0fdfa);box-shadow:0 18px 45px rgba(24,36,61,.2);animation:ticketSuccessIn .45s cubic-bezier(.2,.8,.2,1)}.ticket-success-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:14px;background:linear-gradient(135deg,#12b981,#0f9f8b);color:#fff;font-size:1.35rem;box-shadow:0 8px 18px rgba(16,185,129,.28)}.ticket-success-content{padding-right:12px}.ticket-success-kicker{display:block;margin-bottom:3px;color:#0f9f8b;font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.ticket-success-content strong{display:block;color:#18243d;font-size:1rem}.ticket-success-content p{margin:6px 0 9px;color:#64748b;font-size:.75rem;line-height:1.5}.ticket-success-content b{color:#0f766e}.ticket-success-content a{color:#0f9f8b;font-size:.75rem;font-weight:800;text-decoration:none}.ticket-success-content a i{margin-left:4px}.ticket-success-close{position:absolute;top:10px;right:12px;padding:3px;border:0;background:transparent;color:#94a3b8;font-size:.72rem}.ticket-success-close:hover{color:#334155}@keyframes ticketSuccessIn{from{opacity:0;transform:translateY(-18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes ticketSuccessOut{to{opacity:0;transform:translateY(-12px) scale(.96)}}.ticket-success-popup.is-closing{animation:ticketSuccessOut .25s ease forwards}@media(max-width:600px){.ticket-success-popup{top:14px;right:16px}}
+            </style>
+            <script>
+                (() => {
+                    const popup = document.getElementById('ticketSuccessPopup');
+                    const close = () => { popup?.classList.add('is-closing'); setTimeout(() => popup?.remove(), 250); };
+                    document.getElementById('ticketSuccessClose')?.addEventListener('click', close);
+                    setTimeout(close, 9000);
+                })();
+            </script>
+            <style>
+                .ticket-success-popup{top:50%;right:auto;left:50%;width:min(540px,calc(100vw - 32px));padding:34px 38px;align-items:center;flex-direction:column;gap:17px;text-align:center;box-shadow:0 0 0 100vmax rgba(15,23,42,.34),0 24px 70px rgba(24,36,61,.28);transform:translate(-50%,-50%);animation:ticketSuccessCenterIn .45s cubic-bezier(.2,.8,.2,1)}.ticket-success-icon{width:72px;height:72px;flex-basis:72px;border-radius:24px;font-size:2.2rem;box-shadow:0 12px 26px rgba(16,185,129,.32)}.ticket-success-content{padding:0}.ticket-success-kicker{font-size:.72rem}.ticket-success-content strong{font-size:1.3rem}.ticket-success-content p{max-width:390px;margin:9px auto 15px;font-size:.82rem}.ticket-success-content a{font-size:.82rem}.ticket-success-close{top:15px;right:17px;font-size:.8rem}@keyframes ticketSuccessCenterIn{from{opacity:0;transform:translate(-50%,-46%) scale(.88)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}@keyframes ticketSuccessCenterOut{to{opacity:0;transform:translate(-50%,-46%) scale(.9)}}.ticket-success-popup.is-closing{animation:ticketSuccessCenterOut .25s ease forwards}@media(max-width:600px){.ticket-success-popup{top:50%;right:auto;left:50%;padding:30px 24px}}
+            </style>
         @endif
         @yield('content')
         <footer class="app-footer">Dibuat oleh ITMGM 2026</footer>

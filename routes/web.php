@@ -26,6 +26,7 @@ use App\Http\Controllers\RecycleBinController;
 use App\Http\Controllers\TargetMonitoringController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\TodoListController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -119,6 +120,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipments', [EquipmentController::class, 'index'])->name('equipments.index');
 		Route::get('/equipments/create', [EquipmentController::class, 'create'])->name('equipments.create');
 		Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
+		Route::get('/equipments/labels/download-all', [EquipmentController::class, 'downloadAllLabels'])->name('equipments.labels.download-all');
 		Route::get('/equipments/{equipment}/label', [EquipmentController::class, 'label'])->name('equipments.label');
 		Route::get('/equipments/{equipment}/label/download', [EquipmentController::class, 'downloadLabel'])->name('equipments.label.download');
 		Route::get('/equipments/{equipment}', [EquipmentController::class, 'show'])->name('equipments.show');
@@ -225,6 +227,8 @@ Route::middleware('auth')->group(function () {
 		Route::post('/it-repair-tickets/{itRepairTicket}/approve', [ItRepairTicketController::class, 'approve'])->name('it-repair-tickets.approve');
 		Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 		Route::get('/reports/activities', [\App\Http\Controllers\ReportController::class, 'activities'])->name('reports.activities');
+		Route::get('/settings/backup', [BackupController::class, 'index'])->name('settings.backup.index');
+		Route::post('/settings/backup', [BackupController::class, 'download'])->name('settings.backup.download');
 
 		Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 		Route::get('/users/create', [\App\Http\Controllers\UserController::class, 'create'])->name('users.create');

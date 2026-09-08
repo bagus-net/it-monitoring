@@ -206,7 +206,7 @@ class EquipmentController extends Controller
         ]);
     }
 
-    public function downloadAllLabels()
+    public function downloadAllLabels(Request $request)
     {
         $equipments = Equipment::orderBy('name')->orderBy('id')->get();
         abort_if($equipments->isEmpty(), 404, 'Belum ada peralatan untuk dibuatkan label.');
@@ -217,6 +217,10 @@ class EquipmentController extends Controller
             'assetTag' => $equipment->asset_tag,
             'scanUrl' => rtrim(config('app.equipment_scan_url'), '/') . route('equipments.scan', $equipment, false),
         ])->values();
+
+        if ($request->expectsJson()) {
+            return response()->json(['labels' => $labels]);
+        }
 
         return view('equipments.labels_download_all', compact('labels'));
     }

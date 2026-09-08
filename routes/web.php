@@ -233,6 +233,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 		Route::get('/users/create', [\App\Http\Controllers\UserController::class, 'create'])->name('users.create');
 		Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+		Route::get('/users/details/download-all', [\App\Http\Controllers\UserController::class, 'downloadAllDetails'])->name('users.details.download-all');
 		Route::get('/users/{user}', [\App\Http\Controllers\UserController::class, 'show'])->name('users.show');
 		Route::delete('/users/{user}/equipments/{equipment}', [\App\Http\Controllers\UserController::class, 'detachEquipment'])->name('users.equipments.detach');
 		Route::get('/users/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');

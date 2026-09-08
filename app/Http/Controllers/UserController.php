@@ -53,6 +53,41 @@ class UserController extends Controller
         return view('users.show', compact('user'));
     }
 
+    public function downloadAllDetails(Request $request)
+    {
+        $users = User::with(['equipments.type', 'equipments.assetLocation', 'equipments.manufacturer'])
+            ->orderBy('name')
+            ->get();
+
+        abort_if($users->isEmpty(), 404, 'Belum ada user untuk dibuatkan detail.');
+
+        $details = $users->map(fn ($user) => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'department' => $user->department ?: '-',
+            'role' => $user->roleLabel(),
+            'status' => $user->is_active ? 'Aktif' : 'Nonaktif',
+            'photoUrl' => $user->profile_photo_path
+                ? asset('storage/' . $user->profile_photo_path)
+                : asset('images/default-avatar.svg'),
+            'equipments' => $user->equipments->sortBy('name')->values()->map(fn ($equipment) => [
+                'name' => $equipment->name,
+                'assetTag' => $equipment->asset_tag ?: '-',
+                'type' => $equipment->type->name ?? '-',
+                'manufacturer' => $equipment->manufacturer->name ?? '-',
+                'location' => $equipment->assetLocation->name ?? '-',
+                'condition' => ucfirst($equipment->condition ?: $equipment->status ?: '-'),
+            ])->all(),
+        ])->values();
+
+        if ($request->expectsJson()) {
+            return response()->json(['details' => $details]);
+        }
+
+        return view('users.details_download_all', compact('details'));
+    }
+
     public function detachEquipment(User $user, Equipment $equipment)
     {
         abort_unless($equipment->user_id === $user->id, 404);

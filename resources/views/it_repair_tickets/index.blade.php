@@ -10,7 +10,7 @@
                 <div class="repair-eyebrow"><i class="bi bi-headset"></i> IT Service Desk</div>
                 <h2 class="mb-1">Perbaikan IT</h2>
                 <p class="text-muted mb-0">Tiket permintaan perbaikan dan tindak lanjut peralatan IT.</p>
-            </div><a href="{{ route('it-repair-tickets.create') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Buat Tiket Perbaikan</a>
+            </div><div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-outline-info" id="ticketTutorialButton"><i class="bi bi-play-circle"></i> Bantuan Tutorial</button><a href="{{ route('it-repair-tickets.create') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Buat Tiket Perbaikan</a></div>
         </div>
         <div class="row g-3 mb-3">
                 <div class="col-md-3"><a class="repair-stat open"
@@ -240,6 +240,12 @@
                 </div>
                 <div class="table-pagination">{{ $tickets->links() }}</div>
             </div>
+        </div>
+    </div>
+    <div class="ticket-tutorial-modal" id="ticketTutorialModal" hidden>
+        <div class="ticket-tutorial-dialog" role="dialog" aria-modal="true" aria-labelledby="ticketTutorialTitle">
+            <div class="ticket-tutorial-header"><div><span class="ticket-tutorial-kicker">PANDUAN TICKETING</span><h2 id="ticketTutorialTitle">Cara Membuat Tiket Perbaikan</h2></div><button type="button" class="ticket-tutorial-close" id="ticketTutorialClose" aria-label="Tutup video"><i class="bi bi-x-lg"></i></button></div>
+            <div class="ticket-tutorial-video"><iframe id="ticketTutorialFrame" title="Video tutorial membuat tiket perbaikan" data-src="https://www.youtube-nocookie.com/embed/UANDFE3KuDo?rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
         </div>
     </div>
     <style>
@@ -502,4 +508,19 @@
         .repair-page .repair-list .table{min-width:900px;font-size:.68rem}.repair-page .repair-list .table thead th{padding:9px 7px;font-size:.58rem}.repair-page .repair-list .table tbody td{padding:8px 7px}.repair-page .repair-list .table th:nth-child(7),.repair-page .repair-list .table td:nth-child(7),.repair-page .repair-list .problem-cell{max-width:125px}.repair-page .repair-list .repair-kind,.repair-page .repair-list .priority,.repair-page .repair-list .ticket-status,.repair-page .repair-list .approval-status{padding:4px 6px;font-size:.59rem}.repair-page .repair-list .table td:last-child .btn{padding:5px 7px;font-size:.61rem}
         @media(max-width:767px){.repair-page>div:first-child{gap:14px;flex-direction:column!important}.repair-page>div:first-child>.btn{align-self:stretch}.repair-page .repair-list .card-header{align-items:flex-start!important;flex-direction:column}.repair-page .my-equipment-card dl{grid-template-columns:1fr 1.2fr}.repair-page .repair-list .table{min-width:980px}}
     </style>
+    <style>
+        .ticket-tutorial-modal{position:fixed;z-index:1090;inset:0;display:grid;place-items:center;padding:22px;background:rgba(15,23,42,.6);backdrop-filter:blur(5px)}.ticket-tutorial-modal[hidden]{display:none!important}.ticket-tutorial-dialog{width:min(900px,calc(100vw - 30px));overflow:hidden;border:1px solid rgba(255,255,255,.75);border-radius:18px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.3);animation:ticketTutorialIn .25s ease-out}.ticket-tutorial-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid #e5eaf1}.ticket-tutorial-kicker{color:#0b5ea8;font-size:.65rem;font-weight:800;letter-spacing:.12em}.ticket-tutorial-header h2{margin:5px 0 0;color:#18243d;font-size:1.1rem}.ticket-tutorial-close{width:34px;height:34px;border:0;border-radius:9px;background:#f1f5f9;color:#64748b}.ticket-tutorial-close:hover{background:#fee2e2;color:#b91c1c}.ticket-tutorial-video{position:relative;aspect-ratio:16/9;background:#0f172a}.ticket-tutorial-video iframe{display:block;width:100%;height:100%;border:0}@keyframes ticketTutorialIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@media(max-width:600px){.ticket-tutorial-header{padding:15px 16px}.ticket-tutorial-header h2{font-size:.95rem}}
+    </style>
+    <script>
+        (() => {
+            const modal = document.getElementById('ticketTutorialModal');
+            const frame = document.getElementById('ticketTutorialFrame');
+            const open = () => { frame.src = frame.dataset.src; modal.hidden = false; };
+            const close = () => { frame.src = ''; modal.hidden = true; };
+            document.getElementById('ticketTutorialButton')?.addEventListener('click', open);
+            document.getElementById('ticketTutorialClose')?.addEventListener('click', close);
+            modal?.addEventListener('click', event => { if (event.target === modal) close(); });
+            document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal && !modal.hidden) close(); });
+        })();
+    </script>
 @endsection

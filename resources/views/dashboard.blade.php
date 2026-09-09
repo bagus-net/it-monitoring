@@ -262,6 +262,10 @@
         <span class="widget-item crypto-widget" title="Harga crypto realtime dari CoinGecko">
           <i class="bi bi-currency-bitcoin text-warning"></i> <span id="liveCryptoText">Crypto memuat...</span>
         </span>
+        <span class="widget-divider">|</span>
+        <span class="widget-item gold-widget" title="Harga emas ANTAM 1 gram dari Logam Mulia">
+          <i class="bi bi-gem text-warning"></i> <span id="liveGoldText">Gold memuat...</span>
+        </span>
       </div>
     </div>
   </div>
@@ -438,6 +442,28 @@
 
   fetchCryptoPrices();
   setInterval(fetchCryptoPrices, 30000);
+
+  function fetchGoldPrice() {
+    fetch('{{ route('dashboard.gold') }}')
+      .then(res => {
+        if (!res.ok) throw new Error('Harga gold tidak tersedia');
+        return res.json();
+      })
+      .then(data => {
+        const goldEl = document.getElementById('liveGoldText');
+        if (!goldEl) return;
+        const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(data.price);
+        const updatedAt = data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
+        goldEl.innerHTML = `ANTAM 1g ${price}<small class="crypto-change">${data.isFallback ? 'terakhir' : updatedAt}</small>`;
+      })
+      .catch(() => {
+        const goldEl = document.getElementById('liveGoldText');
+        if (goldEl) goldEl.textContent = 'Gold tidak tersedia';
+      });
+  }
+
+  fetchGoldPrice();
+  setInterval(fetchGoldPrice, 60000);
 
   const trendDownloadData = @json($dashboardTrend);
   const uniqueTrendData = [];

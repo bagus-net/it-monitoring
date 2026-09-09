@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
 
 		Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 		Route::get('/dashboard/crypto', [DashboardController::class, 'crypto'])->name('dashboard.crypto');
+		Route::get('/dashboard/gold', [DashboardController::class, 'gold'])->name('dashboard.gold');
 		Route::get('/web-monitoring', [DashboardController::class, 'monitoring'])->name('web-monitoring.index');
 		Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 		Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->name('dashboard.check-now');
@@ -121,6 +122,7 @@ Route::middleware('auth')->group(function () {
 		Route::get('/equipments/create', [EquipmentController::class, 'create'])->name('equipments.create');
 		Route::post('/equipments', [EquipmentController::class, 'store'])->name('equipments.store');
 		Route::get('/equipments/labels/download-all', [EquipmentController::class, 'downloadAllLabels'])->name('equipments.labels.download-all');
+		Route::get('/equipments/{equipment}/online-status', [EquipmentController::class, 'checkOnline'])->name('equipments.online-status');
 		Route::get('/equipments/{equipment}/label', [EquipmentController::class, 'label'])->name('equipments.label');
 		Route::get('/equipments/{equipment}/label/download', [EquipmentController::class, 'downloadLabel'])->name('equipments.label.download');
 		Route::get('/equipments/{equipment}', [EquipmentController::class, 'show'])->name('equipments.show');

@@ -73,10 +73,11 @@ class UserController extends Controller
                 : asset('images/default-avatar.svg'),
             'equipments' => $user->equipments->sortBy('name')->values()->map(fn ($equipment) => [
                 'name' => $equipment->name,
-                'assetTag' => $equipment->asset_tag ?: '-',
+                'assetTag' => $equipment->serial_number ?: '-',
+                'serialNumber' => $equipment->serial_number ?: '-',
                 'type' => $equipment->type->name ?? '-',
                 'manufacturer' => $equipment->manufacturer->name ?? '-',
-                'location' => $equipment->assetLocation->name ?? '-',
+                'location' => $equipment->owner_name ?: '-',
                 'condition' => ucfirst($equipment->condition ?: $equipment->status ?: '-'),
             ])->all(),
         ])->values();

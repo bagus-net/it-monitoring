@@ -8,6 +8,7 @@ use App\Models\MonthlySchedule;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\Process;
 
 class EquipmentController extends Controller
 {
@@ -173,6 +174,45 @@ class EquipmentController extends Controller
         $signatures = User::documentSignatories();
 
         return view('equipments.show', compact('equipment', 'scheduledDatesByPeriod', 'signatures'));
+    }
+
+    public function checkOnline(Equipment $equipment)
+    {
+        $ipAddress = trim((string) $equipment->ip_address);
+        abort_unless(filter_var($ipAddress, FILTER_VALIDATE_IP), 422, 'IP address peralatan belum valid.');
+
+        $startedAt = microtime(true);
+        $process = new Process(PHP_OS_FAMILY === 'Windows'
+            ? ['ping.exe', '-n', '1', '-w', '1000', $ipAddress]
+            : ['ping', '-c', '1', '-W', '1', $ipAddress]);
+        $process->setTimeout(2);
+        $process->run();
+
+        $output = $process->getOutput() . $process->getErrorOutput();
+        $online = $process->isSuccessful() || (PHP_OS_FAMILY === 'Windows' && preg_match('/Reply from .*bytes=|TTL=/', $output));
+        $detectedBy = $online ? 'Ping' : null;
+        $detectedPort = null;
+
+        if (!$online) {
+            foreach ([445, 135, 3389, 80] as $port) {
+                $socket = @fsockopen($ipAddress, $port, $errorCode, $errorMessage, 0.7);
+                if (is_resource($socket)) {
+                    fclose($socket);
+                    $online = true;
+                    $detectedBy = 'TCP';
+                    $detectedPort = $port;
+                    break;
+                }
+            }
+        }
+
+        return response()->json([
+            'online' => (bool) $online,
+            'ip' => $ipAddress,
+            'responseTime' => round((microtime(true) - $startedAt) * 1000),
+            'detectedBy' => $detectedBy,
+            'port' => $detectedPort,
+        ]);
     }
 
     public function scan(Equipment $equipment)

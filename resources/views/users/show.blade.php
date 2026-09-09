@@ -158,4 +158,21 @@
         }
     });
 </script>
+<script>
+    (() => {
+        const serialNumbers = @json($user->equipments->sortBy('name')->pluck('serial_number')->map(fn ($serial) => $serial ?: '-')->values());
+        const table = document.querySelector('.user-equipment-card table');
+        if (!table) return;
+        const serialHeader = Array.from(table.querySelectorAll('thead th')).find(header => header.textContent.trim() === 'Kode Aset');
+        if (serialHeader) serialHeader.textContent = 'Serial';
+        const picNames = @json($user->equipments->sortBy('name')->pluck('owner_name')->map(fn ($owner) => $owner ?: '-')->values());
+        const picHeader = Array.from(table.querySelectorAll('thead th')).find(header => header.textContent.trim() === 'Lokasi');
+        if (picHeader) picHeader.textContent = 'PIC';
+        table.querySelectorAll('tbody tr').forEach((row, index) => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 1 && serialNumbers[index] !== undefined) cells[1].textContent = serialNumbers[index];
+            if (cells.length > 4 && picNames[index] !== undefined) cells[4].textContent = picNames[index];
+        });
+    })();
+</script>
 @endsection

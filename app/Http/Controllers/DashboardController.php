@@ -141,6 +141,70 @@ class DashboardController extends Controller
         }
     }
 
+    public function gold(): JsonResponse
+    {
+        $fallbackPrice = 2610000;
+
+        try {
+            $price = Cache::remember('dashboard.gold.antam.1g', now()->addMinute(), function () {
+                $html = Http::withUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36')
+                    ->withHeaders(['Accept' => 'text/html,application/xhtml+xml'])
+                    ->timeout(15)
+                    ->retry(2, 300)
+                    ->get('https://www.logammulia.com/id/harga-emas-hari-ini')
+                    ->throw()
+                    ->body();
+                preg_match_all('/<tr[^>]*>(.*?)<\/tr>/is', $html, $rows);
+
+                foreach ($rows[1] as $row) {
+                    $text = preg_replace('/\s+/', ' ', trim(strip_tags($row)));
+                    if (!preg_match('/\b1\s*gr\b/i', $text)) {
+                        continue;
+                    }
+
+                    preg_match_all('/\d[\d.,]*/', $text, $numbers);
+                    $prices = collect($numbers[0] ?? [])
+                        ->map(fn ($number) => (int) preg_replace('/[^0-9]/', '', $number))
+                        ->filter(fn ($number) => $number >= 1000000)
+                        ->values();
+
+                    if ($prices->isNotEmpty()) {
+                        return $prices->first();
+                    }
+                }
+
+                $text = preg_replace('/\s+/', ' ', strip_tags($html));
+                if (preg_match('/\b1\s*gr\b.*?([0-9]{1,3}(?:[.,][0-9]{3})+)/i', $text, $match)) {
+                    return (int) preg_replace('/[^0-9]/', '', $match[1]);
+                }
+
+                throw new \RuntimeException('Harga ANTAM 1 gram tidak ditemukan.');
+            });
+
+            abort_if($price <= 0, 503, 'Harga gold tidak tersedia.');
+
+            return response()->json([
+                'symbol' => 'ANTAM 1 gr',
+                'price' => $price,
+                'currency' => 'IDR',
+                'source' => 'Logam Mulia ANTAM',
+                'isFallback' => false,
+                'updatedAt' => now()->toIso8601String(),
+            ]);
+        } catch (\Throwable $exception) {
+            logger()->warning('Gold price update failed: ' . $exception->getMessage());
+
+            return response()->json([
+                'symbol' => 'ANTAM 1 gr',
+                'price' => $fallbackPrice,
+                'currency' => 'IDR',
+                'source' => 'Harga terakhir ANTAM',
+                'isFallback' => true,
+                'updatedAt' => now()->toIso8601String(),
+            ]);
+        }
+    }
+
     public function checkNow(SiteMonitorService $monitor): JsonResponse
     {
         $monitor->checkAll();

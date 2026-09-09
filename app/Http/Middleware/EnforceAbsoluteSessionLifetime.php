@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EnforceAbsoluteSessionLifetime
 {
     private const SESSION_KEY = 'authenticated_at';
-    private const MAX_AGE_SECONDS = 86400;
+    private const MAX_AGE_SECONDS = 18000;
 
     public function handle(Request $request, Closure $next): Response
     {
@@ -24,7 +24,7 @@ class EnforceAbsoluteSessionLifetime
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
-                return redirect()->route('login')->with('error', 'Sesi login Anda telah berakhir setelah 24 jam. Silakan masuk kembali.');
+                return redirect()->route('login')->with('error', 'Sesi login Anda telah berakhir setelah 5 jam. Silakan masuk kembali.');
             }
         }
 

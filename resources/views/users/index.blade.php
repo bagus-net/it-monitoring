@@ -140,7 +140,7 @@
 
     function renderSheet(user, host) {
         const rows = user.equipments.length ? user.equipments.map((equipment, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(equipment.name)}</td><td>${escapeHtml(equipment.assetTag)}</td><td>${escapeHtml(equipment.type)}</td><td>${escapeHtml(equipment.manufacturer)}</td><td>${escapeHtml(equipment.location)}</td><td>${escapeHtml(equipment.condition)}</td></tr>`).join('') : '<tr><td colspan="7" class="user-bulk-empty">Belum ada peralatan IT.</td></tr>';
-        host.innerHTML = `<div class="user-bulk-sheet-grid"><section class="user-bulk-sheet-profile"><div><img src="${escapeHtml(user.photoUrl)}" alt="Foto profil"><span>PROFIL USER</span><h2>${escapeHtml(user.name)}</h2><p>${escapeHtml(user.email)}</p><div class="user-bulk-sheet-stats"><b>Hak Akses<strong>${escapeHtml(user.role)}</strong></b><b>Departemen<strong>${escapeHtml(user.department)}</strong></b><b>Status<strong>${escapeHtml(user.status)}</strong></b></div></div></section><section class="user-bulk-sheet-assets"><header><div><span>ASSET ASSIGNMENT</span><h3>Peralatan IT yang Dipegang</h3></div><em>${user.equipments.length} unit</em></header><table><thead><tr><th>No.</th><th>Peralatan</th><th>Kode Aset</th><th>Tipe</th><th>Manufacturer</th><th>Lokasi</th><th>Kondisi</th></tr></thead><tbody>${rows}</tbody></table></section></div>`;
+        host.innerHTML = `<div class="user-bulk-sheet-grid"><section class="user-bulk-sheet-profile"><div><img src="${escapeHtml(user.photoUrl)}" alt="Foto profil"><span>PROFIL USER</span><h2>${escapeHtml(user.name)}</h2><p>${escapeHtml(user.email)}</p><div class="user-bulk-sheet-stats"><b>Hak Akses<strong>${escapeHtml(user.role)}</strong></b><b>Departemen<strong>${escapeHtml(user.department)}</strong></b><b>Status<strong>${escapeHtml(user.status)}</strong></b></div></div></section><section class="user-bulk-sheet-assets"><header><div><span>ASSET ASSIGNMENT</span><h3>Peralatan IT yang Dipegang</h3></div><em>${user.equipments.length} unit</em></header><table><thead><tr><th>No.</th><th>Peralatan</th><th>Serial</th><th>Tipe</th><th>Manufacturer</th><th>PIC</th><th>Kondisi</th></tr></thead><tbody>${rows}</tbody></table></section></div>`;
     }
 
     async function startDownload() {
@@ -159,6 +159,8 @@
             for (let index = 0; index < details.length; index++) {
                 const user = details[index];
                 renderSheet(user, host);
+                const equipmentStat = host.querySelector('.user-bulk-sheet-stats b:nth-child(3)');
+                if (equipmentStat) { equipmentStat.firstChild.textContent = 'Peralatan Dipegang'; equipmentStat.querySelector('strong').textContent = `${user.equipments.length} unit`; }
                 await wait(80);
                 const canvas = await html2canvas(host, { backgroundColor: '#f8fafc', scale: 2, useCORS: true });
                 const baseName = safeName(user.name, `user-${user.id}`);

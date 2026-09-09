@@ -248,7 +248,15 @@ class EquipmentController extends Controller
 
     public function downloadAllLabels(Request $request)
     {
-        $equipments = Equipment::orderBy('name')->orderBy('id')->get();
+        $locationIds = collect((array) $request->input('location_id'))
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+        $equipments = Equipment::when($locationIds->isNotEmpty(), fn ($query) => $query->whereIn('location_id', $locationIds))
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
         abort_if($equipments->isEmpty(), 404, 'Belum ada peralatan untuk dibuatkan label.');
 
         $labels = $equipments->map(fn ($equipment) => [
@@ -263,6 +271,28 @@ class EquipmentController extends Controller
         }
 
         return view('equipments.labels_download_all', compact('labels'));
+    }
+
+    public function printAllLabels(Request $request)
+    {
+        $locationIds = collect((array) $request->input('location_id'))
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+        $equipments = Equipment::when($locationIds->isNotEmpty(), fn ($query) => $query->whereIn('location_id', $locationIds))
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get();
+        abort_if($equipments->isEmpty(), 404, 'Belum ada peralatan untuk dicetak.');
+
+        $labels = $equipments->map(fn ($equipment) => [
+            'name' => $equipment->name,
+            'assetTag' => $equipment->asset_tag ?: '-',
+            'scanUrl' => rtrim(config('app.equipment_scan_url'), '/') . route('equipments.scan', $equipment, false),
+        ])->values();
+
+        return view('equipments.labels_print_all', compact('labels'));
     }
 
     public function edit(Equipment $equipment)

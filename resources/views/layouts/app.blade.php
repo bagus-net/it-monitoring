@@ -581,6 +581,9 @@
                 actionBar.appendChild(button);
             });
             statsRow.after(actionBar);
+            if (new URLSearchParams(window.location.search).has('edit')) {
+                setTimeout(() => actionBar.querySelector('.crud-action-button')?.click(), 0);
+            }
             modal.querySelectorAll('.crud-modal-close, .crud-modal-backdrop').forEach(element => element.addEventListener('click', () => { modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); }));
             page.querySelectorAll('table tbody tr').forEach(row => {
                 const actionCell = row.lastElementChild;

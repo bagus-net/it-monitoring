@@ -208,6 +208,78 @@
   }
 
   @media(max-width:700px){.operations-heading:after{position:static;display:block;margin-top:10px}.operation-card{min-height:132px;padding:16px}.operation-card .operation-icon{top:14px;right:14px}}
+
+  @media(max-width:700px){
+    body{background:#f6f8fc}
+    .app-main{padding-top:14px!important;padding-bottom:86px!important}
+    .monitoring-dashboard{padding:0 12px!important;max-width:430px;margin:0 auto;color:#172039}
+    .daily-quote-banner{margin:0 0 16px;padding:13px 14px;border-radius:18px;gap:10px;box-shadow:0 10px 26px rgba(7,89,133,.18)}
+    .quote-left{gap:10px;align-items:flex-start}
+    .quote-badge-icon{width:36px;height:36px;flex-basis:36px;border-radius:10px;font-size:1rem}
+    .quote-tag{font-size:.62rem;letter-spacing:.1em}
+    .quote-text{font-size:.86rem;line-height:1.25}
+    .quote-author{font-size:.7rem}
+    .weather-eco-widget{padding:8px 9px;gap:5px 8px;justify-content:center;border-radius:12px}
+    .weather-eco-widget .widget-item{font-size:.66rem;line-height:1.2;white-space:nowrap}
+    .crypto-change{font-size:.58rem}
+    .operations-overview{margin-bottom:14px}
+    .operations-heading{margin:0 0 12px!important;padding:0!important;gap:8px}
+    .monitoring-eyebrow{font-size:.62rem;letter-spacing:.12em}
+    .operations-heading h1{margin:3px 0 5px;font-size:1.35rem;line-height:1.12;letter-spacing:-.03em}
+    .operations-heading p{font-size:.76rem;line-height:1.35}
+    .operations-heading:after{margin-top:6px;font-size:.52rem}
+    .operations-date{width:100%;padding:8px 10px;border-radius:12px;font-size:.68rem;text-align:center}
+    .operations-grid{display:flex!important;grid-template-columns:none!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .operations-grid::-webkit-scrollbar{display:none}
+    .operation-card{flex:0 0 88px;min-height:82px!important;padding:8px 6px!important;text-align:center;border-radius:12px;box-shadow:0 7px 18px rgba(35,52,85,.055);scroll-snap-align:start}
+    .operation-card:after{display:none}
+    .operation-card .operation-icon{position:static!important;width:26px!important;height:26px!important;margin:0 auto 5px;border-radius:8px;font-size:.72rem!important}
+    .operation-card span:not(.operation-icon):not(.operation-card-footer){font-size:.49rem!important;line-height:1.05;white-space:normal}
+    .operation-card strong{margin:4px 0 2px!important;font-size:1.02rem!important;line-height:1!important}
+    .operation-card small{font-size:.46rem!important;line-height:1.1}
+    .operation-card-footer{display:none!important}
+    .dashboard-analytics{display:block;margin-bottom:12px}
+    .analytics-panel{padding:13px!important;border-radius:16px;margin-bottom:12px}
+    .analytics-head{align-items:flex-start;flex-direction:column;gap:8px;margin-bottom:10px!important}
+    .analytics-head h2,.panel-head h2{font-size:.88rem!important}
+    .analytics-head p,.panel-subtitle{font-size:.66rem!important;line-height:1.25}
+    .trend-controls{width:100%}
+    .trend-filter{display:grid!important;grid-template-columns:1fr 1fr;gap:6px;width:100%;margin-top:0!important}
+    .trend-filter label{display:none}
+    .trend-filter select,.trend-filter button,.download-chart{height:32px;font-size:.66rem;border-radius:9px}
+    .download-chart{width:100%;margin-top:6px}
+    .trend-chart-wrap{height:180px!important;margin-bottom:4px}
+    .chart-legend{gap:5px;margin-top:8px;font-size:.62rem}
+    .chart-legend span{padding:4px 7px}
+    .trend-summary{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px;margin-top:10px}
+    .trend-summary-item{padding:8px 6px 8px 16px;border-radius:10px}
+    .trend-summary-item:before{left:7px;top:12px;width:6px;height:6px}
+    .trend-summary-item span{font-size:.53rem;line-height:1.1}
+    .trend-summary-item strong{font-size:.78rem}
+    .health-layout{gap:12px;align-items:center}
+    .health-donut-wrap,.health-donut-wrap canvas{width:96px!important;height:96px!important;flex-basis:96px!important}
+    .donut-center-text strong{font-size:.9rem}.donut-center-text small{font-size:.54rem}
+    .health-list{gap:2px}.health-item{padding:6px 4px;font-size:.66rem}.health-dot{width:7px;height:7px;flex-basis:7px}
+    .risk-list{grid-template-columns:1fr;gap:5px;margin-top:8px}.risk-item{padding:7px 9px;border-radius:10px;font-size:.66rem}.risk-icon{width:25px;height:25px;flex-basis:25px;font-size:.72rem}
+    .quick-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}.quick-links a{justify-content:center;padding:7px 8px;font-size:.62rem;border-radius:10px}
+    .operations-feed{grid-template-columns:1fr!important;gap:12px;margin-bottom:10px}
+    .operations-panel{padding:13px!important;border-radius:16px}
+    .panel-head{align-items:flex-start;gap:8px;margin-bottom:8px}.panel-link{font-size:.68rem}
+    .operation-row{padding:9px 0;gap:8px}.operation-row strong{font-size:.7rem}.operation-row span,.operation-row small{font-size:.62rem;max-width:210px}.op-status{padding:3px 6px;font-size:.58rem;border-radius:999px}
+  }
+
+  @media(max-width:420px){
+    .monitoring-dashboard{padding:0 10px!important}
+    .operations-grid{display:flex!important;grid-template-columns:none!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .operation-card{flex:0 0 84px;min-height:80px!important;padding:8px 6px!important;text-align:center;border-radius:12px}
+    .operation-card:after{display:none}
+    .operation-card .operation-icon{position:static!important;width:26px!important;height:26px!important;margin:0 auto 5px;border-radius:8px;font-size:.72rem!important}
+    .operation-card span:not(.operation-icon):not(.operation-card-footer){font-size:.49rem!important;line-height:1.05;white-space:normal}
+    .operation-card strong{margin:4px 0 2px!important;font-size:1rem!important}
+    .operation-card small{font-size:.46rem!important;line-height:1.1}
+    .operation-card-footer{display:none!important}
+    .weather-eco-widget .widget-item{font-size:.61rem}
+  }
 </style>
 
 <div class="monitoring-dashboard">

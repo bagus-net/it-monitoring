@@ -3,7 +3,8 @@
 @section('content')
 <div class="container mt-4 maintenance-check-page">
     <div class="d-flex justify-content-between align-items-start mb-3"><div><div class="maintenance-eyebrow">IT Maintenance Operations</div><h2 class="mb-1">Pelaksanaan Checklist IT</h2><p class="text-muted mb-0">Dokumen hasil perawatan per Program, Bulan, dan Tahun.</p></div><a href="{{ route('maintenance-checklists.create') }}" class="btn btn-brand">Buat Checklist</a></div>
-    <form method="GET" action="{{ route('maintenance-checklists.index') }}" class="row g-3 align-items-end mb-3 p-3 border rounded bg-light">
+    <button type="button" class="btn btn-brand maintenance-mobile-filter-toggle" id="maintenanceMobileFilterToggle"><i class="bi bi-sliders"></i> Filter Checklist</button>
+    <form method="GET" action="{{ route('maintenance-checklists.index') }}" class="row g-3 align-items-end mb-3 p-3 border rounded bg-light" id="maintenanceFilterPanel">
         <div class="col-lg-2 col-md-4"><label for="filter_year" class="form-label mb-1">Periode / Tahun</label><select id="filter_year" name="year" class="form-select"><option value="">Semua Tahun</option>@foreach ($availableYears as $year)<option value="{{ $year }}" {{ $selectedYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>@endforeach</select></div>
         <div class="col-lg-2 col-md-4"><label for="filter_month" class="form-label mb-1">Filter Bulan</label><select id="filter_month" name="month" class="form-select"><option value="">Semua Bulan</option>@foreach (['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber + 1 }}" {{ $selectedMonth === $monthNumber + 1 ? 'selected' : '' }}>{{ $monthName }}</option>@endforeach</select></div>
         <div class="col-lg-3 col-md-4"><label for="filter_program" class="form-label mb-1">Program Perawatan</label><select id="filter_program" name="checklist_item_id" class="form-select"><option value="">Semua Program</option>@foreach ($programOptions as $program)<option value="{{ $program->id }}" {{ $selectedProgram === $program->id ? 'selected' : '' }}>{{ $program->title }}</option>@endforeach</select></div>
@@ -75,6 +76,10 @@
     <div class="table-pagination">{{ $checklists->links() }}</div>
 </div>
 <style>.maintenance-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.maintenance-stat{padding:15px 17px;background:#fff;border:1px solid #dbe5ef;border-top:4px solid #64748b}.maintenance-stat span,.maintenance-stat small{display:block;color:#64748b;font-size:.76rem}.maintenance-stat strong{display:block;font-size:1.65rem}.maintenance-stat.total{border-top-color:#0b5ea8}.maintenance-stat.ok{border-top-color:#159957}.maintenance-stat.issue{border-top-color:#dc2626}.maintenance-stat.scheduled{border-top-color:#0891b2}.maintenance-stat.pending{border-top-color:#d97706}.maintenance-list{border:1px solid #dbe5ef}.maintenance-list .card-header{background:#f8fafc;font-weight:700}.program-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; background:var(--program-color); }.checklist-program-row td { padding:9px 12px !important; background:var(--program-tint); color:var(--program-color); }.checklist-period-row td { padding:6px 12px !important; background:#f8fafc; border-top:1px dashed #dbe5ef; border-bottom:1px dashed #dbe5ef; font-size:.82rem; }.checklist-period-row form { margin:0; }.equipment-cell { padding-left:24px !important; }.equipment-cell small { display:block; color:#64748b; }.result-badge { display:inline-block; padding:4px 8px; border-radius:3px; font-size:.75rem; font-weight:700; }.result-ok { background:#dcfce7; color:#166534; }.result-not_ok { background:#fee2e2; color:#991b1b; }</style>
+<style>
+    .maintenance-list .table-responsive{overflow-x:auto;scrollbar-color:#c4b5fd #f5f3ff;scrollbar-width:thin}.maintenance-list .table{min-width:1080px}.maintenance-list .table th,.maintenance-list .table td{padding-left:10px;padding-right:10px}.maintenance-list .table th:last-child,.maintenance-list .table td:last-child{position:sticky;right:0;z-index:2;background:#fff;box-shadow:-8px 0 12px rgba(35,52,85,.06)}.maintenance-list .table thead th:last-child{z-index:3;background:#f8fafc}.maintenance-list .table tbody tr:hover td:last-child{background:#fff}.maintenance-list .table td:last-child .btn{padding:6px 9px;border-radius:8px;font-size:.68rem;font-weight:700}.maintenance-list .table td:last-child form{margin-left:3px}
+    @media(max-width:700px){.maintenance-list .table{min-width:940px;font-size:.68rem}.maintenance-list .table thead th{padding:9px 7px;font-size:.58rem}.maintenance-list .table tbody td{padding:8px 7px}.maintenance-list .table td:last-child{min-width:180px}.maintenance-list .table td:last-child .btn{padding:5px 7px;font-size:.6rem}.maintenance-list .table td:last-child form{margin-left:2px}}
+</style>
 <script>
     (function () {
         const form = document.getElementById('checklistSearchForm');
@@ -112,6 +117,26 @@
             window.history.replaceState({}, '', window.location.pathname + (query ? '?' + query : ''));
             setTimeout(() => window.ItTableExport?.(pendingExport, table), 300);
         }
+    })();
+</script>
+<style>
+@media(max-width:700px){
+    .maintenance-check-page{max-width:430px;margin:0 auto!important;padding:0 12px 84px!important;color:#172039}
+    .maintenance-check-page>.d-flex:first-child{display:block!important;padding:0 0 13px!important;margin-bottom:12px!important}.maintenance-check-page>.d-flex:first-child h2{font-size:1.48rem!important;line-height:1.08!important;margin:3px 0 5px!important}.maintenance-check-page>.d-flex:first-child .maintenance-eyebrow{font-size:.6rem!important}.maintenance-check-page>.d-flex:first-child .text-muted{font-size:.68rem!important;line-height:1.35!important;max-width:280px!important}.maintenance-check-page>.d-flex:first-child .btn{width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:13px!important;font-size:0!important;margin-top:12px!important}.maintenance-check-page>.d-flex:first-child .btn:before{content:'+';font-size:1.25rem;color:#fff;font-weight:700}
+    .maintenance-check-page>.row.g-3.mb-3{display:flex!important;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;margin-bottom:10px!important;padding:1px 2px 8px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}.maintenance-check-page>.row.g-3.mb-3::-webkit-scrollbar{display:none}.maintenance-check-page>.row.g-3.mb-3>[class*=col-]{flex:0 0 118px;width:118px!important;padding:0!important;scroll-snap-align:start}.maintenance-stat{min-height:96px!important;padding:12px!important;border:1px solid #e7ebf2!important;border-top:0!important;border-radius:14px!important;box-shadow:0 7px 18px rgba(35,52,85,.055)!important}.maintenance-stat span{font-size:.56rem!important;line-height:1.15}.maintenance-stat strong{margin:6px 0 2px!important;font-size:1.28rem!important}.maintenance-stat small{font-size:.52rem!important;line-height:1.15}
+    .maintenance-mobile-filter-toggle{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;margin:0 0 10px!important;border-radius:13px!important;padding:10px!important;font-size:.75rem!important}.maintenance-mobile-filter-toggle i{margin:0!important}#maintenanceFilterPanel{display:none!important;margin-bottom:10px!important;border-radius:15px!important;background:#fff!important;padding:13px!important}#maintenanceFilterPanel.is-open{display:flex!important}#maintenanceFilterPanel>[class*=col-]{width:100%!important}.maintenance-check-page .form-label{font-size:.58rem!important}.maintenance-check-page .form-control,.maintenance-check-page .form-select{min-height:34px!important;font-size:.68rem!important;border-radius:9px!important}.maintenance-check-page #maintenanceFilterPanel .d-flex{display:grid!important;grid-template-columns:1fr 42px!important}.maintenance-check-page #maintenanceFilterPanel .btn{width:100%!important;padding:8px!important;border-radius:9px!important;font-size:.68rem!important}
+    .maintenance-list{border-radius:16px!important}.maintenance-list .card-header{padding:13px!important;align-items:flex-start!important;flex-direction:column!important}.maintenance-list .data-table-tools{width:100%!important}.maintenance-list .data-table-export{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;width:100%!important}.maintenance-list .data-table-export .btn{padding:7px 4px!important;font-size:.62rem!important;border-radius:9px!important}.maintenance-list .data-table-search-form input{min-height:36px!important;border-radius:999px!important;font-size:.7rem!important}
+}
+@media(min-width:701px){.maintenance-mobile-filter-toggle{display:none!important}#maintenanceFilterPanel{display:flex!important}}
+</style>
+<script>
+    (() => {
+        const toggle = document.getElementById('maintenanceMobileFilterToggle');
+        const panel = document.getElementById('maintenanceFilterPanel');
+        toggle?.addEventListener('click', () => {
+            panel?.classList.toggle('is-open');
+            toggle.classList.toggle('active', panel?.classList.contains('is-open'));
+        });
     })();
 </script>
 <div class="checklist-bulk-modal" id="checklistBulkModal" hidden>

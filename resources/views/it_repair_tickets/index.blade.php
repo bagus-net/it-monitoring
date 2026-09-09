@@ -82,7 +82,8 @@
                 </div>
             </div>
         @endif
-        <div class="card repair-filter mb-3">
+        <button type="button" class="btn btn-brand repair-mobile-filter-toggle" id="repairMobileFilterToggle"><i class="bi bi-sliders"></i> Filter Tiket</button>
+        <div class="card repair-filter mb-3" id="repairFilterPanel">
             <div class="card-header"><strong>Filter Tiket</strong></div>
             <div class="card-body">
                 <form method="GET" action="{{ route('it-repair-tickets.index') }}" class="row g-2 align-items-end">
@@ -521,6 +522,26 @@
             document.getElementById('ticketTutorialClose')?.addEventListener('click', close);
             modal?.addEventListener('click', event => { if (event.target === modal) close(); });
             document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal && !modal.hidden) close(); });
+        })();
+    </script>
+    <style>
+        @media(max-width:700px){
+            .repair-page{max-width:430px;margin:0 auto!important;padding:0 12px 84px!important;color:#172039}
+            .repair-page>div:first-child{display:block!important;padding:0 0 13px!important;margin-bottom:12px!important}.repair-page>div:first-child h2{font-size:1.48rem!important;line-height:1.08!important;margin:3px 0 5px!important}.repair-page>div:first-child .repair-eyebrow{font-size:.6rem!important}.repair-page>div:first-child .text-muted{font-size:.68rem!important;line-height:1.35!important;max-width:280px!important}
+            .repair-page>div:first-child>div:last-child{display:grid!important;grid-template-columns:repeat(2,44px)!important;justify-content:start!important;gap:8px!important;margin-top:12px!important}.repair-page>div:first-child>div:last-child .btn{width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:13px!important;font-size:0!important;box-shadow:0 7px 16px rgba(35,52,85,.08)!important;background:#fff!important}.repair-page>div:first-child>div:last-child .btn i{margin:0!important;font-size:1rem!important}.repair-page>div:first-child>div:last-child .btn-brand{background:linear-gradient(135deg,#f43f5e,#fb7185)!important;color:#fff!important}
+            .repair-page>.row.g-3.mb-3{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-bottom:10px!important}.repair-page>.row.g-3.mb-3>[class*=col-]{width:auto!important;padding:0!important;min-width:0!important}.repair-page .repair-stat{min-height:104px!important;padding:14px!important;border-radius:14px!important;box-shadow:0 7px 18px rgba(35,52,85,.055)!important}.repair-page .repair-stat span{font-size:.58rem!important}.repair-page .repair-stat strong{margin:7px 0 3px!important;font-size:1.45rem!important}.repair-page .repair-stat small{font-size:.56rem!important;line-height:1.2!important}
+            .repair-mobile-filter-toggle{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;margin:0 0 10px!important;border-radius:13px!important;padding:10px!important;font-size:.75rem!important}.repair-mobile-filter-toggle i{margin:0!important}.repair-page .repair-filter{display:none!important;margin-bottom:10px!important;border-radius:15px!important}.repair-page .repair-filter.is-open{display:block!important}.repair-page .repair-filter .card-header{display:none!important}.repair-page .repair-filter .card-body{padding:13px!important}.repair-page .repair-filter form{gap:8px!important}.repair-page .repair-filter form>[class*=col-]{width:100%!important}.repair-page .repair-filter .form-label{font-size:.58rem!important}.repair-page .repair-filter .form-control,.repair-page .repair-filter .form-select{min-height:34px!important;font-size:.68rem!important;border-radius:9px!important}.repair-page .repair-filter .col-12.d-flex{display:grid!important;grid-template-columns:1fr 1fr!important}.repair-page .repair-filter .btn-sm{width:100%!important;padding:8px!important}
+        }
+        @media(min-width:701px){.repair-mobile-filter-toggle{display:none!important}.repair-page .repair-filter{display:block!important}}
+    </style>
+    <script>
+        (() => {
+            const toggle = document.getElementById('repairMobileFilterToggle');
+            const panel = document.getElementById('repairFilterPanel');
+            toggle?.addEventListener('click', () => {
+                panel?.classList.toggle('is-open');
+                toggle.classList.toggle('active', panel?.classList.contains('is-open'));
+            });
         })();
     </script>
 @endsection

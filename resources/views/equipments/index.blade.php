@@ -1,223 +1,1743 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-4 asset-page">
-    <div class="d-flex justify-content-between align-items-start mb-3"><div class="d-flex align-items-start gap-3"><span class="asset-page-icon"><i class="bi bi-hdd-stack"></i></span><div><div class="asset-eyebrow">IT Asset Management</div><h2 class="mb-1">Peralatan IT</h2><p class="text-muted mb-0">Inventaris aset, kondisi, lokasi, dan informasi teknis peralatan IT.</p></div></div><div class="d-flex gap-2"><button type="button" class="btn btn-outline-success" id="openAssetBulkDownload"><i class="bi bi-folder-symlink"></i>Download Semua Label</button><a href="{{ route('equipments.create') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i>Tambah Peralatan</a></div></div>
-    <div class="row g-3 mb-3">
-      <div class="col-md-4"><div class="asset-widget total"><div class="widget-top"><span>Total Aset</span><i class="bi bi-hdd-stack widget-icon"></i></div><strong>{{ $summary['total'] }}</strong><div class="widget-spark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>aset terdaftar</small></div></div>
-      <div class="col-md-4"><div class="asset-widget active"><div class="widget-top"><span>Kondisi Normal</span><i class="bi bi-check-circle widget-icon"></i></div><strong>{{ $summary['active'] }}</strong><div class="widget-trend up">{{ $summary['total'] ? round($summary['active'] / $summary['total'] * 100) : 0 }}% dari total aset</div><small>siap digunakan</small></div></div>
-      <div class="col-md-4"><div class="asset-widget attention"><div class="widget-top"><span>Perlu Perhatian</span><i class="bi bi-exclamation-triangle widget-icon"></i></div><strong>{{ $summary['attention'] }}</strong><div class="widget-trend down">{{ $summary['total'] ? round($summary['attention'] / $summary['total'] * 100) : 0 }}% dari total aset</div><small>rusak atau perbaikan</small></div></div>
-    </div>
-    <div class="card asset-recap mb-3">
-        <div class="card-header"><strong><i class="bi bi-diagram-3"></i>Rekap Peralatan per Jenis</strong></div>
-        <div class="card-body">
-            <div class="row g-3">
-                @forelse($typeRecap as $type)
-                    <div class="col-6 col-lg-3">
-                        <div class="type-card">
-                            <span class="type-name">{{ $type->name }}</span>
-                            <strong>{{ $type->equipments_count }}</strong>
-                            <small>unit terdaftar</small>
-                            <div class="type-bar"><span class="bar-good" style="width:{{ round($type->good_count / max(1, $type->equipments_count) * 100) }}%"></span><span class="bar-attention" style="width:{{ round($type->broken_count / max(1, $type->equipments_count) * 100) }}%"></span></div>
-                            <div class="type-condition">
-                                <span class="condition-badge condition-good">Baik {{ $type->good_count }}</span>
-                                <span class="condition-badge condition-attention">Rusak {{ $type->broken_count }}</span>
+    <div class="container mt-4 asset-page">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-start gap-3"><span class="asset-page-icon"><i class="bi bi-hdd-stack"></i></span>
+                <div>
+                    <div class="asset-eyebrow">IT Asset Management</div>
+                    <h2 class="mb-1">Peralatan IT</h2>
+                    <p class="text-muted mb-0">Inventaris aset, kondisi, lokasi, dan informasi teknis peralatan IT.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2"><button type="button" class="btn btn-outline-primary" id="openPrintAllLabels" title="Cetak Semua Label" aria-label="Cetak Semua Label"><i
+                        class="bi bi-printer"></i>Cetak Semua Label</button>
+                        <button type="button"
+                    class="btn btn-outline-success" id="openAssetBulkDownload" title="Download Semua Label" aria-label="Download Semua Label">
+                    <i class="bi bi-folder-symlink"></i>Download
+                    Semua Label</button>
+                    <a href="{{ route('equipments.create') }}" class="btn btn-brand" title="Tambah Peralatan" aria-label="Tambah Peralatan"><i
+                        class="bi bi-plus-lg"></i>Tambah Peralatan</a></div>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="asset-widget total">
+                    <div class="widget-top"><span>Total Aset</span><i class="bi bi-hdd-stack widget-icon"></i></div>
+                    <strong>{{ $summary['total'] }}</strong>
+                    <div class="widget-spark"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>aset
+                        terdaftar</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="asset-widget active">
+                    <div class="widget-top"><span>Kondisi Normal</span><i class="bi bi-check-circle widget-icon"></i></div>
+                    <strong>{{ $summary['active'] }}</strong>
+                    <div class="widget-trend up">
+                        {{ $summary['total'] ? round(($summary['active'] / $summary['total']) * 100) : 0 }}% dari total aset
+                    </div><small>siap digunakan</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="asset-widget attention">
+                    <div class="widget-top"><span>Perlu Perhatian</span><i
+                            class="bi bi-exclamation-triangle widget-icon"></i></div>
+                    <strong>{{ $summary['attention'] }}</strong>
+                    <div class="widget-trend down">
+                        {{ $summary['total'] ? round(($summary['attention'] / $summary['total']) * 100) : 0 }}% dari total
+                        aset</div><small>rusak atau perbaikan</small>
+                </div>
+            </div>
+        </div>
+        <div class="card asset-recap asset-type-recap mb-3">
+            <div class="card-header"><strong><i class="bi bi-diagram-3"></i>Rekap Peralatan per Jenis</strong></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    @forelse($typeRecap as $type)
+                        <div class="col-6 col-lg-3">
+                            <div class="type-card">
+                                <span class="type-name">{{ $type->name }}</span>
+                                <strong>{{ $type->equipments_count }}</strong>
+                                <small>unit terdaftar</small>
+                                <div class="type-bar"><span class="bar-good"
+                                        style="width:{{ round(($type->good_count / max(1, $type->equipments_count)) * 100) }}%"></span><span
+                                        class="bar-attention"
+                                        style="width:{{ round(($type->broken_count / max(1, $type->equipments_count)) * 100) }}%"></span>
+                                </div>
+                                <div class="type-condition">
+                                    <span class="condition-badge condition-good">Baik {{ $type->good_count }}</span>
+                                    <span class="condition-badge condition-attention">Rusak
+                                        {{ $type->broken_count }}</span>
+                                </div>
                             </div>
                         </div>
+                    @empty
+                        <div class="col-12 text-muted">Belum ada jenis peralatan yang terdaftar.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="card asset-recap asset-criticality-recap mb-3">
+            <div class="card-header"><strong><i class="bi bi-shield-exclamation"></i>Tingkat Kritikalitas Layanan</strong>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    @foreach ($criticalityRecap as $level)
+                        <div class="col-6 col-lg-3">
+                            <div class="criticality-card level-{{ $level['key'] }}">
+                                <span class="type-name">{{ $level['label'] }}</span>
+                                <strong>{{ $level['total'] }}</strong>
+                                <div class="level-bar"><span
+                                        style="width:{{ $summary['total'] > 0 ? round(($level['total'] / $summary['total']) * 100) : 0 }}%"></span>
+                                </div>
+                                <small>{{ $summary['total'] > 0 ? round(($level['total'] / $summary['total']) * 100) : 0 }}%
+                                    dari total aset</small>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-brand asset-mobile-filter-toggle" id="assetMobileFilterToggle"><i class="bi bi-sliders"></i> Filter Peralatan</button>
+        <div class="card asset-filter mb-3" id="assetFilterPanel">
+            <div class="card-header"><strong><i class="bi bi-sliders"></i>Filter Peralatan</strong></div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('equipments.index') }}" class="row g-2 align-items-end">
+                    @if ($search)
+                        <input type="hidden" name="search" value="{{ $search }}">
+                    @endif
+                    <div class="col-6 col-lg-2"><label class="form-label">Jenis</label><select name="equipment_type_id"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['types'] as $type)
+                                <option value="{{ $type->id }}" @selected((string) $filters['equipment_type_id'] === (string) $type->id)>{{ $type->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                @empty
-                    <div class="col-12 text-muted">Belum ada jenis peralatan yang terdaftar.</div>
-                @endforelse
+                    <div class="col-6 col-lg-2"><label class="form-label">Merk</label><select name="manufacturer_id"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['manufacturers'] as $manufacturer)
+                                <option value="{{ $manufacturer->id }}" @selected((string) $filters['manufacturer_id'] === (string) $manufacturer->id)>
+                                    {{ $manufacturer->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Lokasi</label><select name="location_id"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['locations'] as $location)
+                                <option value="{{ $location->id }}" @selected((string) $filters['location_id'] === (string) $location->id)>{{ $location->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Kondisi</label><select name="condition"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['conditions'] as $condition)
+                                <option value="{{ $condition }}" @selected($filters['condition'] === $condition)>{{ ucfirst($condition) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Kritikalitas</label><select name="criticality"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['criticalities'] as $key => $label)
+                                <option value="{{ $key }}" @selected($filters['criticality'] === $key)>{{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Departemen</label><select name="department"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['departments'] as $department)
+                                <option value="{{ $department }}" @selected($filters['department'] === $department)>{{ $department }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Tahun Masuk</label><select name="purchase_year"
+                            class="form-select">
+                            <option value="">Semua</option>
+                            @foreach ($filterOptions['purchase_years'] as $year)
+                                <option value="{{ $year }}" @selected((string) $filters['purchase_year'] === (string) $year)>{{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Tanggal Masuk Dari</label><input type="date"
+                            name="purchase_date_from" class="form-control" value="{{ $filters['purchase_date_from'] }}">
+                    </div>
+                    <div class="col-6 col-lg-2"><label class="form-label">Tanggal Masuk Sampai</label><input
+                            type="date" name="purchase_date_to" class="form-control"
+                            value="{{ $filters['purchase_date_to'] }}"></div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-brand btn-sm">Terapkan Filter</button>
+                        <a href="{{ route('equipments.index') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card asset-list">
+            <div class="card-header"><strong><i class="bi bi-list-ul"></i>Daftar Peralatan</strong></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Peralatan</th>
+                                <th>Tipe / Merk</th>
+                                <th>Lokasi</th>
+                                <th>PIC</th>
+                                <th>Kondisi</th>
+                                <th>IP Address / Ukuran Layar | Resolusi / No. Seri</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($equipments as $eq)
+                                @php
+                                    $condition = $eq->condition ?? ($eq->status ?? 'tidak dicatat');
+                                    $conditionClass = in_array($condition, ['rusak', 'perbaikan']) ? 'condition-attention' : 'condition-good';
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="asset-cell">
+                                            @if ($eq->photo_path)
+                                                <img src="{{ asset('storage/' . $eq->photo_path) }}"
+                                                alt="{{ $eq->name }}">@else<span class="asset-initial">IT</span>
+                                            @endif
+                                            <div>
+                                                <strong>{{ $eq->name }}</strong><small>{{ $eq->asset_tag ?? ($eq->serial_number ?? '-') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>{{ $eq->type->name ?? '-' }}</strong><small>{{ $eq->manufacturer->name ?? ($eq->model ?? '-') }}</small>
+                                    </td>
+                                    <td>{{ $eq->assetLocation?->name ?: $eq->getRawOriginal('location') ?: '-' }}</td>
+                                    <td>{{ $eq->owner_name ?? '-' }}<small>{{ $eq->department ?? '' }}</small></td>
+                                    <td><span
+                                            class="condition-badge {{ $conditionClass }}">{{ ucfirst($condition) }}</span>
+                                    </td>
+                                    <td>
+                                        @if (strtolower($eq->type->name ?? '') === 'monitor')
+                                            {{ trim(($eq->technical_details['screen_size'] ?? '') . ' | ' . ($eq->technical_details['resolution'] ?? ''), ' |') ?: '-' }}
+                                        @elseif(strtolower($eq->type->name ?? '') === 'printer')
+                                            {{ $eq->serial_number ?? '-' }}@else{{ $eq->ip_address ?? '-' }}
+                                        @endif
+                                    </td>
+                                    <td class="text-nowrap"><a href="{{ route('equipments.show', $eq) }}"
+                                            class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i>Detail</a><a
+                                            href="{{ route('equipments.edit', $eq) }}"
+                                            class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i>Edit</a>
+                                        <form action="{{ route('equipments.destroy', $eq) }}" method="POST"
+                                            class="d-inline" onsubmit="return confirm('Hapus peralatan ini?')">@csrf
+                                            @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i
+                                                    class="bi bi-trash3"></i>Hapus</button></form>
+                                    </td>
+                            </tr>@empty<tr>
+                                    <td colspan="7" class="text-center text-muted py-4">Belum ada peralatan IT.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination">{{ $equipments->links() }}</div>
+            </div>
+        </div>
+        <div class="card asset-list">
+            <div class="card-header d-flex justify-content-between align-items-center"><strong><i
+                        class="bi bi-list-ul"></i>Daftar Peralatan</strong><small class="network-auto-label"><i
+                        class="bi bi-arrow-repeat"></i> Status otomatis setiap 1 menit</small></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Peralatan</th>
+                                <th>Tipe / Merk</th>
+                                <th>Lokasi</th>
+                                <th>PIC</th>
+                                <th>Kondisi</th>
+                                <th>IP Address / Ukuran Layar | Resolusi / No. Seri</th>
+                                <th>Status Jaringan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($equipments as $eq)
+                                @php
+                                    $condition = $eq->condition ?? ($eq->status ?? 'tidak dicatat');
+                                    $conditionClass = in_array($condition, ['rusak', 'perbaikan']) ? 'condition-attention' : 'condition-good';
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="asset-cell">
+                                            @if ($eq->photo_path)
+                                                <img src="{{ asset('storage/' . $eq->photo_path) }}"
+                                                alt="{{ $eq->name }}">@else<span class="asset-initial">IT</span>
+                                            @endif
+                                            <div>
+                                                <strong>{{ $eq->name }}</strong><small>{{ $eq->asset_tag ?? ($eq->serial_number ?? '-') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>{{ $eq->type->name ?? '-' }}</strong><small>{{ $eq->manufacturer->name ?? ($eq->model ?? '-') }}</small>
+                                    </td>
+                                    <td>{{ $eq->assetLocation?->name ?: $eq->getRawOriginal('location') ?: '-' }}</td>
+                                    <td>{{ $eq->owner_name ?? '-' }}<small>{{ $eq->department ?? '' }}</small></td>
+                                    <td><span
+                                            class="condition-badge {{ $conditionClass }}">{{ ucfirst($condition) }}</span>
+                                    </td>
+                                    <td>
+                                        @if (strtolower($eq->type->name ?? '') === 'monitor')
+                                            {{ trim(($eq->technical_details['screen_size'] ?? '') . ' | ' . ($eq->technical_details['resolution'] ?? ''), ' |') ?: '-' }}
+                                        @elseif(strtolower($eq->type->name ?? '') === 'printer')
+                                            {{ $eq->serial_number ?? '-' }}@else{{ $eq->ip_address ?? '-' }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if (filter_var($eq->ip_address, FILTER_VALIDATE_IP))
+                                            <span class="network-status network-pending"
+                                                data-status-url="{{ route('equipments.online-status', $eq) }}">Belum
+                                            dicek</span>@else<span class="network-status network-na">Tanpa IP</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-nowrap"><a href="{{ route('equipments.show', $eq) }}"
+                                            class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i>Detail</a><a
+                                            href="{{ route('equipments.edit', $eq) }}"
+                                            class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i>Edit</a>
+                                        <form action="{{ route('equipments.destroy', $eq) }}" method="POST"
+                                            class="d-inline" onsubmit="return confirm('Hapus peralatan ini?')">@csrf
+                                            @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i
+                                                    class="bi bi-trash3"></i>Hapus</button></form>
+                                    </td>
+                            </tr>@empty<tr>
+                                    <td colspan="8" class="text-center text-muted py-4">Belum ada peralatan IT.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination">{{ $equipments->links() }}</div>
             </div>
         </div>
     </div>
-    <div class="card asset-recap mb-3">
-        <div class="card-header"><strong><i class="bi bi-shield-exclamation"></i>Tingkat Kritikalitas Layanan</strong></div>
-        <div class="card-body">
-            <div class="row g-3">
-                @foreach($criticalityRecap as $level)
-                    <div class="col-6 col-lg-3">
-                        <div class="criticality-card level-{{ $level['key'] }}">
-                            <span class="type-name">{{ $level['label'] }}</span>
-                            <strong>{{ $level['total'] }}</strong>
-                            <div class="level-bar"><span style="width:{{ $summary['total'] > 0 ? round($level['total'] / $summary['total'] * 100) : 0 }}%"></span></div>
-                            <small>{{ $summary['total'] > 0 ? round($level['total'] / $summary['total'] * 100) : 0 }}% dari total aset</small>
-                        </div>
-                    </div>
+    <style>
+        .asset-eyebrow {
+            color: #0b5ea8;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        .asset-stat {
+            padding: 15px 17px;
+            background: #fff;
+            border: 1px solid #dbe5ef;
+            border-top: 4px solid #64748b
+        }
+
+        .asset-stat span,
+        .asset-stat small {
+            display: block;
+            color: #64748b;
+            font-size: .76rem
+        }
+
+        .asset-stat strong {
+            display: block;
+            font-size: 1.65rem
+        }
+
+        .asset-stat.total {
+            border-top-color: #0b5ea8
+        }
+
+        .asset-stat.active {
+            border-top-color: #159957
+        }
+
+        .asset-stat.attention {
+            border-top-color: #f59e0b
+        }
+
+        .asset-list {
+            border: 1px solid #dbe5ef
+        }
+
+        .asset-list .card-header {
+            background: #f8fafc
+        }
+
+        .asset-list small {
+            display: block;
+            color: #64748b
+        }
+
+        .asset-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .asset-cell img,
+        .asset-initial {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #dbe5ef
+        }
+
+        .asset-initial {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #edf5fc;
+            color: #0b5ea8;
+            font-size: .7rem;
+            font-weight: 700
+        }
+
+        .condition-badge {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 3px;
+            font-size: .74rem;
+            font-weight: 700
+        }
+
+        .condition-good {
+            background: #dcfce7;
+            color: #166534
+        }
+
+        .condition-attention {
+            background: #fee2e2;
+            color: #991b1b
+        }
+
+        .asset-recap {
+            border: 1px solid #dbe5ef
+        }
+
+        .asset-recap .card-header {
+            background: #f8fafc
+        }
+
+        .asset-filter {
+            border: 1px solid #dbe5ef
+        }
+
+        .asset-filter .card-header {
+            background: #f8fafc
+        }
+
+        .asset-filter .form-label {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 3px
+        }
+
+        .type-card,
+        .criticality-card {
+            height: 100%;
+            padding: 13px 15px;
+            background: #fff;
+            border: 1px solid #dbe5ef;
+            border-left: 4px solid #0b5ea8
+        }
+
+        .type-name {
+            display: block;
+            color: #17324d;
+            font-size: .82rem;
+            font-weight: 700
+        }
+
+        .type-card strong,
+        .criticality-card strong {
+            display: block;
+            font-size: 1.5rem;
+            line-height: 1.2
+        }
+
+        .type-card small,
+        .criticality-card small {
+            display: block;
+            color: #64748b;
+            font-size: .74rem
+        }
+
+        .type-condition {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px
+        }
+
+        .criticality-card.level-critical {
+            border-left-color: #b91c1c
+        }
+
+        .criticality-card.level-high {
+            border-left-color: #f97316
+        }
+
+        .criticality-card.level-medium {
+            border-left-color: #f6b322
+        }
+
+        .criticality-card.level-low {
+            border-left-color: #159957
+        }
+
+        .criticality-card.level-unset {
+            border-left-color: #94a3b8
+        }
+    </style>
+    <style>
+        .asset-page {
+            max-width: 1480px;
+            margin-top: 0 !important;
+            color: #18243d
+        }
+
+        .asset-page>.d-flex {
+            padding: 4px 4px 18px;
+            border-bottom: 1px solid #e8edf4
+        }
+
+        .asset-page h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            color: #18243d
+        }
+
+        .asset-page .asset-eyebrow {
+            color: #2161f5;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .13em
+        }
+
+        .asset-page .text-muted {
+            color: #8792a7 !important;
+            font-size: .78rem
+        }
+
+        .asset-page .btn-brand {
+            border-radius: 10px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #2161f5, #3b82f6);
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(33, 97, 245, .18)
+        }
+
+        .asset-page .card {
+            border: 1px solid #e7ebf2;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 5px 18px rgba(35, 52, 85, .045);
+            overflow: hidden
+        }
+
+        .asset-page .asset-stat {
+            position: relative;
+            min-height: 112px;
+            padding: 18px 20px;
+            border: 0;
+            border-left: 4px solid #2161f5;
+            background: #fff;
+            overflow: hidden
+        }
+
+        .asset-page .asset-stat:after {
+            content: '';
+            position: absolute;
+            right: -22px;
+            bottom: -35px;
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: .06
+        }
+
+        .asset-page .asset-stat span {
+            color: #78849a;
+            font-size: .72rem;
+            font-weight: 700
+        }
+
+        .asset-page .asset-stat strong {
+            margin: 8px 0 3px;
+            color: #18243d;
+            font-size: 1.8rem;
+            font-weight: 800
+        }
+
+        .asset-page .asset-stat small {
+            color: #8792a7;
+            font-size: .68rem
+        }
+
+        .asset-page .asset-stat.total {
+            color: #2161f5;
+            border-left-color: #2161f5
+        }
+
+        .asset-page .asset-stat.active {
+            color: #27b47a;
+            border-left-color: #27b47a
+        }
+
+        .asset-page .asset-stat.attention {
+            color: #f3b54b;
+            border-left-color: #f3b54b
+        }
+
+        .asset-page .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #edf0f5;
+            background: #fff;
+            color: #18243d;
+            font-size: .88rem;
+            font-weight: 800
+        }
+
+        .asset-page .card-body {
+            padding: 20px
+        }
+
+        .asset-page .type-card,
+        .asset-page .criticality-card {
+            padding: 15px;
+            border: 1px solid #e7ebf2;
+            border-left: 3px solid #2161f5;
+            border-radius: 11px;
+            background: #f9fafc;
+            transition: transform .15s, box-shadow .15s
+        }
+
+        .asset-page .type-card:hover,
+        .asset-page .criticality-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(35, 52, 85, .08)
+        }
+
+        .asset-page .type-name {
+            color: #3f4a63;
+            font-size: .76rem
+        }
+
+        .asset-page .type-card strong,
+        .asset-page .criticality-card strong {
+            margin: 7px 0 2px;
+            color: #18243d;
+            font-size: 1.45rem;
+            font-weight: 800
+        }
+
+        .asset-page .type-card small,
+        .asset-page .criticality-card small {
+            color: #8792a7;
+            font-size: .68rem
+        }
+
+        .asset-page .condition-badge {
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: .66rem
+        }
+
+        .asset-page .asset-filter .card-body {
+            padding: 18px 20px
+        }
+
+        .asset-page .form-label {
+            color: #69758d !important;
+            font-size: .68rem !important;
+            font-weight: 700 !important;
+            letter-spacing: .02em
+        }
+
+        .asset-page .form-control,
+        .asset-page .form-select {
+            min-height: 39px;
+            border: 1px solid #dfe5ee;
+            border-radius: 9px;
+            background: #f9fafc;
+            color: #34415a;
+            font-size: .76rem
+        }
+
+        .asset-page .form-control:focus,
+        .asset-page .form-select:focus {
+            border-color: #7aa3ff;
+            box-shadow: 0 0 0 3px rgba(33, 97, 245, .1);
+            background: #fff
+        }
+
+        .asset-page .btn-sm {
+            border-radius: 8px;
+            font-size: .7rem;
+            font-weight: 700
+        }
+
+        .asset-page .btn-outline-secondary {
+            border-color: #dfe5ee;
+            color: #68758d
+        }
+
+        .asset-page .btn-outline-primary {
+            border-color: #b8ccff;
+            color: #2161f5
+        }
+
+        .asset-page .btn-outline-danger {
+            border-color: #f4c2c7;
+            color: #dc5260
+        }
+
+        .asset-page .asset-list .card-body {
+            padding: 0
+        }
+
+        .asset-page .table {
+            font-size: .74rem
+        }
+
+        .asset-page .table thead th {
+            padding: 13px 16px;
+            border-bottom: 1px solid #e8edf4;
+            background: #f8fafc;
+            color: #7d899e;
+            font-size: .65rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            white-space: nowrap
+        }
+
+        .asset-page .table tbody td {
+            padding: 14px 16px;
+            border-color: #eef1f5;
+            color: #536079;
+            vertical-align: middle
+        }
+
+        .asset-page .table tbody tr {
+            transition: background .15s
+        }
+
+        .asset-page .table tbody tr:hover {
+            background: #f8faff
+        }
+
+        .asset-page .table td strong {
+            color: #26324b;
+            font-weight: 700
+        }
+
+        .asset-page .asset-cell {
+            gap: 11px
+        }
+
+        .asset-page .asset-cell img,
+        .asset-page .asset-initial {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            border: 0;
+            border-radius: 11px
+        }
+
+        .asset-page .asset-initial {
+            background: #eef3ff;
+            color: #2161f5;
+            font-weight: 800
+        }
+
+        .asset-page .asset-list small {
+            margin-top: 3px;
+            color: #94a0b2;
+            font-size: .66rem
+        }
+
+        .asset-page .table-pagination {
+            padding: 14px 20px;
+            background: #fff
+        }
+
+        .asset-page .page-link {
+            border-radius: 7px;
+            margin-left: 4px !important;
+            font-size: .72rem
+        }
+
+        @media(max-width:767px) {
+            .asset-page>.d-flex {
+                gap: 14px;
+                flex-direction: column !important
+            }
+
+            .asset-page>.d-flex .btn {
+                align-self: stretch
+            }
+
+            .asset-page .card-body {
+                padding: 15px
+            }
+
+            .asset-page .card-header {
+                padding: 14px 15px
+            }
+
+            .asset-page .table-responsive {
+                margin: 0;
+                padding: 0
+            }
+
+            .asset-page .asset-stat {
+                min-height: 100px;
+                padding: 15px
+            }
+
+            .asset-page .asset-stat strong {
+                font-size: 1.5rem
+            }
+        }
+    </style>
+
+    <style>
+        .asset-page {
+            --vio: #7c5cfc;
+            --vio-dark: #5b3fd6;
+            --teal: #14b8a6
+        }
+
+        .asset-page-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--vio), #a78bfa);
+            color: #fff;
+            font-size: 1.15rem;
+            box-shadow: 0 8px 16px rgba(124, 92, 252, .28)
+        }
+
+        .asset-page .asset-eyebrow {
+            color: var(--vio)
+        }
+
+        .asset-page .btn-brand {
+            background: linear-gradient(135deg, var(--vio), #a78bfa);
+            box-shadow: 0 8px 16px rgba(124, 92, 252, .24)
+        }
+
+        .asset-page .btn-brand i,
+        .asset-page .card-header strong i {
+            margin-right: 7px
+        }
+
+        .asset-page .card-header strong {
+            display: flex;
+            align-items: center;
+            color: #18243d
+        }
+
+        .asset-page .card-header strong i {
+            color: var(--vio)
+        }
+
+        .asset-page .btn-outline-primary {
+            border-color: #d9d1ff;
+            color: var(--vio)
+        }
+
+        .asset-page .btn-outline-primary:hover {
+            background: var(--vio);
+            border-color: var(--vio)
+        }
+
+        .asset-page .btn-sm i {
+            margin-right: 5px;
+            font-size: .72rem
+        }
+
+        .asset-page .asset-widget {
+            position: relative;
+            min-height: 150px;
+            padding: 20px;
+            border: 1px solid #ece9fb;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(92, 71, 207, .07);
+            overflow: hidden
+        }
+
+        .asset-page .widget-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #8792a7;
+            font-size: .74rem;
+            font-weight: 700
+        }
+
+        .asset-page .widget-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: .92rem
+        }
+
+        .asset-page .asset-widget strong {
+            display: block;
+            margin: 10px 0 4px;
+            color: #18243d;
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        .asset-page .asset-widget small {
+            display: block;
+            color: #8792a7;
+            font-size: .68rem
+        }
+
+        .asset-page .asset-widget.total .widget-icon {
+            background: #efeafe;
+            color: var(--vio)
+        }
+
+        .asset-page .asset-widget.active .widget-icon {
+            background: #e2f8f4;
+            color: var(--teal)
+        }
+
+        .asset-page .asset-widget.attention .widget-icon {
+            background: #ffeef0;
+            color: #f43f5e
+        }
+
+        .network-auto-label {
+            color: #8792a7;
+            font-size: .68rem;
+            font-weight: 700
+        }
+
+        .asset-page>.asset-list:not(:has(.network-status)) {
+            display: none !important
+        }
+
+        .asset-page .widget-spark {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 34px;
+            margin: 6px 0 8px
+        }
+
+        .asset-page .widget-spark i {
+            flex: 1;
+            border-radius: 3px 3px 0 0;
+            background: #ece9fb;
+            font-style: normal
+        }
+
+        .asset-page .widget-spark i:nth-child(1) {
+            height: 40%
+        }
+
+        .asset-page .widget-spark i:nth-child(2) {
+            height: 65%
+        }
+
+        .asset-page .widget-spark i:nth-child(3) {
+            height: 48%
+        }
+
+        .asset-page .widget-spark i:nth-child(4) {
+            height: 80%
+        }
+
+        .asset-page .widget-spark i:nth-child(5) {
+            height: 58%
+        }
+
+        .asset-page .widget-spark i:nth-child(6) {
+            height: 96%;
+            background: var(--vio)
+        }
+
+        .asset-page .widget-spark i:nth-child(7) {
+            height: 70%
+        }
+
+        .asset-page .widget-spark i:nth-child(8) {
+            height: 52%
+        }
+
+        .asset-page .widget-trend {
+            display: inline-flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700
+        }
+
+        .asset-page .widget-trend.up {
+            background: #e2f8f4;
+            color: #0f9c8a
+        }
+
+        .asset-page .widget-trend.down {
+            background: #ffeef0;
+            color: #e11d48
+        }
+
+        .asset-page .type-card,
+        .asset-page .criticality-card {
+            border-left: 0;
+            border-radius: 16px;
+            background: #faf9ff
+        }
+
+        .asset-page .type-card:hover,
+        .asset-page .criticality-card:hover {
+            box-shadow: 0 10px 22px rgba(92, 71, 207, .12)
+        }
+
+        .asset-page .type-bar {
+            display: flex;
+            height: 6px;
+            margin: 10px 0;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #ece9fb
+        }
+
+        .asset-page .type-bar .bar-good {
+            background: var(--teal)
+        }
+
+        .asset-page .type-bar .bar-attention {
+            background: #f43f5e
+        }
+
+        .asset-page .level-bar {
+            height: 6px;
+            margin: 8px 0 6px;
+            border-radius: 999px;
+            background: #ece9fb;
+            overflow: hidden
+        }
+
+        .asset-page .level-bar span {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--vio), #a78bfa);
+            border-radius: 999px
+        }
+
+        .asset-page .criticality-card.level-critical .level-bar span {
+            background: linear-gradient(90deg, #e11d48, #f43f5e)
+        }
+
+        .asset-page .criticality-card.level-high .level-bar span {
+            background: linear-gradient(90deg, #ea580c, #f97316)
+        }
+
+        .asset-page .criticality-card.level-medium .level-bar span {
+            background: linear-gradient(90deg, #c2870a, #f6b322)
+        }
+
+        .asset-page .criticality-card.level-low .level-bar span {
+            background: linear-gradient(90deg, #0f9c8a, var(--teal))
+        }
+
+        .asset-page .condition-good {
+            background: #e2f8f4;
+            color: #0f9c8a
+        }
+
+        .asset-page .condition-attention {
+            background: #ffeef0;
+            color: #e11d48
+        }
+
+        .asset-page .form-control:focus,
+        .asset-page .form-select:focus {
+            border-color: #c4b5fd;
+            box-shadow: 0 0 0 3px rgba(124, 92, 252, .14)
+        }
+
+        .asset-page .table tbody tr:hover {
+            background: #faf9ff
+        }
+
+        .asset-page .asset-initial {
+            background: #efeafe;
+            color: var(--vio)
+        }
+
+        @media(max-width:767px) {
+            .asset-page .asset-widget {
+                min-height: 130px
+            }
+        }
+    </style>
+    <div class="print-label-modal" id="printLabelModal" hidden>
+        <div class="print-label-dialog" role="dialog" aria-modal="true" aria-labelledby="printLabelTitle">
+            <div class="print-label-header">
+                <div><span>PILIH LOKASI</span>
+                    <h2 id="printLabelTitle">Cetak Semua Label</h2>
+                </div><button type="button" id="closePrintLabelModal" aria-label="Tutup"><i
+                        class="bi bi-x-lg"></i></button>
+            </div>
+            <p class="print-label-help">Centang lokasi yang ingin dicetak. Jika tidak memilih lokasi, semua peralatan akan
+                dicetak.</p>
+            <div class="print-location-list"><label class="print-location-option print-location-all"><input
+                        type="checkbox" id="printAllLocations"> <strong>Semua Lokasi</strong></label>
+                @foreach ($filterOptions['locations'] as $location)
+                    <label class="print-location-option"><input type="checkbox" name="print_location_id[]"
+                            value="{{ $location->id }}" @checked((string) ($filters['location_id'] ?? '') === (string) $location->id)>
+                        <span>{{ $location->name }}</span></label>
                 @endforeach
             </div>
+            <div class="print-label-actions"><button type="button" class="btn btn-outline-secondary"
+                    id="cancelPrintLabel">Batal</button><button type="button" class="btn btn-outline-success"
+                    id="confirmDownloadLabel"><i class="bi bi-download"></i> Download ZIP</button><button type="button"
+                    class="btn btn-brand" id="confirmPrintLabel"><i class="bi bi-printer"></i> Lanjut Cetak</button>
+            </div>
         </div>
     </div>
-    <div class="card asset-filter mb-3">
-        <div class="card-header"><strong><i class="bi bi-sliders"></i>Filter Peralatan</strong></div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('equipments.index') }}" class="row g-2 align-items-end">
-                @if($search)<input type="hidden" name="search" value="{{ $search }}">@endif
-                <div class="col-6 col-lg-2"><label class="form-label">Jenis</label><select name="equipment_type_id" class="form-select"><option value="">Semua</option>@foreach($filterOptions['types'] as $type)<option value="{{ $type->id }}" @selected((string) $filters['equipment_type_id'] === (string) $type->id)>{{ $type->name }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Merk</label><select name="manufacturer_id" class="form-select"><option value="">Semua</option>@foreach($filterOptions['manufacturers'] as $manufacturer)<option value="{{ $manufacturer->id }}" @selected((string) $filters['manufacturer_id'] === (string) $manufacturer->id)>{{ $manufacturer->name }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Lokasi</label><select name="location_id" class="form-select"><option value="">Semua</option>@foreach($filterOptions['locations'] as $location)<option value="{{ $location->id }}" @selected((string) $filters['location_id'] === (string) $location->id)>{{ $location->name }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Kondisi</label><select name="condition" class="form-select"><option value="">Semua</option>@foreach($filterOptions['conditions'] as $condition)<option value="{{ $condition }}" @selected($filters['condition'] === $condition)>{{ ucfirst($condition) }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Kritikalitas</label><select name="criticality" class="form-select"><option value="">Semua</option>@foreach($filterOptions['criticalities'] as $key => $label)<option value="{{ $key }}" @selected($filters['criticality'] === $key)>{{ $label }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Departemen</label><select name="department" class="form-select"><option value="">Semua</option>@foreach($filterOptions['departments'] as $department)<option value="{{ $department }}" @selected($filters['department'] === $department)>{{ $department }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Tahun Masuk</label><select name="purchase_year" class="form-select"><option value="">Semua</option>@foreach($filterOptions['purchase_years'] as $year)<option value="{{ $year }}" @selected((string) $filters['purchase_year'] === (string) $year)>{{ $year }}</option>@endforeach</select></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Tanggal Masuk Dari</label><input type="date" name="purchase_date_from" class="form-control" value="{{ $filters['purchase_date_from'] }}"></div>
-                <div class="col-6 col-lg-2"><label class="form-label">Tanggal Masuk Sampai</label><input type="date" name="purchase_date_to" class="form-control" value="{{ $filters['purchase_date_to'] }}"></div>
-                <div class="col-12 d-flex gap-2">
-                    <button type="submit" class="btn btn-brand btn-sm">Terapkan Filter</button>
-                    <a href="{{ route('equipments.index') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+    <div class="asset-bulk-modal" id="assetBulkModal" hidden>
+        <div class="asset-bulk-dialog" role="dialog" aria-modal="true" aria-labelledby="assetBulkTitle">
+            <div class="asset-bulk-progress" id="assetBulkProgress">
+                <div class="asset-bulk-icon"><i class="bi bi-folder-symlink"></i></div>
+                <h2 id="assetBulkTitle">Menyiapkan Label Asset</h2>
+                <p id="assetBulkStatus">Mengambil data peralatan...</p>
+                <div class="asset-bulk-track">
+                    <div id="assetBulkBar"></div>
                 </div>
-            </form>
+                <div class="asset-bulk-meta"><span id="assetBulkCount">0 asset</span><strong
+                        id="assetBulkPercent">0%</strong></div>
+            </div>
+            <div class="asset-bulk-success" id="assetBulkSuccess" hidden>
+                <div class="asset-bulk-success-icon"><i class="bi bi-check2"></i></div>
+                <h2>Download Berhasil</h2>
+                <p>Semua label peralatan sudah berhasil diunduh dalam format ZIP.</p><button type="button"
+                    class="btn btn-brand" id="closeAssetBulkModal"><i class="bi bi-check-lg"></i>OK</button>
+            </div>
         </div>
     </div>
-    <div class="card asset-list"><div class="card-header"><strong><i class="bi bi-list-ul"></i>Daftar Peralatan</strong></div><div class="card-body p-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Peralatan</th><th>Tipe / Merk</th><th>Lokasi</th><th>PIC</th><th>Kondisi</th><th>IP Address / Ukuran Layar | Resolusi / No. Seri</th><th>Aksi</th></tr></thead><tbody>@forelse($equipments as $eq)@php $condition = $eq->condition ?? $eq->status ?? 'tidak dicatat'; $conditionClass = in_array($condition, ['rusak','perbaikan']) ? 'condition-attention' : 'condition-good'; @endphp<tr><td><div class="asset-cell">@if($eq->photo_path)<img src="{{ asset('storage/' . $eq->photo_path) }}" alt="{{ $eq->name }}">@else<span class="asset-initial">IT</span>@endif<div><strong>{{ $eq->name }}</strong><small>{{ $eq->asset_tag ?? $eq->serial_number ?? '-' }}</small></div></div></td><td><strong>{{ $eq->type->name ?? '-' }}</strong><small>{{ $eq->manufacturer->name ?? $eq->model ?? '-' }}</small></td><td>{{ $eq->assetLocation?->name ?: $eq->getRawOriginal('location') ?: '-' }}</td><td>{{ $eq->owner_name ?? '-' }}<small>{{ $eq->department ?? '' }}</small></td><td><span class="condition-badge {{ $conditionClass }}">{{ ucfirst($condition) }}</span></td><td>@if(strtolower($eq->type->name ?? '') === 'monitor'){{ trim(($eq->technical_details['screen_size'] ?? '') . ' | ' . ($eq->technical_details['resolution'] ?? ''), ' |') ?: '-' }}@elseif(strtolower($eq->type->name ?? '') === 'printer'){{ $eq->serial_number ?? '-' }}@else{{ $eq->ip_address ?? '-' }}@endif</td><td class="text-nowrap"><a href="{{ route('equipments.show', $eq) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i>Detail</a><a href="{{ route('equipments.edit', $eq) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i>Edit</a><form action="{{ route('equipments.destroy', $eq) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus peralatan ini?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i>Hapus</button></form></td></tr>@empty<tr><td colspan="7" class="text-center text-muted py-4">Belum ada peralatan IT.</td></tr>@endforelse</tbody></table></div><div class="table-pagination">{{ $equipments->links() }}</div></div></div>
-        <div class="card asset-list"><div class="card-header d-flex justify-content-between align-items-center"><strong><i class="bi bi-list-ul"></i>Daftar Peralatan</strong><small class="network-auto-label"><i class="bi bi-arrow-repeat"></i> Status otomatis setiap 1 menit</small></div><div class="card-body p-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Peralatan</th><th>Tipe / Merk</th><th>Lokasi</th><th>PIC</th><th>Kondisi</th><th>IP Address / Ukuran Layar | Resolusi / No. Seri</th><th>Status Jaringan</th><th>Aksi</th></tr></thead><tbody>@forelse($equipments as $eq)@php $condition = $eq->condition ?? $eq->status ?? 'tidak dicatat'; $conditionClass = in_array($condition, ['rusak','perbaikan']) ? 'condition-attention' : 'condition-good'; @endphp<tr><td><div class="asset-cell">@if($eq->photo_path)<img src="{{ asset('storage/' . $eq->photo_path) }}" alt="{{ $eq->name }}">@else<span class="asset-initial">IT</span>@endif<div><strong>{{ $eq->name }}</strong><small>{{ $eq->asset_tag ?? $eq->serial_number ?? '-' }}</small></div></div></td><td><strong>{{ $eq->type->name ?? '-' }}</strong><small>{{ $eq->manufacturer->name ?? $eq->model ?? '-' }}</small></td><td>{{ $eq->assetLocation?->name ?: $eq->getRawOriginal('location') ?: '-' }}</td><td>{{ $eq->owner_name ?? '-' }}<small>{{ $eq->department ?? '' }}</small></td><td><span class="condition-badge {{ $conditionClass }}">{{ ucfirst($condition) }}</span></td><td>@if(strtolower($eq->type->name ?? '') === 'monitor'){{ trim(($eq->technical_details['screen_size'] ?? '') . ' | ' . ($eq->technical_details['resolution'] ?? ''), ' |') ?: '-' }}@elseif(strtolower($eq->type->name ?? '') === 'printer'){{ $eq->serial_number ?? '-' }}@else{{ $eq->ip_address ?? '-' }}@endif</td><td>@if(filter_var($eq->ip_address, FILTER_VALIDATE_IP))<span class="network-status network-pending" data-status-url="{{ route('equipments.online-status', $eq) }}">Belum dicek</span>@else<span class="network-status network-na">Tanpa IP</span>@endif</td><td class="text-nowrap"><a href="{{ route('equipments.show', $eq) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i>Detail</a><a href="{{ route('equipments.edit', $eq) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i>Edit</a><form action="{{ route('equipments.destroy', $eq) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus peralatan ini?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i>Hapus</button></form></td></tr>@empty<tr><td colspan="8" class="text-center text-muted py-4">Belum ada peralatan IT.</td></tr>@endforelse</tbody></table></div><div class="table-pagination">{{ $equipments->links() }}</div></div></div>
-</div>
-<style>.asset-eyebrow{color:#0b5ea8;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.asset-stat{padding:15px 17px;background:#fff;border:1px solid #dbe5ef;border-top:4px solid #64748b}.asset-stat span,.asset-stat small{display:block;color:#64748b;font-size:.76rem}.asset-stat strong{display:block;font-size:1.65rem}.asset-stat.total{border-top-color:#0b5ea8}.asset-stat.active{border-top-color:#159957}.asset-stat.attention{border-top-color:#f59e0b}.asset-list{border:1px solid #dbe5ef}.asset-list .card-header{background:#f8fafc}.asset-list small{display:block;color:#64748b}.asset-cell{display:flex;align-items:center;gap:10px}.asset-cell img,.asset-initial{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border-radius:5px;border:1px solid #dbe5ef}.asset-initial{display:flex;align-items:center;justify-content:center;background:#edf5fc;color:#0b5ea8;font-size:.7rem;font-weight:700}.condition-badge{display:inline-block;padding:4px 7px;border-radius:3px;font-size:.74rem;font-weight:700}.condition-good{background:#dcfce7;color:#166534}.condition-attention{background:#fee2e2;color:#991b1b}.asset-recap{border:1px solid #dbe5ef}.asset-recap .card-header{background:#f8fafc}.asset-filter{border:1px solid #dbe5ef}.asset-filter .card-header{background:#f8fafc}.asset-filter .form-label{font-size:.76rem;font-weight:700;color:#475569;margin-bottom:3px}.type-card,.criticality-card{height:100%;padding:13px 15px;background:#fff;border:1px solid #dbe5ef;border-left:4px solid #0b5ea8}.type-name{display:block;color:#17324d;font-size:.82rem;font-weight:700}.type-card strong,.criticality-card strong{display:block;font-size:1.5rem;line-height:1.2}.type-card small,.criticality-card small{display:block;color:#64748b;font-size:.74rem}.type-condition{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.criticality-card.level-critical{border-left-color:#b91c1c}.criticality-card.level-high{border-left-color:#f97316}.criticality-card.level-medium{border-left-color:#f6b322}.criticality-card.level-low{border-left-color:#159957}.criticality-card.level-unset{border-left-color:#94a3b8}</style>
-<style>
-.asset-page{max-width:1480px;margin-top:0!important;color:#18243d}
-.asset-page>.d-flex{padding:4px 4px 18px;border-bottom:1px solid #e8edf4}
-.asset-page h2{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;color:#18243d}
-.asset-page .asset-eyebrow{color:#2161f5;font-size:.68rem;font-weight:800;letter-spacing:.13em}
-.asset-page .text-muted{color:#8792a7!important;font-size:.78rem}
-.asset-page .btn-brand{border-radius:10px;padding:10px 16px;background:linear-gradient(135deg,#2161f5,#3b82f6);font-weight:700;box-shadow:0 8px 16px rgba(33,97,245,.18)}
-.asset-page .card{border:1px solid #e7ebf2;border-radius:14px;background:#fff;box-shadow:0 5px 18px rgba(35,52,85,.045);overflow:hidden}
-.asset-page .asset-stat{position:relative;min-height:112px;padding:18px 20px;border:0;border-left:4px solid #2161f5;background:#fff;overflow:hidden}
-.asset-page .asset-stat:after{content:'';position:absolute;right:-22px;bottom:-35px;width:92px;height:92px;border-radius:50%;background:currentColor;opacity:.06}
-.asset-page .asset-stat span{color:#78849a;font-size:.72rem;font-weight:700}.asset-page .asset-stat strong{margin:8px 0 3px;color:#18243d;font-size:1.8rem;font-weight:800}.asset-page .asset-stat small{color:#8792a7;font-size:.68rem}.asset-page .asset-stat.total{color:#2161f5;border-left-color:#2161f5}.asset-page .asset-stat.active{color:#27b47a;border-left-color:#27b47a}.asset-page .asset-stat.attention{color:#f3b54b;border-left-color:#f3b54b}
-.asset-page .card-header{padding:16px 20px;border-bottom:1px solid #edf0f5;background:#fff;color:#18243d;font-size:.88rem;font-weight:800}.asset-page .card-body{padding:20px}
-.asset-page .type-card,.asset-page .criticality-card{padding:15px;border:1px solid #e7ebf2;border-left:3px solid #2161f5;border-radius:11px;background:#f9fafc;transition:transform .15s,box-shadow .15s}.asset-page .type-card:hover,.asset-page .criticality-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(35,52,85,.08)}.asset-page .type-name{color:#3f4a63;font-size:.76rem}.asset-page .type-card strong,.asset-page .criticality-card strong{margin:7px 0 2px;color:#18243d;font-size:1.45rem;font-weight:800}.asset-page .type-card small,.asset-page .criticality-card small{color:#8792a7;font-size:.68rem}.asset-page .condition-badge{padding:5px 8px;border-radius:999px;font-size:.66rem}
-.asset-page .asset-filter .card-body{padding:18px 20px}.asset-page .form-label{color:#69758d!important;font-size:.68rem!important;font-weight:700!important;letter-spacing:.02em}.asset-page .form-control,.asset-page .form-select{min-height:39px;border:1px solid #dfe5ee;border-radius:9px;background:#f9fafc;color:#34415a;font-size:.76rem}.asset-page .form-control:focus,.asset-page .form-select:focus{border-color:#7aa3ff;box-shadow:0 0 0 3px rgba(33,97,245,.1);background:#fff}.asset-page .btn-sm{border-radius:8px;font-size:.7rem;font-weight:700}.asset-page .btn-outline-secondary{border-color:#dfe5ee;color:#68758d}.asset-page .btn-outline-primary{border-color:#b8ccff;color:#2161f5}.asset-page .btn-outline-danger{border-color:#f4c2c7;color:#dc5260}
-.asset-page .asset-list .card-body{padding:0}.asset-page .table{font-size:.74rem}.asset-page .table thead th{padding:13px 16px;border-bottom:1px solid #e8edf4;background:#f8fafc;color:#7d899e;font-size:.65rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}.asset-page .table tbody td{padding:14px 16px;border-color:#eef1f5;color:#536079;vertical-align:middle}.asset-page .table tbody tr{transition:background .15s}.asset-page .table tbody tr:hover{background:#f8faff}.asset-page .table td strong{color:#26324b;font-weight:700}.asset-page .asset-cell{gap:11px}.asset-page .asset-cell img,.asset-page .asset-initial{width:42px;height:42px;flex-basis:42px;border:0;border-radius:11px}.asset-page .asset-initial{background:#eef3ff;color:#2161f5;font-weight:800}.asset-page .asset-list small{margin-top:3px;color:#94a0b2;font-size:.66rem}.asset-page .table-pagination{padding:14px 20px;background:#fff}.asset-page .page-link{border-radius:7px;margin-left:4px!important;font-size:.72rem}
-@media(max-width:767px){.asset-page>.d-flex{gap:14px;flex-direction:column!important}.asset-page>.d-flex .btn{align-self:stretch}.asset-page .card-body{padding:15px}.asset-page .card-header{padding:14px 15px}.asset-page .table-responsive{margin:0;padding:0}.asset-page .asset-stat{min-height:100px;padding:15px}.asset-page .asset-stat strong{font-size:1.5rem}}
-</style>
-
-<style>
-.asset-page{--vio:#7c5cfc;--vio-dark:#5b3fd6;--teal:#14b8a6}
-.asset-page-icon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:0 0 46px;border-radius:14px;background:linear-gradient(135deg,var(--vio),#a78bfa);color:#fff;font-size:1.15rem;box-shadow:0 8px 16px rgba(124,92,252,.28)}
-.asset-page .asset-eyebrow{color:var(--vio)}
-.asset-page .btn-brand{background:linear-gradient(135deg,var(--vio),#a78bfa);box-shadow:0 8px 16px rgba(124,92,252,.24)}
-.asset-page .btn-brand i,.asset-page .card-header strong i{margin-right:7px}
-.asset-page .card-header strong{display:flex;align-items:center;color:#18243d}
-.asset-page .card-header strong i{color:var(--vio)}
-.asset-page .btn-outline-primary{border-color:#d9d1ff;color:var(--vio)}
-.asset-page .btn-outline-primary:hover{background:var(--vio);border-color:var(--vio)}
-.asset-page .btn-sm i{margin-right:5px;font-size:.72rem}
-.asset-page .asset-widget{position:relative;min-height:150px;padding:20px;border:1px solid #ece9fb;border-radius:18px;background:#fff;box-shadow:0 8px 22px rgba(92,71,207,.07);overflow:hidden}
-.asset-page .widget-top{display:flex;align-items:center;justify-content:space-between;color:#8792a7;font-size:.74rem;font-weight:700}
-.asset-page .widget-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;font-size:.92rem}
-.asset-page .asset-widget strong{display:block;margin:10px 0 4px;color:#18243d;font-size:1.9rem;font-weight:800;letter-spacing:-.02em}
-.asset-page .asset-widget small{display:block;color:#8792a7;font-size:.68rem}
-.asset-page .asset-widget.total .widget-icon{background:#efeafe;color:var(--vio)}
-.asset-page .asset-widget.active .widget-icon{background:#e2f8f4;color:var(--teal)}
-.asset-page .asset-widget.attention .widget-icon{background:#ffeef0;color:#f43f5e}
-.network-auto-label{color:#8792a7;font-size:.68rem;font-weight:700}
-.asset-page > .asset-list:not(:has(.network-status)){display:none!important}
-.asset-page .widget-spark{display:flex;align-items:flex-end;gap:5px;height:34px;margin:6px 0 8px}
-.asset-page .widget-spark i{flex:1;border-radius:3px 3px 0 0;background:#ece9fb;font-style:normal}
-.asset-page .widget-spark i:nth-child(1){height:40%}.asset-page .widget-spark i:nth-child(2){height:65%}.asset-page .widget-spark i:nth-child(3){height:48%}.asset-page .widget-spark i:nth-child(4){height:80%}.asset-page .widget-spark i:nth-child(5){height:58%}.asset-page .widget-spark i:nth-child(6){height:96%;background:var(--vio)}.asset-page .widget-spark i:nth-child(7){height:70%}.asset-page .widget-spark i:nth-child(8){height:52%}
-.asset-page .widget-trend{display:inline-flex;align-items:center;margin:8px 0;padding:4px 9px;border-radius:999px;font-size:.7rem;font-weight:700}
-.asset-page .widget-trend.up{background:#e2f8f4;color:#0f9c8a}
-.asset-page .widget-trend.down{background:#ffeef0;color:#e11d48}
-.asset-page .type-card,.asset-page .criticality-card{border-left:0;border-radius:16px;background:#faf9ff}
-.asset-page .type-card:hover,.asset-page .criticality-card:hover{box-shadow:0 10px 22px rgba(92,71,207,.12)}
-.asset-page .type-bar{display:flex;height:6px;margin:10px 0;border-radius:999px;overflow:hidden;background:#ece9fb}
-.asset-page .type-bar .bar-good{background:var(--teal)}
-.asset-page .type-bar .bar-attention{background:#f43f5e}
-.asset-page .level-bar{height:6px;margin:8px 0 6px;border-radius:999px;background:#ece9fb;overflow:hidden}
-.asset-page .level-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--vio),#a78bfa);border-radius:999px}
-.asset-page .criticality-card.level-critical .level-bar span{background:linear-gradient(90deg,#e11d48,#f43f5e)}
-.asset-page .criticality-card.level-high .level-bar span{background:linear-gradient(90deg,#ea580c,#f97316)}
-.asset-page .criticality-card.level-medium .level-bar span{background:linear-gradient(90deg,#c2870a,#f6b322)}
-.asset-page .criticality-card.level-low .level-bar span{background:linear-gradient(90deg,#0f9c8a,var(--teal))}
-.asset-page .condition-good{background:#e2f8f4;color:#0f9c8a}
-.asset-page .condition-attention{background:#ffeef0;color:#e11d48}
-.asset-page .form-control:focus,.asset-page .form-select:focus{border-color:#c4b5fd;box-shadow:0 0 0 3px rgba(124,92,252,.14)}
-.asset-page .table tbody tr:hover{background:#faf9ff}
-.asset-page .asset-initial{background:#efeafe;color:var(--vio)}
-@media(max-width:767px){.asset-page .asset-widget{min-height:130px}}
-</style>
-<div class="asset-bulk-modal" id="assetBulkModal" hidden>
-    <div class="asset-bulk-dialog" role="dialog" aria-modal="true" aria-labelledby="assetBulkTitle">
-        <div class="asset-bulk-progress" id="assetBulkProgress"><div class="asset-bulk-icon"><i class="bi bi-folder-symlink"></i></div><h2 id="assetBulkTitle">Menyiapkan Label Asset</h2><p id="assetBulkStatus">Mengambil data peralatan...</p><div class="asset-bulk-track"><div id="assetBulkBar"></div></div><div class="asset-bulk-meta"><span id="assetBulkCount">0 asset</span><strong id="assetBulkPercent">0%</strong></div></div>
-        <div class="asset-bulk-success" id="assetBulkSuccess" hidden><div class="asset-bulk-success-icon"><i class="bi bi-check2"></i></div><h2>Download Berhasil</h2><p>Semua label peralatan sudah berhasil diunduh dalam format ZIP.</p><button type="button" class="btn btn-brand" id="closeAssetBulkModal"><i class="bi bi-check-lg"></i>OK</button></div>
+    <div class="asset-bulk-label" id="assetBulkLabel">
+        <div class="asset-bulk-company">PT MULIA GRAND MANUFACTURE</div>
+        <div class="asset-bulk-divider"></div>
+        <div class="asset-bulk-name" id="assetBulkName"></div>
+        <div class="asset-bulk-type">IT Asset</div>
+        <div class="asset-bulk-qr" id="assetBulkQr"></div>
+        <div class="asset-bulk-note">Scan untuk informasi aset</div>
     </div>
-</div>
-<div class="asset-bulk-label" id="assetBulkLabel"><div class="asset-bulk-company">PT MULIA GRAND MANUFACTURE</div><div class="asset-bulk-divider"></div><div class="asset-bulk-name" id="assetBulkName"></div><div class="asset-bulk-type">IT Asset</div><div class="asset-bulk-qr" id="assetBulkQr"></div><div class="asset-bulk-note">Scan untuk informasi aset</div></div>
-<style>
-    .asset-bulk-modal{position:fixed;z-index:1090;inset:0;display:grid;place-items:center;padding:20px;background:rgba(15,23,42,.4);backdrop-filter:blur(5px)}.asset-bulk-modal[hidden],.asset-bulk-progress[hidden],.asset-bulk-success[hidden]{display:none!important}.asset-bulk-dialog{width:min(460px,calc(100vw - 32px));padding:34px 36px;border:1px solid #e5eaf1;border-radius:22px;background:#fff;box-shadow:0 24px 70px rgba(15,23,42,.25);text-align:center}.asset-bulk-icon,.asset-bulk-success-icon{width:64px;height:64px;margin:0 auto 17px;border-radius:19px;background:#efeafe;color:#7c5cfc;display:grid;place-items:center;font-size:28px;box-shadow:0 10px 22px rgba(124,92,252,.16);animation:assetBulkFloat 2.4s ease-in-out infinite}.asset-bulk-dialog h2{margin:0 0 8px;color:#18243d;font-size:1.25rem}.asset-bulk-dialog p{min-height:20px;margin:0 0 23px;color:#758198;font-size:.8rem}.asset-bulk-track{height:12px;padding:3px;border-radius:99px;background:#e7eaf4;overflow:hidden}.asset-bulk-track>div{width:0;height:100%;border-radius:99px;background:#7c5cfc;transition:width .25s ease;position:relative;overflow:hidden}.asset-bulk-track>div:after{position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.65) 50%,transparent 75%);content:'';animation:assetBulkShine 1.3s linear infinite}.asset-bulk-meta{display:flex;justify-content:space-between;margin-top:11px;color:#8792a7;font-size:.75rem;font-weight:700}.asset-bulk-meta strong{color:#7c5cfc}.asset-bulk-success-icon{background:#dcfce7;color:#16a34a;animation:none}.asset-bulk-success p{margin-bottom:22px}.asset-bulk-success .btn{min-width:110px}.asset-bulk-label{position:fixed;left:-10000px;top:0;width:720px;height:720px;padding:49px 46px;border:8px solid #125ea8;border-radius:38px;background:#fff;text-align:center;color:#17324d;overflow:hidden}.asset-bulk-label:before{position:absolute;top:0;left:0;right:0;height:31px;background:#125ea8;content:''}.asset-bulk-company{white-space:nowrap;color:#125ea8;font-size:32px;font-weight:800;line-height:1}.asset-bulk-divider{width:260px;height:5px;margin:22px auto 18px;background:#f59e0b}.asset-bulk-name{min-height:84px;font-size:46px;font-weight:800;line-height:1.05;overflow-wrap:anywhere}.asset-bulk-type{margin-top:12px;color:#64748b;font-size:28px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.asset-bulk-qr{display:flex;justify-content:center;width:360px;height:360px;margin:18px auto 0;padding:16px;border:5px solid #d7e4e5;border-radius:18px;background:#fff}.asset-bulk-qr img,.asset-bulk-qr canvas{width:320px!important;height:320px!important}.asset-bulk-note{margin-top:13px;color:#64748b;font-size:24px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}@keyframes assetBulkShine{to{transform:translateX(220%)}}@keyframes assetBulkFloat{50%{transform:translateY(-5px)}}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script>
-(() => {
-    const button = document.getElementById('openAssetBulkDownload'); const modal = document.getElementById('assetBulkModal'); const progress = document.getElementById('assetBulkProgress'); const success = document.getElementById('assetBulkSuccess'); const status = document.getElementById('assetBulkStatus'); const bar = document.getElementById('assetBulkBar'); const count = document.getElementById('assetBulkCount'); const percent = document.getElementById('assetBulkPercent'); const label = document.getElementById('assetBulkLabel'); const name = document.getElementById('assetBulkName'); const qr = document.getElementById('assetBulkQr'); const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)); const safeName = (value, fallback) => (value || fallback).toString().trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '-');
-    const closeModal = () => { modal.hidden = true; progress.hidden = false; success.hidden = true; };
-    async function startDownload() {
-        modal.hidden = false; button.disabled = true;
-        try {
-            const response = await fetch('{{ route('equipments.labels.download-all') }}', { headers: { Accept: 'application/json' } }); if (!response.ok) throw new Error('Data asset tidak dapat dimuat.');
-            const payload = await response.json(); const labels = payload.labels || []; const zip = new JSZip(); const names = new Set();
-            for (let index = 0; index < labels.length; index++) {
-                const item = labels[index]; name.textContent = item.name; qr.replaceChildren(); new QRCode(qr, { text: item.scanUrl, width: 320, height: 320, correctLevel: QRCode.CorrectLevel.M }); await wait(120);
-                const canvas = await html2canvas(label, { backgroundColor: '#fff', scale: 2, useCORS: true }); const baseName = safeName(item.assetTag || item.name, `peralatan-${item.id}`); let fileName = baseName; let suffix = 2; while (names.has(fileName)) fileName = `${baseName}-${suffix++}`; names.add(fileName); zip.file(`label-${fileName}.jpeg`, canvas.toDataURL('image/jpeg', .95).split(',')[1], { base64: true });
-                const value = Math.round(((index + 1) / labels.length) * 100); bar.style.width = `${value}%`; count.textContent = `${index + 1} dari ${labels.length} asset`; percent.textContent = `${value}%`; status.textContent = `Membuat label ${index + 1} dari ${labels.length}...`;
-            }
-            const blob = await zip.generateAsync({ type: 'blob' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'label-semua-peralatan.zip'; link.click(); progress.hidden = true; success.hidden = false;
-        } catch (error) { status.textContent = error.message || 'Label asset tidak dapat dibuat.'; button.disabled = false; }
-    }
-    button?.addEventListener('click', startDownload); document.getElementById('closeAssetBulkModal')?.addEventListener('click', () => { closeModal(); button.disabled = false; }); modal?.addEventListener('click', event => { if (event.target === modal && !success.hidden) { closeModal(); button.disabled = false; } });
-})();
-</script>
-<style>
-    .network-status{display:inline-block;padding:4px 7px;border-radius:999px;font-size:.66rem;font-weight:800;white-space:nowrap}.network-pending{background:#f1f5f9;color:#64748b}.network-loading{background:#dbeafe;color:#1d4ed8}.network-online{background:#dcfce7;color:#166534}.network-offline{background:#fee2e2;color:#991b1b}.network-na{background:#f1f5f9;color:#94a3b8}
-</style>
-<script>
-(() => {
-    const autoLabel = document.querySelector('.network-auto-label');
-    if (autoLabel) {
-        const manualButton = document.createElement('button');
-        manualButton.type = 'button';
-        manualButton.id = 'checkAllEquipmentStatus';
-        manualButton.className = 'btn btn-sm btn-outline-success';
-        manualButton.innerHTML = '<i class="bi bi-wifi"></i> Cek Semua Online';
-        autoLabel.replaceWith(manualButton);
-    }
-    document.querySelectorAll('.asset-page > .asset-list').forEach(list => {
-        if (!list.querySelector('.network-status')) list.remove();
-    });
-    const statuses = [...document.querySelectorAll('.network-status[data-status-url]')];
-    const checkStatus = async (status) => {
-        status.className = 'network-status network-loading';
-        status.textContent = 'Mengecek...';
-        try {
-            const response = await fetch(status.dataset.statusUrl, { headers: { Accept: 'application/json' } });
-            if (!response.ok) throw new Error('check failed');
-            const result = await response.json();
-            status.className = `network-status ${result.online ? 'network-online' : 'network-offline'}`;
-            status.textContent = result.online
-                ? `Online${result.port ? ` :${result.port}` : ''} (${result.responseTime} ms)`
-                : 'Offline';
-        } catch (error) {
-            status.className = 'network-status network-offline';
-            status.textContent = 'Tidak dapat dicek';
+    <style>
+        .asset-bulk-modal {
+            position: fixed;
+            z-index: 1090;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .4);
+            backdrop-filter: blur(5px)
         }
-    };
-    let checking = false;
-    const checkAll = async () => {
-        if (checking || !statuses.length) return;
-        checking = true;
-        for (const status of statuses) await checkStatus(status);
-        checking = false;
-    };
-    document.getElementById('checkAllEquipmentStatus')?.addEventListener('click', async event => {
-        const button = event.currentTarget;
-        button.disabled = true;
-        button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Mengecek...';
-        await checkAll();
-        button.disabled = false;
-        button.innerHTML = '<i class="bi bi-wifi"></i> Cek Semua Online';
-    });
-})();
-</script>
+
+        .asset-bulk-modal[hidden],
+        .asset-bulk-progress[hidden],
+        .asset-bulk-success[hidden] {
+            display: none !important
+        }
+
+        .asset-bulk-dialog {
+            width: min(460px, calc(100vw - 32px));
+            padding: 34px 36px;
+            border: 1px solid #e5eaf1;
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, .25);
+            text-align: center
+        }
+
+        .asset-bulk-icon,
+        .asset-bulk-success-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 17px;
+            border-radius: 19px;
+            background: #efeafe;
+            color: #7c5cfc;
+            display: grid;
+            place-items: center;
+            font-size: 28px;
+            box-shadow: 0 10px 22px rgba(124, 92, 252, .16);
+            animation: assetBulkFloat 2.4s ease-in-out infinite
+        }
+
+        .asset-bulk-dialog h2 {
+            margin: 0 0 8px;
+            color: #18243d;
+            font-size: 1.25rem
+        }
+
+        .asset-bulk-dialog p {
+            min-height: 20px;
+            margin: 0 0 23px;
+            color: #758198;
+            font-size: .8rem
+        }
+
+        .asset-bulk-track {
+            height: 12px;
+            padding: 3px;
+            border-radius: 99px;
+            background: #e7eaf4;
+            overflow: hidden
+        }
+
+        .asset-bulk-track>div {
+            width: 0;
+            height: 100%;
+            border-radius: 99px;
+            background: #7c5cfc;
+            transition: width .25s ease;
+            position: relative;
+            overflow: hidden
+        }
+
+        .asset-bulk-track>div:after {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, .65) 50%, transparent 75%);
+            content: '';
+            animation: assetBulkShine 1.3s linear infinite
+        }
+
+        .asset-bulk-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 11px;
+            color: #8792a7;
+            font-size: .75rem;
+            font-weight: 700
+        }
+
+        .asset-bulk-meta strong {
+            color: #7c5cfc
+        }
+
+        .asset-bulk-success-icon {
+            background: #dcfce7;
+            color: #16a34a;
+            animation: none
+        }
+
+        .asset-bulk-success p {
+            margin-bottom: 22px
+        }
+
+        .asset-bulk-success .btn {
+            min-width: 110px
+        }
+
+        .asset-bulk-label {
+            position: fixed;
+            left: -10000px;
+            top: 0;
+            width: 720px;
+            height: 720px;
+            padding: 49px 46px;
+            border: 8px solid #125ea8;
+            border-radius: 38px;
+            background: #fff;
+            text-align: center;
+            color: #17324d;
+            overflow: hidden
+        }
+
+        .asset-bulk-label:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 31px;
+            background: #125ea8;
+            content: ''
+        }
+
+        .asset-bulk-company {
+            white-space: nowrap;
+            color: #125ea8;
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1
+        }
+
+        .asset-bulk-divider {
+            width: 260px;
+            height: 5px;
+            margin: 22px auto 18px;
+            background: #f59e0b
+        }
+
+        .asset-bulk-name {
+            min-height: 84px;
+            font-size: 46px;
+            font-weight: 800;
+            line-height: 1.05;
+            overflow-wrap: anywhere
+        }
+
+        .asset-bulk-type {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase
+        }
+
+        .asset-bulk-qr {
+            display: flex;
+            justify-content: center;
+            width: 360px;
+            height: 360px;
+            margin: 18px auto 0;
+            padding: 16px;
+            border: 5px solid #d7e4e5;
+            border-radius: 18px;
+            background: #fff
+        }
+
+        .asset-bulk-qr img,
+        .asset-bulk-qr canvas {
+            width: 320px !important;
+            height: 320px !important
+        }
+
+        .asset-bulk-note {
+            margin-top: 13px;
+            color: #64748b;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase
+        }
+
+        @keyframes assetBulkShine {
+            to {
+                transform: translateX(220%)
+            }
+        }
+
+        @keyframes assetBulkFloat {
+            50% {
+                transform: translateY(-5px)
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script>
+        (() => {
+            const button = document.getElementById('openAssetBulkDownload');
+            const modal = document.getElementById('assetBulkModal');
+            const progress = document.getElementById('assetBulkProgress');
+            const success = document.getElementById('assetBulkSuccess');
+            const status = document.getElementById('assetBulkStatus');
+            const bar = document.getElementById('assetBulkBar');
+            const count = document.getElementById('assetBulkCount');
+            const percent = document.getElementById('assetBulkPercent');
+            const label = document.getElementById('assetBulkLabel');
+            const name = document.getElementById('assetBulkName');
+            const qr = document.getElementById('assetBulkQr');
+            const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+            const safeName = (value, fallback) => (value || fallback).toString().trim().replace(/[\\/:*?"<>|]+/g, '-')
+                .replace(/\s+/g, '-');
+            const closeModal = () => {
+                modal.hidden = true;
+                progress.hidden = false;
+                success.hidden = true;
+            };
+            async function startDownload(queryString = '') {
+                modal.hidden = false;
+                button.disabled = true;
+                try {
+                    const response = await fetch('{{ route('equipments.labels.download-all') }}' + (queryString ?
+                        '?' + queryString : ''), {
+                        headers: {
+                            Accept: 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error('Data asset tidak dapat dimuat.');
+                    const payload = await response.json();
+                    const labels = payload.labels || [];
+                    const zip = new JSZip();
+                    const names = new Set();
+                    for (let index = 0; index < labels.length; index++) {
+                        const item = labels[index];
+                        name.textContent = item.name;
+                        qr.replaceChildren();
+                        new QRCode(qr, {
+                            text: item.scanUrl,
+                            width: 320,
+                            height: 320,
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                        await wait(120);
+                        const canvas = await html2canvas(label, {
+                            backgroundColor: '#fff',
+                            scale: 2,
+                            useCORS: true
+                        });
+                        const baseName = safeName(item.assetTag || item.name, `peralatan-${item.id}`);
+                        let fileName = baseName;
+                        let suffix = 2;
+                        while (names.has(fileName)) fileName = `${baseName}-${suffix++}`;
+                        names.add(fileName);
+                        zip.file(`label-${fileName}.jpeg`, canvas.toDataURL('image/jpeg', .95).split(',')[1], {
+                            base64: true
+                        });
+                        const value = Math.round(((index + 1) / labels.length) * 100);
+                        bar.style.width = `${value}%`;
+                        count.textContent = `${index + 1} dari ${labels.length} asset`;
+                        percent.textContent = `${value}%`;
+                        status.textContent = `Membuat label ${index + 1} dari ${labels.length}...`;
+                    }
+                    const blob = await zip.generateAsync({
+                        type: 'blob'
+                    });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'label-semua-peralatan.zip';
+                    link.click();
+                    progress.hidden = true;
+                    success.hidden = false;
+                } catch (error) {
+                    status.textContent = error.message || 'Label asset tidak dapat dibuat.';
+                    button.disabled = false;
+                }
+            }
+            window.startAssetLabelDownload = startDownload;
+            document.getElementById('closeAssetBulkModal')?.addEventListener('click', () => {
+                closeModal();
+                button.disabled = false;
+            });
+            modal?.addEventListener('click', event => {
+                if (event.target === modal && !success.hidden) {
+                    closeModal();
+                    button.disabled = false;
+                }
+            });
+        })();
+    </script>
+    <style>
+        .network-status {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 999px;
+            font-size: .66rem;
+            font-weight: 800;
+            white-space: nowrap
+        }
+
+        .network-pending {
+            background: #f1f5f9;
+            color: #64748b
+        }
+
+        .network-loading {
+            background: #dbeafe;
+            color: #1d4ed8
+        }
+
+        .network-online {
+            background: #dcfce7;
+            color: #166534
+        }
+
+        .network-offline {
+            background: #fee2e2;
+            color: #991b1b
+        }
+
+        .network-na {
+            background: #f1f5f9;
+            color: #94a3b8
+        }
+    </style>
+    <style>
+        .asset-page .asset-list .table-responsive{overflow-x:auto;scrollbar-color:#c4b5fd #f5f3ff;scrollbar-width:thin}.asset-page .asset-list .table{min-width:1080px}.asset-page .asset-list .table th:last-child,.asset-page .asset-list .table td:last-child{position:sticky;right:0;z-index:2;background:#fff;box-shadow:-8px 0 12px rgba(35,52,85,.06)}.asset-page .asset-list .table thead th:last-child{z-index:3;background:#f8fafc}.asset-page .asset-list .table tbody tr:hover td:last-child{background:#faf9ff}.asset-page .asset-list .table td:last-child .btn{padding:6px 9px;border-radius:8px;font-size:.68rem;font-weight:700}.asset-page .asset-list .table td:last-child form{margin-left:3px}
+        @media(max-width:700px){.asset-page .asset-list .table{min-width:940px;font-size:.68rem}.asset-page .asset-list .table thead th{padding:9px 7px;font-size:.58rem}.asset-page .asset-list .table tbody td{padding:8px 7px}.asset-page .asset-list .table td:last-child{min-width:160px}.asset-page .asset-list .table td:last-child .btn{padding:5px 7px;font-size:.6rem}.asset-page .asset-list .table td:last-child form{margin-left:2px}}
+    </style>
+    <script>
+        (() => {
+            const autoLabel = document.querySelector('.network-auto-label');
+            if (autoLabel) {
+                const manualButton = document.createElement('button');
+                manualButton.type = 'button';
+                manualButton.id = 'checkAllEquipmentStatus';
+                manualButton.className = 'btn btn-sm btn-outline-success';
+                manualButton.innerHTML = '<i class="bi bi-wifi"></i> Cek Semua Online';
+                autoLabel.replaceWith(manualButton);
+            }
+            document.querySelectorAll('.asset-page > .asset-list').forEach(list => {
+                if (!list.querySelector('.network-status')) list.remove();
+            });
+            const statuses = [...document.querySelectorAll('.network-status[data-status-url]')];
+            const checkStatus = async (status) => {
+                status.className = 'network-status network-loading';
+                status.textContent = 'Mengecek...';
+                try {
+                    const response = await fetch(status.dataset.statusUrl, {
+                        headers: {
+                            Accept: 'application/json'
+                        }
+                    });
+                    if (!response.ok) throw new Error('check failed');
+                    const result = await response.json();
+                    status.className = `network-status ${result.online ? 'network-online' : 'network-offline'}`;
+                    status.textContent = result.online ?
+                        `Online${result.port ? ` :${result.port}` : ''} (${result.responseTime} ms)` :
+                        'Offline';
+                } catch (error) {
+                    status.className = 'network-status network-offline';
+                    status.textContent = 'Tidak dapat dicek';
+                }
+            };
+            let checking = false;
+            const checkAll = async () => {
+                if (checking || !statuses.length) return;
+                checking = true;
+                for (const status of statuses) await checkStatus(status);
+                checking = false;
+            };
+            document.getElementById('checkAllEquipmentStatus')?.addEventListener('click', async event => {
+                const button = event.currentTarget;
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Mengecek...';
+                await checkAll();
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-wifi"></i> Cek Semua Online';
+            });
+        })();
+    </script>
+    <style>
+        .print-label-modal {
+            position: fixed;
+            z-index: 1095;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .45);
+            backdrop-filter: blur(4px)
+        }
+
+        .print-label-modal[hidden] {
+            display: none !important
+        }
+
+        .print-label-dialog {
+            width: min(480px, calc(100vw - 32px));
+            padding: 22px;
+            border: 1px solid #e5eaf1;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, .25)
+        }
+
+        .print-label-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px
+        }
+
+        .print-label-header span {
+            color: #2161f5;
+            font-size: .65rem;
+            font-weight: 800;
+            letter-spacing: .12em
+        }
+
+        .print-label-header h2 {
+            margin: 5px 0 0;
+            color: #18243d;
+            font-size: 1.15rem
+        }
+
+        .print-label-header button {
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #64748b
+        }
+
+        .print-label-help {
+            margin: 16px 0 12px;
+            color: #64748b;
+            font-size: .78rem
+        }
+
+        .print-location-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow: auto;
+            padding: 2px
+        }
+
+        .print-location-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid #e5eaf1;
+            border-radius: 8px;
+            color: #475569;
+            font-size: .78rem;
+            cursor: pointer
+        }
+
+        .print-location-option:has(input:checked) {
+            border-color: #7aa3ff;
+            background: #eef3ff;
+            color: #1d4ed8
+        }
+
+        .print-location-option input {
+            accent-color: #2161f5
+        }
+
+        .print-location-all {
+            grid-column: 1/-1;
+            background: #f8fafc
+        }
+
+        .print-label-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px
+        }
+
+        .print-label-actions .btn {
+            border-radius: 8px;
+            font-size: .75rem;
+            font-weight: 700
+        }
+
+        @media(max-width:500px) {
+            .print-location-list {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+    <script>
+        (() => {
+            const modal = document.getElementById('printLabelModal');
+            const open = document.getElementById('openPrintAllLabels');
+            const close = () => {
+                modal.hidden = true;
+            };
+            const all = document.getElementById('printAllLocations');
+            const locations = [...document.querySelectorAll('input[name="print_location_id[]"]')];
+            open?.addEventListener('click', () => {
+                modal.hidden = false;
+            });
+            document.getElementById('closePrintLabelModal')?.addEventListener('click', close);
+            document.getElementById('cancelPrintLabel')?.addEventListener('click', close);
+            modal?.addEventListener('click', event => {
+                if (event.target === modal) close();
+            });
+            all?.addEventListener('change', () => locations.forEach(input => {
+                input.checked = all.checked;
+            }));
+            locations.forEach(input => input.addEventListener('change', () => {
+                all.checked = locations.length > 0 && locations.every(location => location.checked);
+            }));
+            document.getElementById('confirmPrintLabel')?.addEventListener('click', () => {
+                const params = new URLSearchParams();
+                locations.filter(input => input.checked).forEach(input => params.append('location_id[]', input
+                    .value));
+                window.location.href = '{{ route('equipments.labels.print-all') }}' + (params.toString() ?
+                    '?' + params.toString() : '');
+            });
+            document.getElementById('openAssetBulkDownload')?.addEventListener('click', () => {
+                modal.hidden = false;
+            });
+            document.getElementById('confirmDownloadLabel')?.addEventListener('click', () => {
+                const params = new URLSearchParams();
+                locations.filter(input => input.checked).forEach(input => params.append('location_id[]', input
+                    .value));
+                close();
+                window.startAssetLabelDownload?.(params.toString());
+            });
+        })();
+    </script>
+    <style>
+        @media(max-width:700px){
+            .asset-page{max-width:430px;margin:0 auto!important;padding:0 12px 84px!important}
+            .asset-page>.d-flex:first-child{display:block!important;margin-bottom:12px!important;padding:0 0 14px!important}
+            .asset-page>.d-flex:first-child>.d-flex:first-child{display:flex!important;align-items:center!important;gap:12px!important;width:100%!important}.asset-page-icon{width:46px!important;height:46px!important;flex:0 0 46px!important;border-radius:14px!important;font-size:1rem!important}.asset-page h2{font-size:1.52rem!important;line-height:1.05!important;margin:2px 0 4px!important;max-width:230px!important}.asset-page .asset-eyebrow{font-size:.6rem!important;line-height:1.15!important;letter-spacing:.12em!important}.asset-page .text-muted{max-width:260px!important;font-size:.68rem!important;line-height:1.35!important}
+            .asset-page>.d-flex:first-child>div:last-child,.asset-mobile-toolbar{display:grid!important;grid-template-columns:repeat(3,44px)!important;justify-content:center!important;gap:10px!important;margin:0!important}.asset-page>.d-flex:first-child>div:last-child .btn,.asset-mobile-toolbar .btn{width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:13px!important;font-size:0!important;box-shadow:0 7px 16px rgba(35,52,85,.08)!important;background:#fff!important}.asset-page>.d-flex:first-child>div:last-child .btn i,.asset-mobile-toolbar .btn i{margin:0!important;font-size:1rem!important}.asset-page>.d-flex:first-child>div:last-child .btn-brand,.asset-mobile-toolbar .btn-brand{background:linear-gradient(135deg,var(--vio),#a78bfa)!important}
+            .asset-mobile-toolbar{margin:12px 0 10px!important}
+            .asset-page .asset-criticality-recap{margin-bottom:10px!important}
+            .asset-page>.row.g-3.mb-3{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin-bottom:10px!important}.asset-page>.row.g-3.mb-3>[class*=col-]{width:auto!important;padding:0!important;min-width:0!important}.asset-page .asset-widget{min-height:106px!important;padding:14px!important;border-radius:14px!important;box-shadow:0 7px 18px rgba(35,52,85,.055)!important}.asset-page .widget-top{font-size:.58rem!important}.asset-page .widget-icon{width:30px!important;height:30px!important;border-radius:9px!important;font-size:.8rem!important}.asset-page .asset-widget strong{margin:7px 0 3px!important;font-size:1.45rem!important}.asset-page .asset-widget small{font-size:.56rem!important}.asset-page .widget-trend{margin:5px 0!important;padding:3px 7px!important;font-size:.56rem!important}.asset-page .widget-spark{height:22px!important;margin:4px 0 6px!important;gap:4px!important}
+            .asset-page .asset-type-recap .card-body>.row{display:flex!important;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}.asset-page .asset-type-recap .card-body>.row::-webkit-scrollbar{display:none}.asset-page .asset-type-recap .card-body>.row>[class*=col-]{flex:0 0 128px;width:128px!important;padding:0!important;scroll-snap-align:start}.asset-page .asset-type-recap .type-card{min-height:116px!important;padding:12px!important;border-radius:13px!important}.asset-page .asset-type-recap .type-card strong{font-size:1.35rem!important;margin:6px 0 2px!important}.asset-page .asset-type-recap .type-card small{font-size:.58rem!important}.asset-page .asset-type-recap .type-condition{gap:5px!important;margin-top:6px!important}.asset-page .asset-type-recap .condition-badge{padding:4px 7px!important;font-size:.56rem!important}
+            .asset-page .asset-criticality-recap .card-body>.row{display:flex!important;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}.asset-page .asset-criticality-recap .card-body>.row::-webkit-scrollbar{display:none}.asset-page .asset-criticality-recap .card-body>.row>[class*=col-]{flex:0 0 128px;width:128px!important;padding:0!important;scroll-snap-align:start}.asset-page .asset-criticality-recap .criticality-card{min-height:116px!important;padding:12px!important;border-radius:13px!important}.asset-page .asset-criticality-recap .criticality-card strong{font-size:1.35rem!important;margin:6px 0 2px!important}.asset-page .asset-criticality-recap .criticality-card small{font-size:.58rem!important}.asset-page .asset-criticality-recap .level-bar{margin:7px 0 5px!important}
+            .asset-mobile-filter-toggle{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:100%!important;margin:0 0 10px!important;border-radius:13px!important;padding:10px!important;font-size:.75rem!important}.asset-mobile-filter-toggle i{margin:0!important}.asset-page .asset-filter{display:none!important;margin-bottom:10px!important;border-radius:15px!important}.asset-page .asset-filter.is-open{display:block!important}.asset-page .asset-filter .card-header{display:none!important}.asset-page .asset-filter .card-body{padding:13px!important}.asset-page .asset-filter form{gap:8px!important}.asset-page .asset-filter form>[class*=col-]{width:100%!important}.asset-page .asset-filter .form-label{font-size:.58rem!important}.asset-page .asset-filter .form-control,.asset-page .asset-filter .form-select{min-height:34px!important;font-size:.68rem!important;border-radius:9px!important}.asset-page .asset-filter .col-12.d-flex{display:grid!important;grid-template-columns:1fr 1fr!important}.asset-page .asset-filter .btn-sm{width:100%!important;padding:8px!important}
+        }
+        @media(max-width:420px){.asset-page{padding-left:10px!important;padding-right:10px!important}.asset-page>.d-flex:first-child>div:last-child{left:10px;right:10px}.asset-page .asset-widget{min-height:98px!important;padding:12px!important}.asset-page .asset-widget strong{font-size:1.35rem!important}}
+        @media(min-width:701px){.asset-mobile-filter-toggle{display:none!important}.asset-page .asset-filter{display:block!important}}
+    </style>
+    <script>
+        (() => {
+            const toggle = document.getElementById('assetMobileFilterToggle');
+            const panel = document.getElementById('assetFilterPanel');
+            const actions = document.querySelector('.asset-page > .d-flex:first-child > div:last-child');
+            if (actions && toggle && window.matchMedia('(max-width: 700px)').matches) {
+                actions.classList.add('asset-mobile-toolbar');
+                toggle.before(actions);
+            }
+            toggle?.addEventListener('click', () => {
+                panel?.classList.toggle('is-open');
+                toggle.classList.toggle('active', panel?.classList.contains('is-open'));
+            });
+        })();
+    </script>
 @endsection

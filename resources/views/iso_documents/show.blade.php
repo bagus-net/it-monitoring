@@ -1,20 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-@php($canManage = auth()->user()->isMaster() || auth()->user()->isAdminIt())
+@php($canDelete = auth()->user()->isMaster() || auth()->user()->isAdminIt())
+@php($canEditFolder = auth()->user()->canCreateIsoFolders())
+@php($canUploadFile = $canEditFolder)
 <div class="container mt-4 iso-document-detail">
 	<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
 		<div><div class="text-primary small fw-bold">{{ $isoDocument->document_number }}</div><h2 class="mb-1"><i class="bi bi-folder2 me-2 text-warning"></i>{{ $isoDocument->title }}</h2><p class="text-muted mb-0">{{ $isoDocument->category }} · {{ $isoDocument->document_date?->format('d F Y') ?? 'Tanggal belum dicatat' }}</p></div>
 		<div class="d-flex flex-wrap gap-2">
-			@if($canManage)<a href="{{ route('iso-documents.edit', $isoDocument) }}" class="btn btn-outline-primary">Edit</a>@endif
+			@if($canEditFolder)<a href="{{ route('iso-documents.edit', $isoDocument) }}" class="btn btn-outline-primary">Edit</a>@endif
 			<a href="{{ route('iso-documents.index') }}" class="btn btn-outline-secondary">Kembali</a>
 		</div>
 	</div>
-	<div class="card mb-3"><div class="card-body"><dl class="row mb-0"><dt class="col-md-3">Revisi</dt><dd class="col-md-9">{{ $isoDocument->revision ?: '-' }}</dd><dt class="col-md-3">Deskripsi</dt><dd class="col-md-9">{!! nl2br(e($isoDocument->description ?: '-')) !!}</dd><dt class="col-md-3">Dibagikan Oleh</dt><dd class="col-md-9">{{ $isoDocument->creator->name ?? '-' }}</dd>@if($canManage)<dt class="col-md-3">Pengguna Berizin</dt><dd class="col-md-9">{{ $isoDocument->permittedUsers->pluck('name')->join(', ') }}</dd>@endif</dl></div></div>
+	<div class="card mb-3"><div class="card-body"><dl class="row mb-0"><dt class="col-md-3">Revisi</dt><dd class="col-md-9">{{ $isoDocument->revision ?: '-' }}</dd><dt class="col-md-3">Deskripsi</dt><dd class="col-md-9">{!! nl2br(e($isoDocument->description ?: '-')) !!}</dd><dt class="col-md-3">Dibagikan Oleh</dt><dd class="col-md-9">{{ $isoDocument->creator->name ?? '-' }}</dd>@if($canEditFolder)<dt class="col-md-3">Pengguna Berizin</dt><dd class="col-md-9">{{ $isoDocument->permittedUsers->pluck('name')->join(', ') }}</dd>@endif</dl></div></div>
 
 	<div class="card iso-folder-card">
-		<div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><strong><i class="bi bi-folder2-open"></i> Isi Folder ({{ $isoDocument->files->count() }} file)</strong>@if($canManage)<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#uploadFilePanel"><i class="bi bi-upload"></i> Tambah File</button>@endif</div>
-		@if($canManage)
+		<div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2"><strong><i class="bi bi-folder2-open"></i> Isi Folder ({{ $isoDocument->files->count() }} file)</strong>@if($canUploadFile)<button type="button" class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#uploadFilePanel"><i class="bi bi-upload"></i> Tambah File</button>@endif</div>
+		@if($canUploadFile)
 		<div id="uploadFilePanel" class="collapse"><div class="card-body border-bottom bg-light">
 			<form method="POST" action="{{ route('iso-documents.files.store', $isoDocument) }}" enctype="multipart/form-data" class="row g-2 align-items-end">
 				@csrf
@@ -39,7 +41,7 @@
 								<td class="text-end text-nowrap">
 									@if($previewable)<button type="button" class="btn btn-sm btn-outline-primary iso-preview-btn" data-name="{{ $file->file_name }}" data-type="{{ $ext }}" data-src="{{ route('iso-documents.files.preview', [$isoDocument, $file]) }}"><i class="bi bi-eye"></i></button>@endif
 									{{-- <a href="{{ route('iso-documents.files.download', [$isoDocument, $file]) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-download"></i></a> --}}
-									@if($canManage)<form method="POST" action="{{ route('iso-documents.files.destroy', [$isoDocument, $file]) }}" class="d-inline" onsubmit="return confirm('Hapus file ini dari folder?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>@endif
+									@if($canDelete)<form method="POST" action="{{ route('iso-documents.files.destroy', [$isoDocument, $file]) }}" class="d-inline" onsubmit="return confirm('Hapus file ini dari folder?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>@endif
 								</td>
 							</tr>
 						@empty
@@ -53,7 +55,7 @@
 
 	<section id="documentPreview" class="document-preview mt-3" hidden><div class="document-preview-header"><strong id="documentPreviewTitle">Preview</strong><button type="button" id="previewClose" class="btn btn-sm btn-outline-secondary">Tutup</button></div><iframe id="documentPreviewFrame" title="Preview dokumen"></iframe><div id="spreadsheetPreview" class="spreadsheet-preview" hidden><span class="text-muted">Memuat preview Excel...</span></div></section>
 
-	@if($canManage)<form method="POST" action="{{ route('iso-documents.destroy', $isoDocument) }}" class="mt-3" onsubmit="return confirm('Hapus folder dokumen ISO ini beserta semua file di dalamnya?')">@csrf @method('DELETE')<button class="btn btn-outline-danger">Hapus Folder</button></form>@endif
+	@if($canDelete)<form method="POST" action="{{ route('iso-documents.destroy', $isoDocument) }}" class="mt-3" onsubmit="return confirm('Hapus folder dokumen ISO ini beserta semua file di dalamnya?')">@csrf @method('DELETE')<button class="btn btn-outline-danger">Hapus Folder</button></form>@endif
 </div>
 <script>
 	(() => {
@@ -81,7 +83,7 @@
 				const { src, name, type } = button.dataset;
 				title.textContent = 'Preview: ' + name;
 				setPreview(true);
-				if (type === 'pdf') { frame.hidden = false; spreadsheet.hidden = true; frame.src = src; }
+				if (type === 'pdf') { frame.hidden = false; spreadsheet.hidden = true; frame.src = src + '#toolbar=0&navpanes=0'; }
 				else { frame.hidden = true; spreadsheet.hidden = false; loadSpreadsheet(src); }
 			});
 		});

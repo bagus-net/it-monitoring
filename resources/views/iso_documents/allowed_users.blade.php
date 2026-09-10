@@ -15,7 +15,7 @@
         <div>
             <div class="iso-kicker">ISO DOCUMENT CONTROL — MANAGEMENT</div>
             <h1>Hak Akses Pembuat Folder & Upload ISO</h1>
-            <p>Atur pengguna karyawan yang diberikan izin khusus untuk membuat folder baru dan mengunggah dokumen ISO ke sistem.</p>
+            <p>Atur pengguna karyawan yang diberikan izin khusus untuk membuat, mengedit, dan menambahkan file ke folder dokumen ISO.</p>
         </div>
         <a href="{{ route('iso-documents.index') }}" class="btn btn-light text-dark fw-bold">
             <i class="bi bi-arrow-left me-1"></i> Kembali ke Dokumen ISO
@@ -52,7 +52,7 @@
         <i class="bi bi-info-circle-fill fs-3 text-info"></i>
         <div>
             <strong>Catatan Hak Akses:</strong>
-            Pengguna dengan role <strong>Master</strong> dan <strong>Admin IT</strong> secara otomatis memiliki hak membuat folder dan mengunggah file tanpa perlu dicentang. Centang pengguna ber-role <strong>User / Karyawan</strong> di bawah ini untuk memberi mereka izin pembuatan dokumen ISO.
+            Pengguna dengan role <strong>Master</strong> dan <strong>Admin IT</strong> secara otomatis memiliki hak membuat, mengedit, dan mengunggah file tanpa perlu dicentang. Centang pengguna ber-role <strong>User / Karyawan</strong> di bawah ini untuk memberi mereka izin membuat, mengedit, dan menambahkan file ke folder dokumen ISO.
         </div>
     </div>
 

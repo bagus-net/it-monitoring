@@ -18,7 +18,8 @@ class LogUserActivity
 
         $route = $request->route();
         $routeName = $route?->getName();
-        if (!$routeName || str_contains($routeName, 'notifications')) {
+        // skip logging for notification routes and logout action
+        if (!$routeName || str_contains($routeName, 'notifications') || $routeName === 'logout' || $request->is('logout')) {
             return $response;
         }
 

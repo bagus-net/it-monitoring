@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Masuk') · IT Monitoring</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-mgm.svg') }}">
+    <style>
+        #pageLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#fff 0,#f4f9fd 45%,#e6f0f7 100%);transition:opacity .24s ease,visibility .24s ease}
+        #pageLoader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+        #pageLoaderCard{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:176px;padding:24px 26px 21px;border:1px solid rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 18px 45px rgba(20,76,112,.14),inset 0 1px 0 #fff;color:#17324d}
+        #pageLoaderMark{position:relative;width:42px;height:42px;border:3px solid #d8e7f1;border-top-color:#0b5ea8;border-right-color:#14a79a;border-radius:50%;animation:pageLoaderSpin .8s linear infinite}
+        #pageLoaderMark::after{position:absolute;inset:9px;border-radius:50%;background:linear-gradient(135deg,#0b5ea8,#14a79a);box-shadow:0 0 0 5px rgba(11,94,168,.08);content:""}
+        #pageLoaderTitle{font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+        #pageLoaderStatus{display:flex;align-items:center;gap:4px;color:#7890a4;font-size:.68rem;font-weight:600}
+        #pageLoaderStatus i{width:4px;height:4px;border-radius:50%;background:#14a79a;animation:pageLoaderDot 1s ease-in-out infinite}
+        #pageLoaderStatus i:nth-child(2){animation-delay:.15s}#pageLoaderStatus i:nth-child(3){animation-delay:.3s}
+        @keyframes pageLoaderSpin{to{transform:rotate(360deg)}}
+        @keyframes pageLoaderDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
+    </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/it-theme.css') }}" rel="stylesheet">
     <style>
@@ -17,9 +30,22 @@
     </style>
 </head>
 <body>
+    <div id="pageLoader" role="status" aria-label="Memuat halaman"><div id="pageLoaderCard"><span id="pageLoaderMark" aria-hidden="true"></span><strong id="pageLoaderTitle">IT Monitoring</strong><span id="pageLoaderStatus">Menyiapkan halaman <i></i><i></i><i></i></span></div></div>
+    <script>
+        window.addEventListener('load', function () {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader?.classList.add('is-hidden');
+            window.setTimeout(() => pageLoader?.remove(), 220);
+        });
+        window.setTimeout(function () {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader?.classList.add('is-hidden');
+            window.setTimeout(() => pageLoader?.remove(), 220);
+        }, 4000);
+    </script>
     <div class="auth-shell">
         <section class="auth-brand">
-            <div class="brand-content"><div class="brand-lockup"><span class="brand-logo"><img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture"></span><span>PT Mulia Grand Manufacture<small>IT Monitoring &amp; Maintenance</small></span></div><div class="brand-message"><span>SISTEM OPERASIONAL INTERNAL</span><h1>Kelola layanan IT dalam satu ruang kerja.</h1><p>Gunakan akun perusahaan Anda untuk mengakses data peralatan, perawatan, dokumen, dan aktivitas operasional sesuai hak akses.</p></div></div>
+            <div class="brand-content"><div class="brand-lockup"><span class="brand-logo"><img src="{{ asset('images/logo-mgm.svg') }}" width="48" height="48" alt="Logo PT Mulia Grand Manufacture"></span><span>PT Mulia Grand Manufacture<small>IT Monitoring &amp; Maintenance</small></span></div><div class="brand-message"><span>SISTEM OPERASIONAL INTERNAL</span><h1>Kelola layanan IT dalam satu ruang kerja.</h1><p>Gunakan akun perusahaan Anda untuk mengakses data peralatan, perawatan, dokumen, dan aktivitas operasional sesuai hak akses.</p></div></div>
             <div class="brand-footer">Dibuat oleh ITMGM 2026</div>
         </section>
         <main class="auth-main"><div class="auth-card"><div class="auth-head"><span>IT Monitoring System</span><h2>@yield('heading')</h2><p>Masukkan kredensial akun Anda untuk melanjutkan.</p></div><div class="auth-body">@if(session('status'))<div class="alert alert-success py-2">{{ session('status') }}</div>@endif @if($errors->any())<div class="alert alert-danger py-2"><ul class="mb-0 ps-3">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('form')</div><div class="auth-foot">@yield('footer')</div></div></main>

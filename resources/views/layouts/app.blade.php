@@ -5,12 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IT Monitoring</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-mgm.svg') }}">
+    <style>
+        #pageLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#fff 0,#f4f9fd 45%,#e6f0f7 100%);opacity:1;visibility:visible;transition:opacity .24s ease,visibility .24s ease}
+        #pageLoader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+        #pageLoaderCard{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:176px;padding:24px 26px 21px;border:1px solid rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 18px 45px rgba(20,76,112,.14),inset 0 1px 0 #fff;color:#17324d}
+        #pageLoaderMark{position:relative;width:42px;height:42px;border:3px solid #d8e7f1;border-top-color:#0b5ea8;border-right-color:#14a79a;border-radius:50%;animation:pageLoaderSpin .8s linear infinite}
+        #pageLoaderMark::after{position:absolute;inset:9px;border-radius:50%;background:linear-gradient(135deg,#0b5ea8,#14a79a);box-shadow:0 0 0 5px rgba(11,94,168,.08);content:""}
+        #pageLoaderTitle{font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+        #pageLoaderStatus{display:flex;align-items:center;gap:4px;color:#7890a4;font-size:.68rem;font-weight:600}
+        #pageLoaderStatus i{width:4px;height:4px;border-radius:50%;background:#14a79a;animation:pageLoaderDot 1s ease-in-out infinite}
+        #pageLoaderStatus i:nth-child(2){animation-delay:.15s}#pageLoaderStatus i:nth-child(3){animation-delay:.3s}
+        @keyframes pageLoaderSpin{to{transform:rotate(360deg)}}
+        @keyframes pageLoaderDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
+    </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="/css/it-theme.css" rel="stylesheet">
+    <style>
+        .mobile-topbar-brand{display:none}@media(max-width:700px){.app-topbar{gap:10px}.mobile-topbar-brand{display:flex;align-items:center;gap:8px;min-width:0;margin-right:auto;color:#18243d}.mobile-topbar-brand img{width:31px;height:31px;flex:0 0 31px;object-fit:contain}.mobile-topbar-brand span{display:flex;min-width:0;flex-direction:column;line-height:1.05}.mobile-topbar-brand strong{color:#18243d;font-size:.78rem;font-weight:800;white-space:nowrap}.mobile-topbar-brand small{max-width:130px;overflow:hidden;color:#8792a7;font-size:.55rem;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sidebar-collapse-toggle{display:none!important}.topbar-search{max-width:36px;flex:0 0 36px}.topbar-search input{width:0;padding-left:0;opacity:0}.topbar-search:focus-within{position:absolute;left:12px;right:12px;z-index:20;max-width:none;flex:auto;background:#fff}.topbar-search:focus-within input{width:100%;padding-left:8px;opacity:1}.topbar-actions{display:none!important}.topbar-user{display:flex!important;align-items:center!important;gap:7px!important;margin-left:0;max-width:120px;min-width:0}.topbar-user>span:last-child{display:flex!important;min-width:0;flex-direction:column;line-height:1.05}.topbar-user-name{max-width:82px;overflow:hidden;color:#18243d;font-size:.68rem!important;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.topbar-user-role{max-width:82px;overflow:hidden;color:#2161f5;font-size:.5rem!important;font-weight:800;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.topbar-profile-photo{width:31px!important;height:31px!important;flex:0 0 31px!important}.topbar-logout{padding:8px 10px!important;border-radius:10px!important;font-size:.64rem!important}}
+    </style>
+    <style>
+        @media(max-width:700px){.app-topbar .mobile-topbar-brand small{max-width:92px}.app-topbar .topbar-search{display:none!important}.app-topbar .topbar-user{flex:0 1 118px!important;width:118px!important;max-width:118px!important;display:grid!important;grid-template-columns:31px minmax(0,1fr)!important;column-gap:7px!important;align-items:center!important}.app-topbar .topbar-user>span:last-child{display:flex!important;visibility:visible!important;opacity:1!important;overflow:visible!important;height:auto!important;width:auto!important;min-width:0!important}.app-topbar .topbar-user .topbar-user-name,.app-topbar .topbar-user .topbar-user-role{display:block!important;visibility:visible!important;opacity:1!important;max-width:74px!important}.app-topbar .topbar-user .topbar-user-name{font-size:.66rem!important}.app-topbar .topbar-user .topbar-user-role{font-size:.48rem!important}.app-topbar .topbar-logout{flex:0 0 auto!important}}
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>if (localStorage.getItem('it-monitoring-dark-mode') === '1') document.documentElement.classList.add('app-dark-mode');</script>
@@ -21,6 +40,19 @@
     </style>
 </head>
 <body>
+    <div id="pageLoader" role="status" aria-label="Memuat halaman"><div id="pageLoaderCard"><span id="pageLoaderMark" aria-hidden="true"></span><strong id="pageLoaderTitle">IT Monitoring</strong><span id="pageLoaderStatus">Menyiapkan halaman <i></i><i></i><i></i></span></div></div>
+    <script>
+        window.addEventListener('load', function () {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader?.classList.add('is-hidden');
+            window.setTimeout(() => pageLoader?.remove(), 220);
+        });
+        window.setTimeout(function () {
+            const pageLoader = document.getElementById('pageLoader');
+            pageLoader?.classList.add('is-hidden');
+            window.setTimeout(() => pageLoader?.remove(), 220);
+        }, 4000);
+    </script>
     <button class="sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Buka navigasi">Menu</button>
     <aside class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="appSidebar">
         <div class="offcanvas-header sidebar-mobile-header">
@@ -29,7 +61,7 @@
         </div>
         <div class="offcanvas-body p-0 d-block">
             @php($currentUser = auth()->user())
-            <a class="sidebar-brand" href="{{ $currentUser && $currentUser->isEmployee() ? route('it-repair-tickets.index') : route('dashboard') }}"><span class="sidebar-brand-mark"><img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture"></span><span>PT Mulia Grand Manufacture<small>IT Monitoring &amp; Maintenance</small></span></a>
+            <a class="sidebar-brand" href="{{ $currentUser && $currentUser->isEmployee() ? route('it-repair-tickets.index') : route('dashboard') }}"><span class="sidebar-brand-mark"><img src="{{ asset('images/logo-mgm.svg') }}" width="34" height="34" alt="Logo PT Mulia Grand Manufacture"></span><span>PT Mulia Grand Manufacture<small>IT Monitoring &amp; Maintenance</small></span></a>
             <nav class="sidebar-nav">
                 @if($currentUser && !$currentUser->isEmployee())
                 <a @class(['sidebar-link','active'=>request()->routeIs('dashboard')]) href="{{ route('dashboard') }}"><i class="bi bi-grid-1x2-fill"></i>Dashboard Utama</a>
@@ -95,7 +127,7 @@
     </aside>
     <main class="app-main py-4">
         <div class="app-topbar">
-            <a href="{{ route('dashboard') }}" class="mobile-topbar-brand text-decoration-none" aria-label="IT Monitoring Dashboard"><img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture"><span><strong>IT Monitoring</strong><small>PT Mulia Grand Manufacture</small></span></a>
+            <a href="{{ route('dashboard') }}" class="mobile-topbar-brand text-decoration-none" aria-label="IT Monitoring Dashboard"><img src="{{ asset('images/logo-mgm.svg') }}" width="31" height="31" alt="Logo PT Mulia Grand Manufacture"><span><strong>IT Monitoring</strong><small>PT Mulia Grand Manufacture</small></span></a>
             <button type="button" id="sidebarCollapseToggle" class="sidebar-collapse-toggle" aria-label="Sembunyikan navigasi" aria-expanded="true" title="Sembunyikan navigasi"><i class="bi bi-layout-sidebar-inset"></i></button>
             <div class="topbar-search"><i class="bi bi-search"></i><input id="globalPageSearch" type="search" placeholder="Search..." aria-label="Cari halaman" autocomplete="off"><div id="globalSearchResults" class="global-search-results" hidden></div></div>
             <div class="topbar-spacer"></div>
@@ -106,8 +138,8 @@
             @endauth
         </div>
         <div id="topbarPopover" class="topbar-popover" hidden></div>
-        <div class="print-letterhead">
-            <img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture">
+        <div class="print-letterhead" style="display:none">
+            <img src="{{ asset('images/logo-mgm.svg') }}" width="46" height="46" alt="Logo PT Mulia Grand Manufacture">
             <div><strong>PT MULIA GRAND MANUFACTURE</strong><span>IT Monitoring &amp; Maintenance System</span></div>
             <div class="print-letterhead-meta">Dicetak: {{ now()->translatedFormat('d F Y H:i') }} WIB<br>Oleh: {{ auth()->user()->name ?? '-' }} | Hak Akses: {{ auth()->user()->roleLabel() ?? '-' }}</div>
         </div>
@@ -149,12 +181,6 @@
         @yield('content')
         <footer class="app-footer">Dibuat oleh ITMGM 2026</footer>
     </main>
-    <style>
-        .mobile-topbar-brand{display:none}@media(max-width:700px){.app-topbar{gap:10px}.mobile-topbar-brand{display:flex;align-items:center;gap:8px;min-width:0;margin-right:auto;color:#18243d}.mobile-topbar-brand img{width:31px;height:31px;flex:0 0 31px;object-fit:contain}.mobile-topbar-brand span{display:flex;min-width:0;flex-direction:column;line-height:1.05}.mobile-topbar-brand strong{color:#18243d;font-size:.78rem;font-weight:800;white-space:nowrap}.mobile-topbar-brand small{max-width:130px;overflow:hidden;color:#8792a7;font-size:.55rem;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sidebar-collapse-toggle{display:none!important}.topbar-search{max-width:36px;flex:0 0 36px}.topbar-search input{width:0;padding-left:0;opacity:0}.topbar-search:focus-within{position:absolute;left:12px;right:12px;z-index:20;max-width:none;flex:auto;background:#fff}.topbar-search:focus-within input{width:100%;padding-left:8px;opacity:1}.topbar-actions{display:none!important}.topbar-user{display:flex!important;align-items:center!important;gap:7px!important;margin-left:0;max-width:120px;min-width:0}.topbar-user>span:last-child{display:flex!important;min-width:0;flex-direction:column;line-height:1.05}.topbar-user-name{max-width:82px;overflow:hidden;color:#18243d;font-size:.68rem!important;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.topbar-user-role{max-width:82px;overflow:hidden;color:#2161f5;font-size:.5rem!important;font-weight:800;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.topbar-profile-photo{width:31px!important;height:31px!important;flex:0 0 31px!important}.topbar-logout{padding:8px 10px!important;border-radius:10px!important;font-size:.64rem!important}}
-    </style>
-    <style>
-        @media(max-width:700px){.app-topbar .mobile-topbar-brand small{max-width:92px}.app-topbar .topbar-search{display:none!important}.app-topbar .topbar-user{flex:0 1 118px!important;width:118px!important;max-width:118px!important;display:grid!important;grid-template-columns:31px minmax(0,1fr)!important;column-gap:7px!important;align-items:center!important}.app-topbar .topbar-user>span:last-child{display:flex!important;visibility:visible!important;opacity:1!important;overflow:visible!important;height:auto!important;width:auto!important;min-width:0!important}.app-topbar .topbar-user .topbar-user-name,.app-topbar .topbar-user .topbar-user-role{display:block!important;visibility:visible!important;opacity:1!important;max-width:74px!important}.app-topbar .topbar-user .topbar-user-name{font-size:.66rem!important}.app-topbar .topbar-user .topbar-user-role{font-size:.48rem!important}.app-topbar .topbar-logout{flex:0 0 auto!important}}
-    </style>
     @auth
     <nav class="mobile-bottom-nav" aria-label="Navigasi utama mobile">
         @if(!auth()->user()->isEmployee())

@@ -39,6 +39,14 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $request->session()->put('authenticated_at', now()->timestamp);
 
+        if ($equipmentId = $request->session()->pull('scan_equipment_id')) {
+            $destination = Auth::user()->isEmployee()
+                ? route('it-repair-tickets.create', ['equipment_id' => $equipmentId])
+                : route('maintenance-checklists.create', ['equipment_id' => $equipmentId]);
+
+            return redirect($destination);
+        }
+
         return redirect()->intended($this->homeFor(Auth::user()));
     }
 

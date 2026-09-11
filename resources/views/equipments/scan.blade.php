@@ -257,9 +257,21 @@
 
             <!-- Quick Action Button -->
             <div class="d-grid gap-2">
-                <a href="{{ route('maintenance-checklists.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-action-main btn-lg">
-                    <i class="bi bi-clipboard2-check-fill me-2"></i> Buat / Isi Checklist Perawatan
-                </a>
+                @auth
+                    @if(auth()->user()->isEmployee())
+                        <a href="{{ route('it-repair-tickets.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-action-main btn-lg">
+                            <i class="bi bi-tools me-2"></i> Buat Tiket Perbaikan IT
+                        </a>
+                    @else
+                        <a href="{{ route('maintenance-checklists.create', ['equipment_id' => $equipment->id]) }}" class="btn btn-action-main btn-lg">
+                            <i class="bi bi-clipboard2-check-fill me-2"></i> Buat / Isi Checklist Perawatan
+                        </a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-action-main btn-lg">
+                        <i class="bi bi-tools me-2"></i> Buat Tiket Perbaikan IT
+                    </a>
+                @endauth
             </div>
 
             <div class="text-center mt-3">

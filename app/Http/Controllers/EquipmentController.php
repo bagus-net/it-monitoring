@@ -217,6 +217,10 @@ class EquipmentController extends Controller
 
     public function scan(Equipment $equipment)
     {
+        if (!auth()->check()) {
+            session(['scan_equipment_id' => $equipment->id]);
+        }
+
         $equipment->load([
             'type',
             'manufacturer',

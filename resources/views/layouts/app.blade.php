@@ -109,8 +109,11 @@
         <div class="print-letterhead">
             <img src="{{ asset('images/logo-mgm.svg') }}" alt="Logo PT Mulia Grand Manufacture">
             <div><strong>PT MULIA GRAND MANUFACTURE</strong><span>IT Monitoring &amp; Maintenance System</span></div>
-            <div class="print-letterhead-meta">Dicetak: {{ now()->translatedFormat('d F Y H:i') }} WIB</div>
+            <div class="print-letterhead-meta">Dicetak: {{ now()->translatedFormat('d F Y H:i') }} WIB<br>Oleh: {{ auth()->user()->name ?? '-' }} | Hak Akses: {{ auth()->user()->roleLabel() ?? '-' }}</div>
         </div>
+        @if(request()->routeIs('iso-documents.*'))
+            @include('partials.document-header-banner')
+        @endif
         @if(session('success'))
             <div class="container-fluid app-content"><div class="alert alert-success">{{ session('success') }}</div></div>
         @endif

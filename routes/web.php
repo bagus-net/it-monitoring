@@ -47,6 +47,8 @@ Route::get('/equipment-scan/{equipment}', [EquipmentController::class, 'scan'])-
 
 Route::middleware('auth')->group(function () {
 	Route::get('/', fn () => redirect(auth()->user()->isEmployee() ? route('it-repair-tickets.index') : route('dashboard')));
+	Route::get('/dashboard/crypto', [DashboardController::class, 'crypto'])->name('dashboard.crypto');
+	Route::get('/dashboard/gold', [DashboardController::class, 'gold'])->name('dashboard.gold');
 
 	// Tanda tangan digital: semua level
 	Route::get('/profile/signature', [\App\Http\Controllers\SignatureController::class, 'edit'])->name('signature.edit');
@@ -93,8 +95,6 @@ Route::middleware('auth')->group(function () {
 		Route::delete('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'destroy'])->name('it-repair-tickets.destroy');
 
 		Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-		Route::get('/dashboard/crypto', [DashboardController::class, 'crypto'])->name('dashboard.crypto');
-		Route::get('/dashboard/gold', [DashboardController::class, 'gold'])->name('dashboard.gold');
 		Route::get('/web-monitoring', [DashboardController::class, 'monitoring'])->name('web-monitoring.index');
 		Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 		Route::post('/dashboard/check-now', [DashboardController::class, 'checkNow'])->name('dashboard.check-now');

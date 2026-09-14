@@ -29,6 +29,7 @@ class AuthController extends Controller
         }
 
         if (!Auth::user()->is_active) {
+            Auth::user()->update(['last_activity_at' => null]);
             Auth::logout();
 
             throw ValidationException::withMessages([
@@ -38,6 +39,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
         $request->session()->put('authenticated_at', now()->timestamp);
+        Auth::user()->update(['last_activity_at' => now()]);
 
         if ($equipmentId = $request->session()->pull('scan_equipment_id')) {
             $destination = Auth::user()->isEmployee()
@@ -52,6 +54,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = $request->user();
+
+        if ($user) {
+            $user->update(['last_activity_at' => null]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

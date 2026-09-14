@@ -39,6 +39,7 @@ class User extends Authenticatable
         'signature_path',
         'signature_title',
         'profile_photo_path',
+        'last_activity_at',
     ];
 
     /**
@@ -60,6 +61,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'last_activity_at' => 'datetime',
     ];
 
     public function isMaster(): bool

@@ -92,6 +92,35 @@
     .signature-preview img{display:block;width:100%;max-height:170px;object-fit:contain;margin-bottom:8px}
     .signature-preview strong{display:block;font-size:.95rem}
     .signature-preview small{display:block;color:#64748b}
+    @media (max-width:700px){
+        body{overflow-x:hidden}
+        .app-main{width:100%;max-width:100vw;overflow-x:hidden}
+        .signature-page{width:100%;max-width:100%;margin:18px 0 0!important;padding:0 10px 86px;overflow:hidden}
+        .signature-page>.row,.signature-page .card,.signature-page form,.signature-page .signature-pad-wrap{max-width:100%;min-width:0}
+        .signature-page .row>*{min-width:0}
+        .signature-page>.d-flex>div{width:100%;min-width:0;max-width:100%}
+        .signature-page p,.signature-page .text-muted,.signature-page .form-text,.signature-page .signature-hint,.signature-page .signature-preview small{white-space:normal!important;overflow-wrap:anywhere;word-break:normal}
+        .signature-page>div:first-child p{display:block;width:100%;max-width:100%;line-height:1.45}
+        .signature-page>.d-flex{margin-bottom:18px!important}
+        .signature-page h2{font-size:1.25rem}
+        .signature-page .text-muted{font-size:.76rem;line-height:1.45}
+        .signature-card .card-header{padding:12px 14px;font-size:.82rem}
+        .signature-card .card-body{padding:14px}
+        .signature-pad-wrap canvas{height:155px}
+        .signature-pad-wrap canvas{width:100%;max-width:100%}
+        .signature-hint{right:10px;left:10px;font-size:.66rem;text-align:center}
+        .signature-tools{width:100%;margin-left:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:7px;align-items:center}
+        .signature-tools .form-range{width:100%;min-width:0}
+        .signature-tools .form-label{font-size:.68rem}
+        .signature-tools .form-control-color{width:34px;height:30px;padding:3px}
+        .signature-page .row.g-3{--bs-gutter-y:12px}
+        .signature-page hr{margin:16px 0}
+        .signature-page .form-label{font-size:.75rem}
+        .signature-page .form-control{font-size:.78rem}
+        .signature-page .form-text{max-width:100%;font-size:.66rem;line-height:1.35}
+        .signature-preview{padding:10px}
+        .signature-preview img{max-height:125px}
+    }
 </style>
 <script>
     (function () {

@@ -731,8 +731,28 @@
             border-left: 3px solid #0891b2
         }
 
+        .trend-summary-item.ink-stock {
+            border-left: 3px solid #0891b2
+        }
+
+        .trend-summary-item.sparepart-stock {
+            border-left: 3px solid #0f766e
+        }
+
         .trend-summary-item.license {
             border-left: 3px solid #f59e0b
+        }
+
+        .trend-summary-item.innovation {
+            border-left: 3px solid #db2777
+        }
+
+        .trend-summary-item.transfer {
+            border-left: 3px solid #2563eb
+        }
+
+        .trend-summary-item.new-asset {
+            border-left: 3px solid #16a34a
         }
 
         .trend-filter {
@@ -1365,6 +1385,22 @@
             background: #36b6c1
         }
 
+        .trend-summary-item.ink-stock {
+            background: color-mix(in srgb, #36b6c1 9%, #f7f9fc)
+        }
+
+        .trend-summary-item.ink-stock:before {
+            background: #36b6c1
+        }
+
+        .trend-summary-item.sparepart-stock {
+            background: color-mix(in srgb, #0f766e 9%, #f7f9fc)
+        }
+
+        .trend-summary-item.sparepart-stock:before {
+            background: #0f766e
+        }
+
         .trend-summary-item.license {
             background: color-mix(in srgb, #f2b34c 9%, #f7f9fc);
             border-left: 0
@@ -1372,6 +1408,30 @@
 
         .trend-summary-item.license:before {
             background: #f2b34c
+        }
+
+        .trend-summary-item.innovation {
+            background: color-mix(in srgb, #db2777 9%, #f7f9fc)
+        }
+
+        .trend-summary-item.innovation:before {
+            background: #db2777
+        }
+
+        .trend-summary-item.transfer {
+            background: color-mix(in srgb, #2563eb 9%, #f7f9fc)
+        }
+
+        .trend-summary-item.transfer:before {
+            background: #2563eb
+        }
+
+        .trend-summary-item.new-asset {
+            background: color-mix(in srgb, #16a34a 9%, #f7f9fc)
+        }
+
+        .trend-summary-item.new-asset:before {
+            background: #16a34a
         }
 
         .health-donut-wrap {
@@ -2722,17 +2782,26 @@
                 </div>
                 <div class="chart-legend"><span><i style="background:#dc2626"></i>Tiket</span><span><i
                             style="background:#7c3aed"></i>Checklist</span><span><i
-                            style="background:#0891b2"></i>Stok</span><span><i
-                            style="background:#f59e0b"></i>Lisensi</span></div>
+                            style="background:#36b6c1"></i>Stok Tinta</span><span><i
+                            style="background:#0f766e"></i>Stok Sparepart</span><span><i
+                            style="background:#f59e0b"></i>Lisensi</span><span><i
+                            style="background:#db2777"></i>Inovasi</span><span><i
+                            style="background:#2563eb"></i>Mutasi</span><span><i
+                            style="background:#16a34a"></i>Peralatan Baru</span></div>
                 <div class="trend-summary">
                     <div class="trend-summary-item ticket"><span>Total
                             Tiket</span><strong>{{ $dashboardTrend->sum('tickets') }}</strong></div>
                     <div class="trend-summary-item checklist"><span>Total
                             Checklist</span><strong>{{ $dashboardTrend->sum('checklists') }}</strong></div>
-                    <div class="trend-summary-item stock"><span>Total
-                            Stok</span><strong>{{ $dashboardTrend->sum('stock') }}</strong></div>
+                        <div class="trend-summary-item ink-stock"><span>Stok Tinta</span><strong>{{ $dashboardTrend->sum('inkStock') }}</strong></div>
+                        <div class="trend-summary-item sparepart-stock"><span>Stok Sparepart</span><strong>{{ $dashboardTrend->sum('sparepartStock') }}</strong></div>
                     <div class="trend-summary-item license"><span>Total
                             Lisensi</span><strong>{{ $dashboardTrend->sum('licenses') }}</strong></div>
+                        <div class="trend-summary-item innovation"><span>Total
+                            Inovasi</span><strong>{{ $dashboardTrend->sum('innovations') }}</strong></div>
+                        <div class="trend-summary-item transfer"><span>Total
+                            Mutasi</span><strong>{{ $dashboardTrend->sum('transfers') }}</strong></div>
+                        <div class="trend-summary-item new-asset"><span>Peralatan Baru</span><strong>{{ $dashboardTrend->sum('newAssets') }}</strong></div>
                 </div>
             </div>
             <div class="analytics-panel">
@@ -3089,9 +3158,16 @@
                             maxBarThickness: 16
                         },
                         {
-                            label: 'Stok',
-                            data: chartTrendData.map(t => t.stock),
+                            label: 'Stok Tinta',
+                            data: chartTrendData.map(t => t.inkStock),
                             backgroundColor: '#36b6c1',
+                            borderRadius: 4,
+                            maxBarThickness: 16
+                        },
+                        {
+                            label: 'Stok Sparepart',
+                            data: chartTrendData.map(t => t.sparepartStock),
+                            backgroundColor: '#0f766e',
                             borderRadius: 4,
                             maxBarThickness: 16
                         },
@@ -3099,6 +3175,27 @@
                             label: 'Lisensi',
                             data: chartTrendData.map(t => t.licenses),
                             backgroundColor: '#f2b34c',
+                            borderRadius: 4,
+                            maxBarThickness: 16
+                        },
+                        {
+                            label: 'Inovasi',
+                            data: chartTrendData.map(t => t.innovations),
+                            backgroundColor: '#db2777',
+                            borderRadius: 4,
+                            maxBarThickness: 16
+                        },
+                        {
+                            label: 'Mutasi',
+                            data: chartTrendData.map(t => t.transfers),
+                            backgroundColor: '#2563eb',
+                            borderRadius: 4,
+                            maxBarThickness: 16
+                        },
+                        {
+                            label: 'Peralatan Baru',
+                            data: chartTrendData.map(t => t.newAssets),
+                            backgroundColor: '#16a34a',
                             borderRadius: 4,
                             maxBarThickness: 16
                         },
@@ -3241,9 +3338,9 @@
                 width: 1060,
                 height: 380
             };
-            const colors = ['#dc2626', '#7c3aed', '#0891b2', '#f59e0b'];
-            const keys = ['tickets', 'checklists', 'stock', 'licenses'];
-            const labels = ['Tiket', 'Checklist', 'Stok', 'Lisensi'];
+            const colors = ['#dc2626', '#7c3aed', '#36b6c1', '#0f766e', '#f59e0b', '#db2777', '#2563eb', '#16a34a'];
+            const keys = ['tickets', 'checklists', 'inkStock', 'sparepartStock', 'licenses', 'innovations', 'transfers', 'newAssets'];
+            const labels = ['Tiket', 'Checklist', 'Stok Tinta', 'Stok Sparepart', 'Lisensi', 'Inovasi', 'Mutasi', 'Peralatan Baru'];
             const maxValue = Math.max(1, ...trendDownloadData.flatMap(item => keys.map(key => Number(item[key] || 0))));
             const roundedMax = Math.max(1, Math.ceil(maxValue / 5) * 5);
             ctx.font = '12px Arial';
@@ -3260,13 +3357,13 @@
                 ctx.fillText(String(value), chart.left - 12, y + 4);
             }
             const groupWidth = chart.width / Math.max(1, trendDownloadData.length);
-            const barWidth = Math.min(18, Math.max(8, groupWidth / 7));
+            const barWidth = Math.min(12, Math.max(5, groupWidth / 10));
             trendDownloadData.forEach((item, index) => {
                 const groupLeft = chart.left + index * groupWidth;
                 keys.forEach((key, keyIndex) => {
                     const value = Number(item[key] || 0);
                     const barHeight = value / roundedMax * chart.height;
-                    const x = groupLeft + groupWidth / 2 + (keyIndex - 1.5) * (barWidth + 5);
+                    const x = groupLeft + groupWidth / 2 + (keyIndex - (keys.length - 1) / 2) * (barWidth + 5);
                     const y = chart.top + chart.height - barHeight;
                     ctx.fillStyle = colors[keyIndex];
                     ctx.fillRect(x, y, barWidth, Math.max(2, barHeight));

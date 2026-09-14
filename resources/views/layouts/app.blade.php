@@ -9,13 +9,16 @@
         #pageLoader{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#fff 0,#f4f9fd 45%,#e6f0f7 100%);opacity:1;visibility:visible;transition:opacity .24s ease,visibility .24s ease}
         #pageLoader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
         #pageLoaderCard{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:176px;padding:24px 26px 21px;border:1px solid rgba(255,255,255,.9);border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 18px 45px rgba(20,76,112,.14),inset 0 1px 0 #fff;color:#17324d}
-        #pageLoaderMark{position:relative;width:42px;height:42px;border:3px solid #d8e7f1;border-top-color:#0b5ea8;border-right-color:#14a79a;border-radius:50%;animation:pageLoaderSpin .8s linear infinite}
-        #pageLoaderMark::after{position:absolute;inset:9px;border-radius:50%;background:linear-gradient(135deg,#0b5ea8,#14a79a);box-shadow:0 0 0 5px rgba(11,94,168,.08);content:""}
+        #pageLoaderBatTrack{position:relative;width:152px;height:34px;margin-top:2px}
+        #pageLoaderProgress{position:absolute;right:0;bottom:4px;left:0;height:5px;overflow:hidden;border-radius:99px;background:#dceaf2}
+        #pageLoaderProgress::after{display:block;width:45%;height:100%;border-radius:99px;background:linear-gradient(90deg,#0b5ea8,#14a79a);content:"";animation:pageLoaderProgress 1.4s ease-in-out infinite}
+        #pageLoaderBat{position:absolute;bottom:8px;left:0;font-family:"Segoe UI Emoji","Apple Color Emoji",sans-serif;font-size:27px;line-height:1;animation:pageLoaderFlight 1.4s ease-in-out infinite;filter:drop-shadow(0 3px 3px rgba(23,50,77,.18))}
         #pageLoaderTitle{font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
         #pageLoaderStatus{display:flex;align-items:center;gap:4px;color:#7890a4;font-size:.68rem;font-weight:600}
         #pageLoaderStatus i{width:4px;height:4px;border-radius:50%;background:#14a79a;animation:pageLoaderDot 1s ease-in-out infinite}
         #pageLoaderStatus i:nth-child(2){animation-delay:.15s}#pageLoaderStatus i:nth-child(3){animation-delay:.3s}
-        @keyframes pageLoaderSpin{to{transform:rotate(360deg)}}
+        @keyframes pageLoaderProgress{0%{transform:translateX(-120%)}100%{transform:translateX(250%)}}
+        @keyframes pageLoaderFlight{0%,100%{transform:translateX(0) translateY(2px)}50%{transform:translateX(140px) translateY(-3px)}}
         @keyframes pageLoaderDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -40,7 +43,7 @@
     </style>
 </head>
 <body>
-    <div id="pageLoader" role="status" aria-label="Memuat halaman"><div id="pageLoaderCard"><span id="pageLoaderMark" aria-hidden="true"></span><strong id="pageLoaderTitle">IT Monitoring</strong><span id="pageLoaderStatus">Menyiapkan halaman <i></i><i></i><i></i></span></div></div>
+    <div id="pageLoader" role="status" aria-label="Memuat halaman"><div id="pageLoaderCard"><div id="pageLoaderBatTrack" aria-hidden="true"><span id="pageLoaderBat">🦇</span><span id="pageLoaderProgress"></span></div><strong id="pageLoaderTitle">IT Monitoring</strong><span id="pageLoaderStatus">Menyiapkan halaman <i></i><i></i><i></i></span></div></div>
     <script>
         window.addEventListener('load', function () {
             const pageLoader = document.getElementById('pageLoader');
@@ -91,7 +94,7 @@
                 @endif
                 <a @class(['sidebar-link','active'=>request()->routeIs('innovations.*')]) href="{{ route('innovations.index') }}"><i class="bi bi-lightbulb"></i>Inovasi IT</a>
                 <a @class(['sidebar-link','active'=>request()->routeIs('target-monitorings.*')]) href="{{ route('target-monitorings.index') }}"><i class="bi bi-bullseye"></i>Pemantauan Sasaran</a>
-                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-bar-chart-line"></i>Laporan</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('reports.annual') }}"><i class="bi bi-file-earmark-bar-graph"></i>Laporan Tahunan</a></li><li><a class="dropdown-item" href="{{ route('reports.monthly') }}"><i class="bi bi-file-earmark-bar-graph"></i>Laporan Bulanan</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="{{ route('reports.equipments') }}"><i class="bi bi-file-earmark-text"></i>Laporan Peralatan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.repairs') }}"><i class="bi bi-file-earmark-text"></i>Laporan Perbaikan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.checklists') }}"><i class="bi bi-file-earmark-text"></i>Laporan Checklist Web &amp; Peralatan IT</a></li>@if($currentUser->isMaster())<li><a class="dropdown-item" href="{{ route('reports.activities') }}"><i class="bi bi-file-earmark-text"></i>Laporan Log Aktivitas</a></li>@endif</ul></div>
+                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-bar-chart-line"></i>Laporan</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('reports.annual') }}"><i class="bi bi-file-earmark-bar-graph"></i>Laporan Tahunan</a></li><li><a class="dropdown-item" href="{{ route('reports.monthly') }}"><i class="bi bi-file-earmark-bar-graph"></i>Laporan Bulanan</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item" href="{{ route('reports.equipments') }}"><i class="bi bi-file-earmark-text"></i>Laporan Peralatan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.repairs') }}"><i class="bi bi-file-earmark-text"></i>Laporan Perbaikan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.checklists') }}"><i class="bi bi-file-earmark-text"></i>Laporan Checklist Web &amp; Peralatan IT</a></li><li><a class="dropdown-item" href="{{ route('reports.inventory') }}"><i class="bi bi-box-seam"></i>Laporan Kelola &amp; Persediaan</a></li>@if($currentUser->isMaster())<li><a class="dropdown-item" href="{{ route('reports.activities') }}"><i class="bi bi-file-earmark-text"></i>Laporan Log Aktivitas</a></li>@endif</ul></div>
                 <span class="sidebar-label">Master Data</span>
                 <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-gear"></i>Pengaturan Master</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('masters.manufacturers.index') }}"><i class="bi bi-building"></i>Manufacturers</a></li><li><a class="dropdown-item" href="{{ route('masters.locations.index') }}"><i class="bi bi-geo-alt"></i>Lokasi</a></li><li><a class="dropdown-item" href="{{ route('masters.equipment-types.index') }}"><i class="bi bi-tags"></i>Tipe Peralatan</a></li><li><a class="dropdown-item" href="{{ route('masters.checklist-items.index') }}"><i class="bi bi-list-check"></i>Program Perawatan</a></li></ul></div>
                 @endif
@@ -192,6 +195,9 @@
         @if(!auth()->user()->isEmployee())
         <a @class(['mobile-bottom-link','active'=>request()->routeIs('maintenance-checklists.*')]) href="{{ route('maintenance-checklists.index') }}"><i class="bi bi-clipboard2-check"></i><span>Checklist IT</span></a>
         @endif
+        <a @class(['mobile-bottom-link','active'=>request()->routeIs('iso-documents.*')]) href="{{ route('iso-documents.index') }}"><i class="bi bi-file-earmark-richtext"></i><span>Dokumen ISO</span></a>
+        <a @class(['mobile-bottom-link','active'=>request()->routeIs('signature.*')]) href="{{ route('signature.edit') }}"><i class="bi bi-pen"></i><span>TTD Digital</span></a>
+        <a @class(['mobile-bottom-link','active'=>request()->routeIs('profile.*')]) href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i><span>Profil Saya</span></a>
         <button type="button" class="mobile-bottom-link" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-label="Buka semua menu"><i class="bi bi-list"></i><span>Menu</span></button>
     </nav>
     @endauth
@@ -285,6 +291,7 @@
 
         const ticketEndpoint = @json(route('it-repair-tickets.notifications'));
         const transferEndpoint = @json(route('equipment-transfers.notifications'));
+        const checklistEndpoint = @json(route('maintenance-checklists.notifications'));
         const companyLogoUrl = @json(asset('images/logo-mgm.svg'));
         const companyName = 'PT MULIA GRAND MANUFACTURE';
         const ticketBadge = document.getElementById('ticketNotificationBadge');
@@ -298,11 +305,13 @@
         const storedTicketIdKey = 'it-monitoring-last-ticket-id';
         const storedTransferIdKey = 'it-monitoring-last-transfer-id';
         let topbarTicketCount = 0;
+        let topbarTicketApprovalCount = 0;
         let topbarTransferCount = 0;
+        let topbarChecklistCount = 0;
         function updateTopbarNotificationCount() {
             const badge = document.getElementById('topbarNotificationCount');
             if (!badge) return;
-            const count = topbarTicketCount + topbarTransferCount;
+            const count = topbarTicketCount + topbarTicketApprovalCount + topbarTransferCount + topbarChecklistCount;
             badge.textContent = count > 99 ? '99+' : String(count);
             badge.dataset.zero = count === 0 ? 'true' : 'false';
         }
@@ -313,6 +322,7 @@
                 .then(data => {
                     const count = Number(data.openCount || 0);
                     topbarTicketCount = count;
+                    topbarTicketApprovalCount = Number(data.pendingApprovalCount || 0);
                     updateTopbarNotificationCount();
                     ticketBadge.textContent = count;
                     ticketBadge.classList.toggle('d-none', count === 0);
@@ -366,14 +376,26 @@
                 .catch(() => {});
         }
 
+        function updateChecklistNotifications() {
+            fetch(checklistEndpoint, { headers: { Accept: 'application/json' } })
+                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(data => {
+                    topbarChecklistCount = Number(data.pendingApprovalCount || 0);
+                    updateTopbarNotificationCount();
+                })
+                .catch(() => {});
+        }
+
         document.getElementById('enableTicketAlerts').addEventListener('click', () => {
             if (!('Notification' in window)) return;
             Notification.requestPermission();
         });
         updateTicketNotifications();
         updateTransferNotifications();
+        updateChecklistNotifications();
         setInterval(updateTicketNotifications, 20000);
         setInterval(updateTransferNotifications, 20000);
+        setInterval(updateChecklistNotifications, 20000);
 
         function tableSortValue(cell) {
             const primaryAssetName = cell.querySelector?.('.asset-cell strong')?.textContent;
@@ -637,6 +659,7 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if (window.self !== window.top) return;
             const routePatterns = ['/equipments/', '/equipment-transfers/', '/it-repair-tickets/', '/maintenance-checklists/', '/web-monitoring-checklists/', '/maintenances/', '/monthly-schedules/', '/innovations/', '/users/', '/masters/', '/iso-documents/', '/campaigns/', '/todo-list/'];
             const formEndings = ['/create', '/edit', '/repair'];
             const links = Array.from(document.querySelectorAll('a[href]')).filter(link => { const pathname = new URL(link.href, window.location.origin).pathname; return routePatterns.some(pattern => pathname.includes(pattern)) && formEndings.some(ending => pathname.endsWith(ending)); });
@@ -692,8 +715,10 @@
             const openApps = () => openPopover('<div class="topbar-popover-heading">Akses Cepat</div>@if(auth()->user() && !auth()->user()->isEmployee())<a class="popover-link" href="{{ route('dashboard') }}"><i class="bi bi-grid-1x2"></i>Dashboard Utama</a>@if(auth()->user()->isMaster())<a class="popover-link" href="{{ route('campaigns.index') }}"><i class="bi bi-megaphone"></i>Campaign</a><a class="popover-link" href="{{ route('todo-list.index') }}"><i class="bi bi-check2-square"></i>To-do List</a>@endif<a class="popover-link" href="{{ route('web-monitoring.index') }}"><i class="bi bi-globe2"></i>Web Monitoring</a><a class="popover-link" href="{{ route('equipments.index') }}"><i class="bi bi-laptop"></i>Peralatan IT</a>@endif<a class="popover-link" href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i>Ticketing</a><a class="popover-link" href="{{ route('iso-documents.index') }}"><i class="bi bi-file-earmark-richtext"></i>Dokumen ISO</a>');
             const openNotifications = () => {
                 const ticketCount = document.getElementById('ticketNotificationBadge')?.textContent || '0';
+                const ticketApprovalCount = String(topbarTicketApprovalCount);
                 const transferCount = document.getElementById('transferPendingApprovalBadge')?.textContent || '0';
-                openPopover('<div class="topbar-popover-heading">Notifikasi</div><a class="popover-link" href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i><span>Tiket terbuka</span><strong>' + ticketCount + '</strong></a>@if(auth()->user() && !auth()->user()->isEmployee())<a class="popover-link" href="{{ route('equipment-transfers.index') }}"><i class="bi bi-arrow-left-right"></i><span>Mutasi menunggu approval</span><strong>' + transferCount + '</strong></a>@endif<button id="popoverNotificationPermission" class="popover-action"><i class="bi bi-bell"></i>Aktifkan notifikasi browser</button>');
+                const checklistCount = String(topbarChecklistCount);
+                openPopover('<div class="topbar-popover-heading">Notifikasi</div><a class="popover-link" href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i><span>Tiket terbuka</span><strong>' + ticketCount + '</strong></a>@if(auth()->user() && !auth()->user()->isEmployee())<a class="popover-link" href="{{ route('equipment-transfers.index') }}"><i class="bi bi-arrow-left-right"></i><span>Mutasi menunggu approval</span><strong>' + transferCount + '</strong></a>@if(auth()->user()->isMaster())<a class="popover-link" href="{{ route('it-repair-tickets.index', ['status' => 'resolved', 'approval' => 'pending']) }}"><i class="bi bi-tools"></i><span>Perbaikan IT belum di-approve</span><strong>' + ticketApprovalCount + '</strong></a><a class="popover-link" href="{{ route('maintenance-checklists.index', ['approval' => 'pending']) }}"><i class="bi bi-clipboard2-check"></i><span>Checklist belum di-approve</span><strong>' + checklistCount + '</strong></a>@endif @endif<button id="popoverNotificationPermission" class="popover-action"><i class="bi bi-bell"></i>Aktifkan notifikasi browser</button>');
                 document.getElementById('popoverNotificationPermission')?.addEventListener('click', () => document.getElementById('enableTicketAlerts')?.click());
             };
             const openSettings = () => openPopover('<div class="topbar-popover-heading">Pengaturan Cepat</div><button id="popoverSidebarToggle" class="popover-link"><i class="bi bi-layout-sidebar-inset"></i><span>Hide / show navbar</span><strong>' + (document.body.classList.contains('sidebar-collapsed') ? 'Show' : 'Hide') + '</strong></button><button id="popoverDarkModeToggle" class="popover-link"><i class="bi ' + (document.documentElement.classList.contains('app-dark-mode') ? 'bi-sun' : 'bi-moon-stars') + '"></i><span>Mode Gelap</span><strong>' + (document.documentElement.classList.contains('app-dark-mode') ? 'Nyala' : 'Mati') + '</strong></button><a class="popover-link" href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i><span>Profil Saya</span><strong><i class="bi bi-arrow-up-right"></i></strong></a><div class="popover-note">Pengaturan lanjutan tersedia di profil akun.</div>');
@@ -718,5 +743,6 @@
             document.documentElement.lang = localStorage.getItem('it-monitoring-language') || 'id';
         });
     </script>
+    @stack('scripts')
 </body>
 </html>

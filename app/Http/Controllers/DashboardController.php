@@ -15,6 +15,7 @@ use App\Models\SparepartType;
 use App\Models\SparepartTransaction;
 use App\Models\LicenseType;
 use App\Models\LicenseTransaction;
+use App\Models\Innovation;
 use App\Services\SiteMonitorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,15 +73,23 @@ class DashboardController extends Controller
 
         $months = $months->reverse()->values();
         $monthKeys = $months->pluck('key');
-        $monthlyCount = function (string $model, string $column = 'created_at') use ($periodStart, $periodEnd) {
-            return $model::query()->whereBetween($column, [$periodStart, $periodEnd])->get()->groupBy(fn ($item) => $item->{$column}->format('Y-m'))->map->count();
+        $monthlyCount = function (string $model, string $column = 'created_at', $from = null) use ($periodStart, $periodEnd) {
+            return $model::query()->whereBetween($column, [$from ?: $periodStart, $periodEnd])->get()->groupBy(fn ($item) => $item->{$column}->format('Y-m'))->map->count();
         };
+        $equipmentStartDate = now()->setDate($selectedYear, 9, 1)->startOfMonth();
+        $newAssetCounts = $periodEnd->lt($equipmentStartDate)
+            ? collect()
+            : $monthlyCount(Equipment::class, 'created_at', $equipmentStartDate);
         $dashboardTrend = $months->map(fn ($month) => [
             'label' => $month['label'],
             'tickets' => $monthlyCount(ItRepairTicket::class, 'reported_at')->get($month['key'], 0),
             'checklists' => $monthlyCount(MaintenanceChecklist::class, 'checked_at')->get($month['key'], 0) + $monthlyCount(WebMonitoringChecklist::class, 'checked_at')->get($month['key'], 0),
-            'stock' => $monthlyCount(InkTransaction::class, 'transaction_date')->get($month['key'], 0) + $monthlyCount(SparepartTransaction::class, 'transaction_date')->get($month['key'], 0),
+            'inkStock' => $monthlyCount(InkTransaction::class, 'transaction_date')->get($month['key'], 0),
+            'sparepartStock' => $monthlyCount(SparepartTransaction::class, 'transaction_date')->get($month['key'], 0),
             'licenses' => $monthlyCount(LicenseTransaction::class, 'transaction_date')->get($month['key'], 0),
+            'innovations' => $monthlyCount(Innovation::class, 'innovation_date')->get($month['key'], 0),
+            'transfers' => $monthlyCount(EquipmentTransfer::class, 'effective_date')->get($month['key'], 0),
+            'newAssets' => $newAssetCounts->get($month['key'], 0),
         ])->values();
 
         $recentTickets = ItRepairTicket::with('equipment')->latest('reported_at')->limit(5)->get();

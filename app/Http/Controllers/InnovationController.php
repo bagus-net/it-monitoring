@@ -13,13 +13,20 @@ class InnovationController extends Controller
     {
         $search = trim((string) $request->input('search'));
         $year = $request->integer('year') ?: null;
+        $month = $request->integer('month') ?: null;
+        $month = $month >= 1 && $month <= 12 ? $month : null;
         $availableYears = Innovation::selectRaw('YEAR(innovation_date) as year')
             ->distinct()
             ->orderByDesc('year')
-            ->pluck('year');
+            ->pluck('year')
+            ->push(now()->year)
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         $innovations = Innovation::with('creator')
             ->when($year, fn ($query) => $query->whereYear('innovation_date', $year))
+            ->when($month, fn ($query) => $query->whereMonth('innovation_date', $month))
             ->when($search !== '', function ($query) use ($search) {
                 $keyword = '%' . $search . '%';
                 $query->where(fn ($inner) => $inner
@@ -31,7 +38,15 @@ class InnovationController extends Controller
             ->paginate($this->resolvePerPage($request))
             ->withQueryString();
 
-        return view('innovations.index', compact('innovations', 'availableYears', 'year', 'search'));
+        $chartYear = $year ?: now()->year;
+        $monthlyCounts = Innovation::query()
+            ->whereYear('innovation_date', $chartYear)
+            ->selectRaw('MONTH(innovation_date) as month, COUNT(*) as total')
+            ->groupByRaw('MONTH(innovation_date)')
+            ->pluck('total', 'month');
+        $monthlyCounts = collect(range(1, 12))->mapWithKeys(fn ($monthNumber) => [$monthNumber => (int) ($monthlyCounts[$monthNumber] ?? 0)]);
+
+        return view('innovations.index', compact('innovations', 'availableYears', 'year', 'month', 'search', 'chartYear', 'monthlyCounts'));
     }
 
     public function print(Request $request)

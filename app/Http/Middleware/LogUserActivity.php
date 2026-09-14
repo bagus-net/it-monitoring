@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ActivityLog;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,13 @@ class LogUserActivity
             'DELETE' => 'Menghapus data',
         };
 
+        $onlineUsers = User::whereNotNull('last_activity_at')
+            ->where('last_activity_at', '>=', now()->subMinutes(5))
+            ->get(['id', 'name'])
+            ->map(fn($u) => ['id' => $u->id, 'name' => $u->name])
+            ->values()
+            ->toArray();
+
         ActivityLog::create([
             'user_id' => $user?->id,
             'actor_name' => $user?->name ?? $request->session()->get('actor_name', 'Pengguna Web'),
@@ -42,6 +50,7 @@ class LogUserActivity
             'user_agent' => substr((string) $request->userAgent(), 0, 500),
             'metadata' => [
                 'parameters' => array_keys($request->except(['_token', '_method', 'password', 'photo', 'error_photo', 'repair_attachment'])),
+                'online_users' => $onlineUsers,
             ],
         ]);
 

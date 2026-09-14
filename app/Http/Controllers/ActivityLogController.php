@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
@@ -37,7 +38,12 @@ class ActivityLogController extends Controller
             'update' => ActivityLog::where('action', 'Memperbarui data')->whereDate('created_at', today())->count(),
             'delete' => ActivityLog::where('action', 'Menghapus data')->whereDate('created_at', today())->count(),
         ];
+        $onlineUsers = User::whereNotNull('last_activity_at')
+            ->where('last_activity_at', '>=', now()->subMinutes(5))
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'role', 'last_activity_at']);
 
-        return view('activity_logs.index', compact('logs', 'modules', 'module', 'action', 'summary', 'search'));
+        return view('activity_logs.index', compact('logs', 'modules', 'module', 'action', 'summary', 'search', 'onlineUsers'));
     }
 }

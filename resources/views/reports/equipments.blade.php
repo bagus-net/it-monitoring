@@ -7,6 +7,7 @@
             <div class="report-eyebrow">Laporan</div>
             <h2 class="mb-1">Laporan Peralatan IT</h2>
             <p class="text-muted mb-0">Rekap inventaris aset IT berdasarkan jenis, kondisi, lokasi, dan kritikalitas.</p>
+            <a href="{{ route('reports.equipment-additions', request()->query()) }}" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-printer me-1"></i>Print Riwayat Penambahan</a>
         </div>
     </div>
     <div class="row g-3 mb-3">

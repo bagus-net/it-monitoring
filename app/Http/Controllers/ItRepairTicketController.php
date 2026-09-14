@@ -46,10 +46,21 @@ class ItRepairTicketController extends Controller
             ->where('status', 'open')
             ->latest('created_at')
             ->first();
+        $latestPendingApproval = ItRepairTicket::with('equipment')
+            ->where('status', 'resolved')
+            ->whereNull('approved_at')
+            ->latest('resolved_at')
+            ->first();
 
         return response()->json([
             'openCount' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'open')->count(),
             'inProgressCount' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'in_progress')->count(),
+            'pendingApprovalCount' => ItRepairTicket::where('status', 'resolved')->whereNull('approved_at')->count(),
+            'latestPendingApproval' => $latestPendingApproval ? [
+                'id' => $latestPendingApproval->id,
+                'number' => $latestPendingApproval->ticket_number,
+                'equipment' => $latestPendingApproval->equipment?->name ?: 'Peralatan tidak ditemukan',
+            ] : null,
             'latest' => $latestTicket ? [
                 'id' => $latestTicket->id,
                 'number' => $latestTicket->ticket_number,

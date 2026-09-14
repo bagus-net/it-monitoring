@@ -39,13 +39,13 @@
                                     @foreach ($scheduleGroup['months'] as $scheduledMonth)
                                         @if (in_array($scheduledMonth, $scheduleGroup['completed_months']))
                                             <span class="schedule-month schedule-month-completed" title="Checklist sudah dibuat">
-                                                <i class="bi bi-check-circle-fill"></i> {{ $monthNames[$scheduledMonth] }}
+                                                <i class="bi bi-check-circle-fill"></i><span>{{ $monthNames[$scheduledMonth] }}<small class="schedule-date-label">{{ !empty($scheduleGroup['schedule_dates'][$scheduledMonth]) ? 'Tgl. ' . implode(', ', $scheduleGroup['schedule_dates'][$scheduledMonth]) : 'Tanggal belum diatur' }}</small></span>
                                             </span>
                                         @else
                                             <a href="{{ route('maintenance-checklists.create', ['checklist_item_id' => $scheduleGroup['item']->id, 'year' => $year, 'month' => $scheduledMonth]) }}"
                                                class="schedule-month schedule-month-ready"
                                                title="Buat checklist {{ $monthNames[$scheduledMonth] }}">
-                                                <i class="bi bi-clipboard-check"></i> {{ $monthNames[$scheduledMonth] }}
+                                                <i class="bi bi-clipboard-check"></i><span>{{ $monthNames[$scheduledMonth] }}<small class="schedule-date-label">{{ !empty($scheduleGroup['schedule_dates'][$scheduledMonth]) ? 'Tgl. ' . implode(', ', $scheduleGroup['schedule_dates'][$scheduledMonth]) : 'Tanggal belum diatur' }}</small></span>
                                             </a>
                                         @endif
                                     @endforeach
@@ -81,5 +81,5 @@
         @endif
     @endif
 </div>
-<style>.checklist-document .card-header,.checklist-schedule-picker .card-header{display:flex;justify-content:space-between;align-items:center;background:#f1f5f9;color:#1e293b}.checklist-document .card-header small,.checklist-schedule-picker .card-header small,.checklist-table small{display:block;color:#64748b;font-weight:400}.checklist-table th,.checklist-schedule-picker thead th{background:#fff3e6;font-size:.82rem}.checklist-table td{vertical-align:middle}.program-dot{display:inline-block;width:9px;height:9px;margin-right:7px;border-radius:50%}.schedule-months{display:flex;flex-wrap:wrap;gap:6px}.schedule-month{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:4px;font-size:.78rem;font-weight:700;text-decoration:none}.schedule-month-ready{border:1px solid #0b5ea8;background:#eaf4fe;color:#075985}.schedule-month-ready:hover{background:#0b5ea8;color:#fff}.schedule-month-completed{border:1px solid #86efac;background:#dcfce7;color:#166534;cursor:default}</style>
+<style>.checklist-document .card-header,.checklist-schedule-picker .card-header{display:flex;justify-content:space-between;align-items:center;background:#f1f5f9;color:#1e293b}.checklist-document .card-header small,.checklist-schedule-picker .card-header small,.checklist-table small{display:block;color:#64748b;font-weight:400}.checklist-table th,.checklist-schedule-picker thead th{background:#fff3e6;font-size:.82rem}.checklist-table td{vertical-align:middle}.program-dot{display:inline-block;width:9px;height:9px;margin-right:7px;border-radius:50%}.schedule-months{display:flex;flex-wrap:wrap;gap:6px}.schedule-month{display:inline-flex;align-items:flex-start;gap:5px;padding:5px 8px;border-radius:4px;font-size:.78rem;font-weight:700;text-decoration:none}.schedule-month>span{display:flex;flex-direction:column;line-height:1.1}.schedule-date-label{display:block;margin-top:3px;color:inherit;font-size:.62rem;font-weight:500;white-space:nowrap}.schedule-month-ready{border:1px solid #0b5ea8;background:#eaf4fe;color:#075985}.schedule-month-ready:hover{background:#0b5ea8;color:#fff}.schedule-month-completed{border:1px solid #86efac;background:#dcfce7;color:#166534;cursor:default}</style>
 @endsection

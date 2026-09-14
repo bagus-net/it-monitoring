@@ -9,6 +9,7 @@ use App\Models\MaintenanceSchedule;
 use App\Models\MonthlySchedule;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
 class MaintenanceChecklistController extends Controller
@@ -18,6 +19,23 @@ class MaintenanceChecklistController extends Controller
         5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
         9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
     ];
+
+    public function notifications(): JsonResponse
+    {
+        $latest = MaintenanceChecklist::with('checklistItem')
+            ->whereNull('acknowledged_at')
+            ->latest('created_at')
+            ->first();
+
+        return response()->json([
+            'pendingApprovalCount' => MaintenanceChecklist::whereNull('acknowledged_at')->count(),
+            'latest' => $latest ? [
+                'id' => $latest->id,
+                'program' => $latest->checklistItem?->title ?: 'Checklist Perawatan',
+                'period' => (self::MONTH_NAMES[$latest->month] ?? $latest->month) . ' ' . $latest->year,
+            ] : null,
+        ]);
+    }
 
     public function index(Request $request)
     {
@@ -229,10 +247,22 @@ class MaintenanceChecklistController extends Controller
                     ->where('year', $schedules->first()->year)
                     ->pluck('month')
                     ->all();
+                $year = (int) $schedules->first()->year;
+                $scheduleDates = $schedules->pluck('month')->unique()->mapWithKeys(function ($month) use ($checklistItem, $year) {
+                    return [$month => $this->scheduledDatesByEquipment($checklistItem->id, $year, (int) $month)
+                        ->flatten()
+                        ->map(fn ($day) => (int) $day)
+                        ->filter(fn ($day) => $day > 0)
+                        ->unique()
+                        ->sort()
+                        ->values()
+                        ->all()];
+                })->all();
 
                 return [
                     'item' => $checklistItem,
                     'months' => $schedules->pluck('month')->unique()->sort()->values(),
+                    'schedule_dates' => $scheduleDates,
                     'completed_months' => $completedMonths,
                 ];
             })

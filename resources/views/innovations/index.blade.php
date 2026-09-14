@@ -20,8 +20,25 @@
             </a>
         </div>
     </div>
-    <form method="GET" class="row g-2 align-items-end mb-3"><div class="col-md-3"><label for="year" class="form-label">Tahun</label><select id="year" name="year" class="form-select"><option value="">Semua Tahun</option>@foreach ($availableYears as $availableYear)<option value="{{ $availableYear }}" {{ $year === (int) $availableYear ? 'selected' : '' }}>{{ $availableYear }}</option>@endforeach</select></div><div class="col-md-5"><label for="search" class="form-label">Cari Inovasi</label><input id="search" name="search" class="form-control" value="{{ $search }}" placeholder="Judul, implementasi, atau keterangan"></div><div class="col-md-4 d-flex gap-2"><button class="btn btn-primary">Filter</button><a href="{{ route('innovations.index') }}" class="btn btn-outline-secondary">Reset</a></div></form>
+    <form method="GET" class="row g-2 align-items-end mb-3"><div class="col-md-3"><label for="year" class="form-label">Tahun</label><select id="year" name="year" class="form-select"><option value="">Semua Tahun</option>@foreach ($availableYears as $availableYear)<option value="{{ $availableYear }}" {{ $year === (int) $availableYear ? 'selected' : '' }}>{{ $availableYear }}</option>@endforeach</select></div><div class="col-md-3"><label for="month" class="form-label">Bulan</label><select id="month" name="month" class="form-select"><option value="">Semua Bulan</option>@foreach([1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'] as $monthNumber => $monthName)<option value="{{ $monthNumber }}" @selected($month === $monthNumber)>{{ $monthName }}</option>@endforeach</select></div><div class="col-md-4"><label for="search" class="form-label">Cari Inovasi</label><input id="search" name="search" class="form-control" value="{{ $search }}" placeholder="Judul, implementasi, atau keterangan"></div><div class="col-md-2 d-flex gap-2"><button class="btn btn-primary">Filter</button><a href="{{ route('innovations.index') }}" class="btn btn-outline-secondary">Reset</a></div></form>
+    <div class="card mb-3"><div class="card-header d-flex justify-content-between align-items-center"><strong><i class="bi bi-bar-chart-line me-1"></i>Jumlah Inovasi Per Bulan</strong><span class="text-muted small">{{ $chartYear }}</span></div><div class="card-body"><div style="height:280px"><canvas id="innovationMonthlyChart" aria-label="Grafik jumlah inovasi per bulan"></canvas></div></div></div>
     <div class="card"><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Tanggal</th><th>Inovasi</th><th>Implementasi</th><th>Tgl Implementasi</th><th>Paper</th><th></th></tr></thead><tbody>@forelse ($innovations as $innovation)<tr><td>{{ $innovation->innovation_date->format('d M Y') }}</td><td><strong>{{ $innovation->title }}</strong><small class="d-block text-muted">{{ $innovation->creator->name ?? '-' }}</small></td><td>{{ \Illuminate\Support\Str::limit($innovation->implementation, 80) ?: '-' }}</td><td>{{ $innovation->implementation_date?->format('d M Y') ?? '-' }}</td><td>@if ($innovation->paper_path)<a href="{{ asset('storage/' . $innovation->paper_path) }}" target="_blank" class="btn btn-sm btn-outline-danger">Buka Paper</a>@else<span class="text-muted">-</span>@endif</td><td class="text-nowrap"><a href="{{ route('innovations.show', $innovation) }}" class="btn btn-sm btn-outline-secondary">Detail</a><a href="{{ route('innovations.edit', $innovation) }}" class="btn btn-sm btn-outline-primary">Edit</a><form method="POST" action="{{ route('innovations.destroy', $innovation) }}" class="d-inline" onsubmit="return confirm('Hapus inovasi ini?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Hapus</button></form></td></tr>@empty<tr><td colspan="6" class="text-center text-muted py-4">Belum ada inovasi IT yang dicatat.</td></tr>@endforelse</tbody></table></div></div>
     <div class="table-pagination">{{ $innovations->links() }}</div>
 </div>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('innovationMonthlyChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const labels = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const selectedMonth = @json($month);
+    new Chart(canvas, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Jumlah inovasi', data: @json($monthlyCounts->values()), backgroundColor: labels.map((_, index) => selectedMonth === index + 1 ? '#0b5ea8' : '#b9d8ef'), borderColor: '#0b5ea8', borderWidth: 1, borderRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `${context.parsed.y} inovasi` } } } }
+    });
+});
+</script>
+@endpush
 @endsection

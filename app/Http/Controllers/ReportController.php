@@ -6,8 +6,16 @@ use App\Models\ActivityLog;
 use App\Models\Equipment;
 use App\Models\EquipmentType;
 use App\Models\ItRepairTicket;
+use App\Models\ItWaste;
+use App\Models\InkTransaction;
+use App\Models\InkType;
+use App\Models\LicenseTransaction;
+use App\Models\LicenseType;
 use App\Models\Location;
 use App\Models\MaintenanceChecklist;
+use App\Models\SparepartTransaction;
+use App\Models\Cctv;
+use App\Models\SparepartType;
 use App\Models\WebMonitoringChecklist;
 use Illuminate\Http\Request;
 
@@ -56,6 +64,22 @@ class ReportController extends Controller
             'locations' => Location::orderBy('name')->get(['id', 'name']),
             'conditions' => Equipment::whereNotNull('condition')->distinct()->orderBy('condition')->pluck('condition'),
         ]);
+    }
+
+    public function equipmentAdditions(Request $request)
+    {
+        $filters = [
+            'from' => $request->input('from', now()->startOfMonth()->toDateString()),
+            'to' => $request->input('to', now()->toDateString()),
+        ];
+
+        $equipments = Equipment::with(['type', 'manufacturer', 'assetLocation', 'owner'])
+            ->whereDate('created_at', '>=', $filters['from'])
+            ->whereDate('created_at', '<=', $filters['to'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('reports.equipment_additions', compact('equipments', 'filters'));
     }
 
     public function repairs(Request $request)
@@ -126,6 +150,61 @@ class ReportController extends Controller
         ];
 
         return view('reports.checklists', compact('webChecklists', 'equipmentChecklists', 'summary', 'filters'));
+    }
+
+    public function inventory(Request $request)
+    {
+        $filters = [
+            'type' => $request->input('type', 'all'),
+            'from' => $request->input('from', now()->startOfMonth()->toDateString()),
+            'to' => $request->input('to', now()->toDateString()),
+        ];
+        $show = fn (string $type): bool => $filters['type'] === 'all' || $filters['type'] === $type;
+
+        $inks = $show('ink') ? InkType::orderBy('name')->get() : collect();
+        $spareparts = $show('sparepart') ? SparepartType::orderBy('name')->get() : collect();
+        $wastes = $show('waste') ? ItWaste::with(['equipment', 'creator'])->whereDate('waste_date', '>=', $filters['from'])->whereDate('waste_date', '<=', $filters['to'])->latest('waste_date')->get() : collect();
+        $licenses = $show('license') ? LicenseType::orderBy('expiry_date')->get() : collect();
+        $cctvs = $show('cctv') ? Cctv::with('networkZone')->orderBy('name')->get() : collect();
+
+        $histories = collect();
+        if ($show('ink')) {
+            $histories = $histories->merge(InkTransaction::with(['inkType', 'creator'])
+                ->whereDate('transaction_date', '>=', $filters['from'])->whereDate('transaction_date', '<=', $filters['to'])
+                ->get()->map(fn ($item) => $this->historyRow('Tinta', $item->transaction_date, $item->type, $item->quantity, $item->inkType?->name, $item->reference, $item->creator?->name)));
+        }
+        if ($show('sparepart')) {
+            $histories = $histories->merge(SparepartTransaction::with(['sparepartType', 'creator'])
+                ->whereDate('transaction_date', '>=', $filters['from'])->whereDate('transaction_date', '<=', $filters['to'])
+                ->get()->map(fn ($item) => $this->historyRow('Sparepart', $item->transaction_date, $item->type, $item->quantity, $item->sparepartType?->name, $item->reference, $item->creator?->name)));
+        }
+        if ($show('license')) {
+            $histories = $histories->merge(LicenseTransaction::with(['licenseType', 'creator'])
+                ->whereDate('transaction_date', '>=', $filters['from'])->whereDate('transaction_date', '<=', $filters['to'])
+                ->get()->map(fn ($item) => $this->historyRow('Lisensi', $item->transaction_date, $item->type, $item->quantity, $item->licenseType?->name, $item->reference, $item->creator?->name)));
+        }
+        if ($show('waste')) {
+            $histories = $histories->merge($wastes->map(fn ($item) => $this->historyRow('Limbah IT', $item->waste_date, $item->collection_status ?: 'Pencatatan limbah', $item->quantity . ' ' . $item->unit, $item->waste_type, $item->waste_code, $item->creator?->name)));
+        }
+        $histories = $histories->sortByDesc('date')->values();
+
+        $summary = [
+            'ink_total' => $inks->count(),
+            'ink_low' => $inks->where('is_low_stock', true)->count(),
+            'sparepart_total' => $spareparts->count(),
+            'sparepart_low' => $spareparts->where('is_low_stock', true)->count(),
+            'waste_total' => $wastes->count(),
+            'license_expiring' => $licenses->filter(fn ($license) => $license->expiry_date && $license->expiry_date->lte(now()->addDays(30)))->count(),
+            'cctv_online' => $cctvs->where('status', 'online')->count(),
+            'cctv_total' => $cctvs->count(),
+        ];
+
+        return view('reports.inventory', compact('inks', 'spareparts', 'wastes', 'licenses', 'cctvs', 'histories', 'summary', 'filters'));
+    }
+
+    private function historyRow(string $module, $date, string $action, $quantity, ?string $item, ?string $reference, ?string $actor): array
+    {
+        return compact('module', 'date', 'action', 'quantity', 'item', 'reference', 'actor');
     }
 
     public function activities(Request $request)

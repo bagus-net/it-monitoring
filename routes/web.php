@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
 	// Tiket perbaikan IT: semua level boleh mengakses, karyawan hanya melihat tiket peralatannya sendiri
 	Route::get('/it-repair-tickets/notifications', [ItRepairTicketController::class, 'notifications'])->name('it-repair-tickets.notifications');	Route::get('/it-repair-tickets', [ItRepairTicketController::class, 'index'])->name('it-repair-tickets.index');
 	Route::get('/equipment-transfers/notifications', [EquipmentTransferController::class, 'notifications'])->name('equipment-transfers.notifications');
+	Route::get('/maintenance-checklists/notifications', [MaintenanceChecklistController::class, 'notifications'])->name('maintenance-checklists.notifications');
 	Route::get('/it-repair-tickets/create', [ItRepairTicketController::class, 'create'])->name('it-repair-tickets.create');
 	Route::post('/it-repair-tickets', [ItRepairTicketController::class, 'store'])->name('it-repair-tickets.store');
 	Route::get('/it-repair-tickets/{itRepairTicket}', [ItRepairTicketController::class, 'show'])->name('it-repair-tickets.show');
@@ -187,8 +188,10 @@ Route::middleware('auth')->group(function () {
 
 		// Laporan operasional
 		Route::get('/reports/equipments', [\App\Http\Controllers\ReportController::class, 'equipments'])->name('reports.equipments');
+		Route::get('/reports/equipments/additions', [\App\Http\Controllers\ReportController::class, 'equipmentAdditions'])->name('reports.equipment-additions');
 		Route::get('/reports/repairs', [\App\Http\Controllers\ReportController::class, 'repairs'])->name('reports.repairs');
 		Route::get('/reports/checklists', [\App\Http\Controllers\ReportController::class, 'checklists'])->name('reports.checklists');
+		Route::get('/reports/inventory', [\App\Http\Controllers\ReportController::class, 'inventory'])->name('reports.inventory');
 
 		// Masters: manufacturers, locations, equipment types, checklist items
 		Route::prefix('masters')->name('masters.')->group(function () {

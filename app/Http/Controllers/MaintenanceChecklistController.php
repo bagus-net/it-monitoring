@@ -22,13 +22,21 @@ class MaintenanceChecklistController extends Controller
 
     public function notifications(): JsonResponse
     {
-        $latest = MaintenanceChecklist::with('checklistItem')
-            ->whereNull('acknowledged_at')
-            ->latest('created_at')
-            ->first();
+        $user = auth()->user();
+        $latest = null;
+        $pendingApprovalCount = 0;
+
+        if ($user && ($user->isMaster() || $user->isAdminIt())) {
+            $latest = MaintenanceChecklist::with('checklistItem')
+                ->whereNull('acknowledged_at')
+                ->latest('created_at')
+                ->first();
+
+            $pendingApprovalCount = MaintenanceChecklist::whereNull('acknowledged_at')->count();
+        }
 
         return response()->json([
-            'pendingApprovalCount' => MaintenanceChecklist::whereNull('acknowledged_at')->count(),
+            'pendingApprovalCount' => $pendingApprovalCount,
             'latest' => $latest ? [
                 'id' => $latest->id,
                 'program' => $latest->checklistItem?->title ?: 'Checklist Perawatan',

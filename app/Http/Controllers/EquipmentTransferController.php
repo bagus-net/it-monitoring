@@ -26,22 +26,30 @@ class EquipmentTransferController extends Controller
     {
         $user = auth()->user();
 
-        $latestPendingApproval = EquipmentTransfer::with('equipment')
-            ->where('status', 'pending_approval')
-            ->latest('created_at')
-            ->first();
+        $latestPendingApproval = null;
+        $pendingApprovalCount = 0;
+
+        // Only master / admin IT should see the global pending approval list
+        if ($user && ($user->isMaster() || $user->isAdminIt())) {
+            $latestPendingApproval = EquipmentTransfer::with('equipment')
+                ->where('status', 'pending_approval')
+                ->latest('created_at')
+                ->first();
+
+            $pendingApprovalCount = EquipmentTransfer::where('status', 'pending_approval')->count();
+        }
 
         $latestMyUnfinished = EquipmentTransfer::with('equipment')
-            ->where('requested_by', $user?->id)
+            ->when($user?->id, fn ($q) => $q->where('requested_by', $user->id))
             ->whereIn('status', ['pending_approval', 'approved'])
             ->latest('created_at')
             ->first();
 
         return response()->json([
-            'pendingApprovalCount' => EquipmentTransfer::where('status', 'pending_approval')->count(),
-            'myUnfinishedCount' => EquipmentTransfer::where('requested_by', $user?->id)
+            'pendingApprovalCount' => $pendingApprovalCount,
+            'myUnfinishedCount' => $user ? EquipmentTransfer::where('requested_by', $user->id)
                 ->whereIn('status', ['pending_approval', 'approved'])
-                ->count(),
+                ->count() : 0,
             'latestPendingApproval' => $latestPendingApproval ? [
                 'id' => $latestPendingApproval->id,
                 'equipment' => $latestPendingApproval->equipment->name ?? 'Peralatan tidak ditemukan',

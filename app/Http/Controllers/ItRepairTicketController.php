@@ -46,16 +46,28 @@ class ItRepairTicketController extends Controller
             ->where('status', 'open')
             ->latest('created_at')
             ->first();
-        $latestPendingApproval = ItRepairTicket::with('equipment')
-            ->where('status', 'resolved')
-            ->whereNull('approved_at')
-            ->latest('resolved_at')
-            ->first();
+        $latestPendingApproval = null;
+        $pendingApprovalCount = 0;
+
+        $user = auth()->user();
+        // Only master / admin IT should see unresolved approvals for other people's tickets.
+        if ($user && ($user->isMaster() || $user->isAdminIt())) {
+            $latestPendingApproval = ItRepairTicket::with('equipment')
+                ->where('status', 'resolved')
+                ->whereNull('approved_at')
+                ->latest('resolved_at')
+                ->first();
+
+            $pendingApprovalCount = ItRepairTicket::where('status', 'resolved')->whereNull('approved_at')->count();
+        } else {
+            // For regular employees, pending approval refers only to their own tickets awaiting approval
+            $pendingApprovalCount = $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'resolved')->whereNull('approved_at')->count();
+        }
 
         return response()->json([
             'openCount' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'open')->count(),
             'inProgressCount' => $this->applyOwnershipScope(ItRepairTicket::query())->where('status', 'in_progress')->count(),
-            'pendingApprovalCount' => ItRepairTicket::where('status', 'resolved')->whereNull('approved_at')->count(),
+            'pendingApprovalCount' => $pendingApprovalCount,
             'latestPendingApproval' => $latestPendingApproval ? [
                 'id' => $latestPendingApproval->id,
                 'number' => $latestPendingApproval->ticket_number,

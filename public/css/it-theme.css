@@ -220,8 +220,9 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font-ui);letter-spacing:-.02em}
 @media(max-width:767px){
   body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
   .app-main{padding-bottom:88px!important}
-  .mobile-bottom-nav{position:fixed;right:0;bottom:0;left:0;z-index:1040;display:flex;align-items:stretch;justify-content:space-around;min-height:68px;padding:7px 6px calc(7px + env(safe-area-inset-bottom));border-top:1px solid #e7ebf2;background:rgba(255,255,255,.96);box-shadow:0 -10px 28px rgba(35,52,85,.1);backdrop-filter:blur(14px)}
-  .mobile-bottom-link{position:relative;display:flex;align-items:center;justify-content:center;gap:3px;min-width:0;flex:1;flex-direction:column;padding:5px 4px;border:0;border-radius:11px;background:transparent;color:#8a95a8;text-decoration:none;font-family:var(--font-ui);font-size:.58rem;font-weight:700;line-height:1.1;white-space:nowrap}
+  .mobile-bottom-nav{position:fixed;right:0;bottom:0;left:0;z-index:1040;display:flex;align-items:stretch;justify-content:flex-start;min-height:68px;overflow-x:auto;overflow-y:hidden;padding:7px 6px calc(7px + env(safe-area-inset-bottom));border-top:1px solid #e7ebf2;background:rgba(255,255,255,.96);box-shadow:0 -10px 28px rgba(35,52,85,.1);backdrop-filter:blur(14px);scroll-behavior:smooth;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .mobile-bottom-nav::-webkit-scrollbar{display:none}
+  .mobile-bottom-link{position:relative;display:flex;align-items:center;justify-content:center;gap:3px;width:76px;min-width:76px;flex:0 0 76px;flex-direction:column;padding:5px 4px;border:0;border-radius:11px;background:transparent;color:#8a95a8;text-decoration:none;font-family:var(--font-ui);font-size:.58rem;font-weight:700;line-height:1.1;white-space:nowrap;scroll-snap-align:start}
   .mobile-bottom-link i{font-size:1.1rem;line-height:1}.mobile-bottom-link.active{background:#eef3ff;color:#2161f5}.mobile-bottom-link.active i{color:#2161f5}.mobile-bottom-link:hover{color:#2161f5}.mobile-bottom-link[hidden]{display:none!important}
   .mobile-bottom-link:last-child{color:#536079}.mobile-bottom-link:last-child i{font-size:1.25rem}
   .sidebar-toggle,.app-topbar .sidebar-collapse-toggle{display:none!important}.app-topbar{height:58px;padding:0 12px}.topbar-search{min-width:0}.topbar-user{flex:0 0 auto}.topbar-logout{padding:6px 9px}

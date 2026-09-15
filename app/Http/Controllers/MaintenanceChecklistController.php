@@ -278,7 +278,7 @@ class MaintenanceChecklistController extends Controller
             ->sortBy(fn ($group) => $group['item']->title)
             ->values();
         $equipment = $checklistItemId
-            ? ($equipmentId ? Equipment::whereKey($equipmentId)->get() : $this->scheduledEquipment($checklistItemId, $year, $month))
+            ? ($equipmentId ? $this->activeEquipmentQuery()->whereKey($equipmentId)->get() : $this->scheduledEquipment($checklistItemId, $year, $month))
             : collect();
         $monthNames = self::MONTH_NAMES;
         $scheduledDatesByEquipment = $checklistItemId
@@ -461,7 +461,7 @@ class MaintenanceChecklistController extends Controller
             ->values();
 
         if ($equipmentIds->isNotEmpty()) {
-            return Equipment::whereIn('id', $equipmentIds)->orderBy('name')->get();
+            return $this->activeEquipmentQuery()->whereIn('id', $equipmentIds)->orderBy('name')->get();
         }
 
         $annualSchedules = MaintenanceSchedule::where('checklist_item_id', $checklistItemId)
@@ -477,10 +477,23 @@ class MaintenanceChecklistController extends Controller
         }
 
         if ($annualSchedules->contains(fn ($schedule) => is_null($schedule->equipment_id))) {
-            return Equipment::orderBy('name')->get();
+            return $this->activeEquipmentQuery()->orderBy('name')->get();
         }
 
-        return Equipment::whereIn('id', $annualSchedules->pluck('equipment_id')->unique())->orderBy('name')->get();
+        return $this->activeEquipmentQuery()->whereIn('id', $annualSchedules->pluck('equipment_id')->unique())->orderBy('name')->get();
+    }
+
+    private function activeEquipmentQuery()
+    {
+        return Equipment::query()
+            ->where(function ($query) {
+                $query->whereNull('condition')
+                    ->orWhereNotIn('condition', ['rusak', 'perbaikan', 'nonaktif']);
+            })
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', ['repair', 'inactive', 'nonaktif']);
+            });
     }
 
     private function scheduledDatesByEquipment(int $checklistItemId, int $year, int $month)

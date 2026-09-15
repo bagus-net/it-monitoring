@@ -109,7 +109,7 @@ class MaintenanceController extends Controller
 
     public function createSchedule()
     {
-        $equipments = Equipment::with('type')->orderBy('name')->get();
+        $equipments = $this->activeEquipmentQuery()->with('type')->orderBy('name')->get();
         $equipmentsByType = $equipments->groupBy(fn ($equipment) => $equipment->type->name ?? 'Tanpa Tipe')->sortKeys();
         $items = ChecklistItem::orderBy('sort_order')->get();
         return view('maintenances.create_schedule', compact('equipments', 'equipmentsByType', 'items'));
@@ -118,7 +118,7 @@ class MaintenanceController extends Controller
     // new create method to serve `maintenances.create`
     public function create()
     {
-        $equipments = Equipment::with('type')->orderBy('name')->get();
+        $equipments = $this->activeEquipmentQuery()->with('type')->orderBy('name')->get();
         $equipmentsByType = $equipments->groupBy(fn ($equipment) => $equipment->type->name ?? 'Tanpa Tipe')->sortKeys();
         $items = ChecklistItem::orderBy('sort_order')->get();
         return view('maintenances.create', compact('equipments', 'equipmentsByType', 'items'));
@@ -142,6 +142,14 @@ class MaintenanceController extends Controller
         ]);
 
         $equipmentIds = $data['equipment_ids'] ?? [];
+        if (!empty($equipmentIds)) {
+            $activeEquipmentIds = $this->activeEquipmentQuery()
+                ->whereIn('id', $equipmentIds)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+            $equipmentIds = array_values(array_intersect(array_map('intval', $equipmentIds), $activeEquipmentIds));
+        }
         // if no equipment selected, treat as all (null equipment_id)
         if (empty($equipmentIds)) {
             $equipmentIds = [null];
@@ -456,6 +464,19 @@ class MaintenanceController extends Controller
     {
         MaintenanceSchedule::where('checklist_item_id',$checklistItemId)->delete();
         return redirect()->route('maintenances.schedules')->with('success','Jadwal program dihapus');
+    }
+
+    private function activeEquipmentQuery()
+    {
+        return Equipment::query()
+            ->where(function ($query) {
+                $query->whereNull('condition')
+                    ->orWhereNotIn('condition', ['rusak', 'perbaikan', 'nonaktif']);
+            })
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', ['repair', 'inactive', 'nonaktif']);
+            });
     }
 
     public function storeLog(Request $request)

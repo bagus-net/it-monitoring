@@ -28,10 +28,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="/css/it-theme.css" rel="stylesheet">
     <style>
-        .mobile-topbar-brand{display:none}@media(max-width:700px){.app-topbar{gap:10px}.mobile-topbar-brand{display:flex;align-items:center;gap:8px;min-width:0;margin-right:auto;color:#18243d}.mobile-topbar-brand img{width:31px;height:31px;flex:0 0 31px;object-fit:contain}.mobile-topbar-brand span{display:flex;min-width:0;flex-direction:column;line-height:1.05}.mobile-topbar-brand strong{color:#18243d;font-size:.78rem;font-weight:800;white-space:nowrap}.mobile-topbar-brand small{max-width:130px;overflow:hidden;color:#8792a7;font-size:.55rem;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sidebar-collapse-toggle{display:none!important}.topbar-search{max-width:36px;flex:0 0 36px}.topbar-search input{width:0;padding-left:0;opacity:0}.topbar-search:focus-within{position:absolute;left:12px;right:12px;z-index:20;max-width:none;flex:auto;background:#fff}.topbar-search:focus-within input{width:100%;padding-left:8px;opacity:1}.topbar-actions{display:none!important}.topbar-user{display:flex!important;align-items:center!important;gap:7px!important;margin-left:0;max-width:120px;min-width:0}.topbar-user>span:last-child{display:flex!important;min-width:0;flex-direction:column;line-height:1.05}.topbar-user-name{max-width:82px;overflow:hidden;color:#18243d;font-size:.68rem!important;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.topbar-user-role{max-width:82px;overflow:hidden;color:#2161f5;font-size:.5rem!important;font-weight:800;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.topbar-profile-photo{width:31px!important;height:31px!important;flex:0 0 31px!important}.topbar-logout{padding:8px 10px!important;border-radius:10px!important;font-size:.64rem!important}}
+        .mobile-topbar-brand{display:none}@media(max-width:700px){.app-topbar{gap:10px}.mobile-topbar-brand{display:flex;align-items:center;gap:8px;min-width:0;margin-right:auto;color:#18243d}.mobile-topbar-brand img{width:31px;height:31px;flex:0 0 31px;object-fit:contain}.mobile-topbar-brand span{display:flex;min-width:0;flex-direction:column;line-height:1.05}.mobile-topbar-brand strong{color:#18243d;font-size:.78rem;font-weight:800;white-space:nowrap}.mobile-topbar-brand small{max-width:130px;overflow:hidden;color:#8792a7;font-size:.55rem;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sidebar-collapse-toggle{display:none!important}.topbar-search{max-width:36px;flex:0 0 36px}.topbar-search input{width:0;padding-left:0;opacity:0}.topbar-search:focus-within{position:absolute;left:12px;right:12px;z-index:20;max-width:none;flex:auto;background:#fff}.topbar-search:focus-within input{width:100%;padding-left:8px;opacity:1}.topbar-actions{display:flex!important;align-items:center!important;gap:0!important}.topbar-actions>*{display:none!important}.topbar-actions .topbar-notification{display:flex!important}.topbar-user{display:flex!important;align-items:center!important;gap:7px!important;margin-left:0;max-width:120px;min-width:0}.topbar-user>span:last-child{display:flex!important;min-width:0;flex-direction:column;line-height:1.05}.topbar-user-name{max-width:82px;overflow:hidden;color:#18243d;font-size:.68rem!important;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.topbar-user-role{max-width:82px;overflow:hidden;color:#2161f5;font-size:.5rem!important;font-weight:800;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.topbar-profile-photo{width:31px!important;height:31px!important;flex:0 0 31px!important}.topbar-logout{padding:8px 10px!important;border-radius:10px!important;font-size:.64rem!important}}
     </style>
     <style>
-        @media(max-width:700px){.app-topbar .mobile-topbar-brand small{max-width:92px}.app-topbar .topbar-search{display:none!important}.app-topbar .topbar-user{flex:0 1 118px!important;width:118px!important;max-width:118px!important;display:grid!important;grid-template-columns:31px minmax(0,1fr)!important;column-gap:7px!important;align-items:center!important}.app-topbar .topbar-user>span:last-child{display:flex!important;visibility:visible!important;opacity:1!important;overflow:visible!important;height:auto!important;width:auto!important;min-width:0!important}.app-topbar .topbar-user .topbar-user-name,.app-topbar .topbar-user .topbar-user-role{display:block!important;visibility:visible!important;opacity:1!important;max-width:74px!important}.app-topbar .topbar-user .topbar-user-name{font-size:.66rem!important}.app-topbar .topbar-user .topbar-user-role{font-size:.48rem!important}.app-topbar .topbar-logout{flex:0 0 auto!important}}
+        @media(max-width:700px){.app-topbar .mobile-topbar-brand{flex:1 1 auto!important;margin-right:4px!important}.app-topbar .mobile-topbar-brand small{display:block!important;width:130px!important;max-width:130px!important;overflow:visible!important;font-size:.5rem!important;line-height:1.05!important;white-space:normal!important;text-overflow:clip!important}.app-topbar .topbar-search{display:none!important}.app-topbar .topbar-user{flex:0 1 118px!important;width:118px!important;max-width:118px!important;display:grid!important;grid-template-columns:31px minmax(0,1fr)!important;column-gap:7px!important;align-items:center!important}.app-topbar .topbar-user>span:last-child{display:flex!important;visibility:visible!important;opacity:1!important;overflow:visible!important;height:auto!important;width:auto!important;min-width:0!important}.app-topbar .topbar-user .topbar-user-name,.app-topbar .topbar-user .topbar-user-role{display:block!important;visibility:visible!important;opacity:1!important;max-width:74px!important}.app-topbar .topbar-user .topbar-user-name{font-size:.66rem!important}.app-topbar .topbar-user .topbar-user-role{font-size:.48rem!important}.app-topbar .topbar-logout{flex:0 0 auto!important}}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -80,12 +80,13 @@
 
 
                 <a @class(['sidebar-link','active'=>request()->routeIs('equipments.*')]) href="{{ route('equipments.index') }}"><i class="bi bi-laptop"></i>Peralatan IT / Asset</a>
+                <a @class(['sidebar-link','active'=>request()->routeIs('equipment-quarantines.*')]) href="{{ route('equipment-quarantines.index') }}"><i class="bi bi-shield-exclamation"></i>Karantina Aset Rusak</a>
                 <a @class(['sidebar-link sidebar-ticket-link','active'=>request()->routeIs('equipment-transfers.*')]) href="{{ route('equipment-transfers.index') }}"><i class="bi bi-arrow-left-right"></i><span>Mutasi Peralatan</span><span class="ticket-badge-group"><span id="transferPendingApprovalBadge" class="ticket-notification-badge d-none" title="Mutasi baru menunggu approve">0</span><span id="transferMyUnfinishedBadge" class="ticket-notification-badge badge-progress d-none" title="Mutasi saya belum selesai">0</span></span></a>
                 @endif
-                <a @class(['sidebar-link sidebar-ticket-link','active'=>request()->routeIs('it-repair-tickets.*')]) href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i><span>Perbaikan IT / Ticketing</span><span class="ticket-badge-group"><span id="ticketNotificationBadge" class="ticket-notification-badge d-none" title="Tiket open">0</span><span id="ticketProgressBadge" class="ticket-notification-badge badge-progress d-none" title="Tiket sedang dikerjakan">0</span></span></a>
+                <a @class(['sidebar-link sidebar-ticket-link','active'=>request()->routeIs('it-repair-tickets.*')]) href="{{ route('it-repair-tickets.index') }}"><i class="bi bi-tools"></i><span>Perbaikan IT / Ticketing</span><span class="ticket-badge-group"><span id="ticketNotificationBadge" class="ticket-notification-badge d-none" title="Tiket open">0</span><span id="ticketApprovalBadge" class="ticket-notification-badge badge-approval d-none" title="Tiket menunggu persetujuan">0</span><span id="ticketProgressBadge" class="ticket-notification-badge badge-progress d-none" title="Tiket sedang dikerjakan">0</span></span></a>
 
                 @if($currentUser && !$currentUser->isEmployee())
-                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-clipboard2-check"></i>Checklist</button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('web-monitoring-checklists.index') }}"><i class="bi bi-globe2"></i>Web Monitoring</a></li><li><a class="dropdown-item" href="{{ route('maintenance-checklists.index') }}"><i class="bi bi-clipboard-check"></i>Peralatan IT</a></li></ul></div>
+                <div class="sidebar-dropdown dropdown"><button class="sidebar-link sidebar-link-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-clipboard2-check"></i><span>Checklist</span><span id="checklistPendingApprovalBadge" class="ticket-notification-badge d-none" title="Checklist menunggu persetujuan">0</span></button><ul class="dropdown-menu sidebar-menu"><li><a class="dropdown-item" href="{{ route('web-monitoring-checklists.index') }}"><i class="bi bi-globe2"></i>Web Monitoring</a></li><li><a class="dropdown-item" href="{{ route('maintenance-checklists.index') }}"><i class="bi bi-clipboard-check"></i>Peralatan IT<span id="checklistSubmenuPendingApprovalBadge" class="ticket-notification-badge badge-approval d-none ms-auto" title="Checklist menunggu persetujuan">0</span></a></li></ul></div>
                 {{-- <a class="sidebar-link" href="{{ route('maintenances.grid') }}">Grid Perawatan</a> --}}
 
                 <span class="sidebar-label">Perencanaan</span>
@@ -295,9 +296,12 @@
         const companyLogoUrl = @json(asset('images/logo-mgm.svg'));
         const companyName = 'PT MULIA GRAND MANUFACTURE';
         const ticketBadge = document.getElementById('ticketNotificationBadge');
+        const ticketApprovalBadge = document.getElementById('ticketApprovalBadge');
         const ticketProgressBadge = document.getElementById('ticketProgressBadge');
         const transferPendingApprovalBadge = document.getElementById('transferPendingApprovalBadge');
         const transferMyUnfinishedBadge = document.getElementById('transferMyUnfinishedBadge');
+        const checklistPendingApprovalBadge = document.getElementById('checklistPendingApprovalBadge');
+        const checklistSubmenuPendingApprovalBadge = document.getElementById('checklistSubmenuPendingApprovalBadge');
         const ticketToast = document.getElementById('ticketToast');
         const ticketToastMessage = document.getElementById('ticketToastMessage');
         const transferToast = document.getElementById('transferToast');
@@ -322,10 +326,13 @@
                 .then(data => {
                     const count = Number(data.openCount || 0);
                     topbarTicketCount = count;
-                    topbarTicketApprovalCount = Number(data.pendingApprovalCount || 0);
+                    const approvalCount = Number(data.pendingApprovalCount || 0);
+                    topbarTicketApprovalCount = approvalCount;
                     updateTopbarNotificationCount();
                     ticketBadge.textContent = count;
                     ticketBadge.classList.toggle('d-none', count === 0);
+                    ticketApprovalBadge.textContent = approvalCount > 99 ? '99+' : String(approvalCount);
+                    ticketApprovalBadge.classList.toggle('d-none', approvalCount === 0);
                     const progressCount = Number(data.inProgressCount || 0);
                     ticketProgressBadge.textContent = progressCount;
                     ticketProgressBadge.classList.toggle('d-none', progressCount === 0);
@@ -377,11 +384,17 @@
         }
 
         function updateChecklistNotifications() {
+            if (!checklistPendingApprovalBadge) return;
             fetch(checklistEndpoint, { headers: { Accept: 'application/json' } })
                 .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(data => {
-                    topbarChecklistCount = Number(data.pendingApprovalCount || 0);
+                    const pendingCount = Number(data.pendingApprovalCount || 0);
+                    topbarChecklistCount = pendingCount;
                     updateTopbarNotificationCount();
+                    checklistPendingApprovalBadge.textContent = pendingCount > 99 ? '99+' : String(pendingCount);
+                    checklistPendingApprovalBadge.classList.toggle('d-none', pendingCount === 0);
+                    checklistSubmenuPendingApprovalBadge.textContent = pendingCount > 99 ? '99+' : String(pendingCount);
+                    checklistSubmenuPendingApprovalBadge.classList.toggle('d-none', pendingCount === 0);
                 })
                 .catch(() => {});
         }

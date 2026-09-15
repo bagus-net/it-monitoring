@@ -27,9 +27,9 @@
     <div class="actions"><button type="button" onclick="window.print()">Cetak</button></div>
     <main class="sheet">
         <header class="header"><h1>BERITA ACARA SERAH TERIMA LIMBAH IT</h1><h2>PT MULIA GRAND MANUFACTURE</h2></header>
-        <section class="meta"><div><strong>Kode Box</strong>: {{ $boxCode }}</div><div><strong>Tanggal Serah Terima</strong>: {{ $handoverDate?->format('d F Y') ?? '-' }}</div><div><strong>Penerima</strong>: {{ $recipient }}</div></section>
+        <section class="meta"><div><strong>Kode Box</strong>: {{ $boxCode }}</div><div><strong>Tanggal Serah Terima</strong>: {{ $handoverDate?->format('d F Y') ?? '-' }}</div><div><strong>Penerima</strong>: {{ $recipient }}</div>@if ($batchNotes)<div><strong>Keterangan Batch</strong>: {{ $batchNotes }}</div>@endif</section>
         <p>Dengan ini limbah IT berikut telah diserahkan kepada Bagian Limbah B3 untuk ditangani sesuai prosedur yang berlaku.</p>
-        <table><thead><tr><th>No.</th><th>Tanggal Limbah</th><th>Jenis Limbah</th><th>Deskripsi</th><th>Jumlah</th><th>Sumber Peralatan</th></tr></thead><tbody>@foreach ($wastes as $index => $waste)<tr><td>{{ $index + 1 }}</td><td>{{ $waste->waste_date->format('d M Y') }}</td><td>{{ $waste->waste_type }}</td><td>{{ $waste->description }}</td><td>{{ rtrim(rtrim(number_format($waste->quantity, 2, ',', '.'), '0'), ',') }} {{ $waste->unit }}</td><td>{{ $waste->equipment->name ?? '-' }}</td></tr>@endforeach</tbody></table>
+        <table><thead><tr><th>No.</th><th>Tanggal Limbah</th><th>Jenis Limbah</th><th>Deskripsi</th><th>Jumlah</th></tr></thead><tbody>@foreach ($wastes as $index => $waste)<tr><td>{{ $index + 1 }}</td><td>{{ $waste->waste_date->format('d M Y') }}</td><td>{{ $waste->waste_type }}</td><td>{{ $waste->description }}</td><td>{{ rtrim(rtrim(number_format($waste->quantity, 2, ',', '.'), '0'), ',') }} {{ $waste->unit }}</td></tr>@endforeach</tbody></table>
         <div class="signatures"><div><strong>Diserahkan oleh,</strong><div class="signature-space"></div><span>Petugas IT</span></div><div><strong>Diterima oleh,</strong><div class="signature-space"></div><span>{{ $recipient }}</span></div></div>
     </main>
     <script>window.addEventListener('load', () => window.print());</script>

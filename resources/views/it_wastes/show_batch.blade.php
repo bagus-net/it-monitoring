@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3"><div><h2 class="mb-1">Batch Limbah {{ $itWasteBatch->box_code }}</h2><p class="text-muted mb-0">Dibuat {{ $itWasteBatch->opened_at->format('d M Y') }} · {{ $itWasteBatch->storage_location ?: 'Lokasi belum dicatat' }}</p></div><a href="{{ route('it-wastes.index') }}" class="btn btn-outline-secondary">Kembali</a></div>
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3"><div><h2 class="mb-1">Batch Limbah {{ $itWasteBatch->box_code }}</h2><p class="text-muted mb-0">Dibuat {{ $itWasteBatch->opened_at->format('d M Y') }} · {{ $itWasteBatch->storage_location ?: 'Lokasi belum dicatat' }}</p>@if ($itWasteBatch->notes)<p class="mb-0 mt-2"><strong>Keterangan Batch:</strong> {{ $itWasteBatch->notes }}</p>@endif</div><a href="{{ route('it-wastes.index') }}" class="btn btn-outline-secondary">Kembali</a></div>
 
     <div class="card mb-3"><div class="card-body"><form method="POST" action="{{ route('it-wastes.batches.update', $itWasteBatch) }}" class="row g-3 align-items-end">@csrf @method('PUT')<div class="col-md-4"><label class="form-label">Status Box</label><select name="status" id="batch_status" class="form-select" {{ $itWasteBatch->status === 'handed_over' ? 'disabled' : '' }}><option value="open" {{ $itWasteBatch->status === 'open' ? 'selected' : '' }}>Box Terbuka</option><option value="ready_to_handover" {{ $itWasteBatch->status === 'ready_to_handover' ? 'selected' : '' }}>Box Penuh / Siap Diserahkan</option><option value="handed_over" {{ $itWasteBatch->status === 'handed_over' ? 'selected' : '' }}>Sudah Diserahkan ke Limbah B3</option></select></div><div class="col-md-4"><label class="form-label">Tanggal Serah Terima</label><input type="date" name="handed_over_at" id="batch_handover_date" class="form-control" value="{{ old('handed_over_at', optional($itWasteBatch->handed_over_at)->format('Y-m-d')) }}" {{ $itWasteBatch->status === 'handed_over' ? 'disabled' : '' }}></div><div class="col-md-4"><label class="form-label">Penerima Limbah B3</label><input name="handover_recipient" id="batch_recipient" class="form-control" value="{{ old('handover_recipient', $itWasteBatch->handover_recipient) }}" {{ $itWasteBatch->status === 'handed_over' ? 'disabled' : '' }}></div>@if ($itWasteBatch->status !== 'handed_over')<div class="col-12"><button class="btn btn-outline-primary">Simpan Status Box</button></div>@else<div class="col-12"><div class="alert alert-success py-2 mb-2">Box ini sudah diserahkan ke Limbah B3. Berita acara serah terima siap dicetak.</div><a href="{{ route('it-wastes.print-handover', ['box_code' => $itWasteBatch->box_code]) }}" target="_blank" class="btn btn-primary"><i class="bi bi-printer"></i> Cetak BA Serah Terima</a></div>@endif</form></div></div>
 
@@ -12,10 +12,25 @@
         <div class="alert alert-secondary">Batch sudah ditutup sehingga tidak dapat ditambahkan limbah baru.</div>
     @endif
 
-    <div class="card"><div class="card-header"><strong>Isi Batch</strong></div><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Kode Limbah</th><th>Tanggal</th><th>Jenis</th><th>Deskripsi</th><th>Jumlah</th><th>Peralatan</th><th>Keterangan</th><th></th></tr></thead><tbody>@forelse ($itWasteBatch->wastes->sortByDesc('waste_date') as $waste)<tr><td><strong>{{ $waste->waste_code }}</strong></td><td>{{ $waste->waste_date->format('d M Y') }}</td><td>{{ $waste->waste_type }}</td><td>{{ $waste->description }}</td><td>{{ rtrim(rtrim(number_format($waste->quantity, 2, ',', '.'), '0'), ',') }} {{ $waste->unit }}</td><td>{{ $waste->equipment->name ?? '-' }}</td><td>{{ $waste->notes ?: '-' }}</td><td><a href="{{ route('it-wastes.edit', $waste) }}" class="btn btn-sm btn-outline-primary">Edit</a></td></tr>@empty<tr><td colspan="8" class="text-center text-muted py-4">Belum ada limbah dalam batch ini.</td></tr>@endforelse</tbody></table></div></div>
+    <div class="card"><div class="card-header"><strong>Isi Batch</strong></div><div class="table-responsive"><table class="table align-middle mb-0"><thead class="table-light"><tr><th>Kode Limbah</th><th>Tanggal</th><th>Jenis</th><th>Deskripsi</th><th>Jumlah</th><th>Keterangan</th><th></th></tr></thead><tbody>@forelse ($itWasteBatch->wastes->sortByDesc('waste_date') as $waste)<tr><td><strong>{{ $waste->waste_code }}</strong></td><td>{{ $waste->waste_date->format('d M Y') }}</td><td>{{ $waste->waste_type }}</td><td>{{ $waste->description }}</td><td>{{ rtrim(rtrim(number_format($waste->quantity, 2, ',', '.'), '0'), ',') }} {{ $waste->unit }}</td><td>{{ $waste->notes ?: '-' }}</td><td class="text-nowrap"><a href="{{ route('it-wastes.edit', $waste) }}" class="btn btn-sm btn-outline-primary">Edit</a><form method="POST" action="{{ route('it-wastes.destroy', $waste) }}" class="d-inline" onsubmit="return confirm('Hapus data limbah {{ $waste->waste_code }}?')">@csrf @method('DELETE')<button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button></form></td></tr>@empty<tr><td colspan="7" class="text-center text-muted py-4">Belum ada limbah dalam batch ini.</td></tr>@endforelse</tbody></table></div></div>
 </div>
 <script>
     (() => {
+        const type = document.querySelector('select[name="waste_type"]');
+        const equipmentField = document.querySelector('select[name="equipment_id"]')?.closest('.col-md-6');
+        const equipmentSelect = document.querySelector('select[name="equipment_id"]');
+        const equipmentLabel = equipmentField?.querySelector('label');
+        if (type && !type.querySelector('option[value="Peralatan IT"]')) {
+            type.add(new Option('Peralatan IT', 'Peralatan IT'));
+        }
+        if (equipmentLabel) equipmentLabel.textContent = 'Peralatan IT Karantina';
+        const syncEquipmentField = () => {
+            const isItEquipment = type?.value === 'Peralatan IT';
+            equipmentField?.classList.toggle('d-none', !isItEquipment);
+            if (equipmentSelect) equipmentSelect.required = isItEquipment;
+        };
+        type?.addEventListener('change', syncEquipmentField);
+        syncEquipmentField();
         const status = document.getElementById('batch_status');
         const date = document.getElementById('batch_handover_date');
         const recipient = document.getElementById('batch_recipient');

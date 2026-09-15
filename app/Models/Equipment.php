@@ -75,4 +75,9 @@ class Equipment extends Model
     {
         return $this->hasMany(EquipmentTransfer::class);
     }
+
+    public function quarantines()
+    {
+        return $this->hasMany(EquipmentQuarantine::class);
+    }
 }

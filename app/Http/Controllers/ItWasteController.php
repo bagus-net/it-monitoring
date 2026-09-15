@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Equipment;
 use App\Models\ItWaste;
 use App\Models\ItWasteBatch;
+use App\Models\EquipmentQuarantine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -67,7 +68,9 @@ class ItWasteController extends Controller
     public function show(ItWasteBatch $itWasteBatch)
     {
         $itWasteBatch->load(['wastes.equipment', 'wastes.creator', 'creator']);
-        $equipments = Equipment::orderBy('name')->get(['id', 'name', 'asset_tag']);
+        $equipments = Equipment::whereHas('quarantines', fn ($query) => $query->whereNull('released_at'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'asset_tag']);
         $nextWasteCode = $this->nextWasteCode(now()->year);
 
         return view('it_wastes.show_batch', compact('itWasteBatch', 'equipments', 'nextWasteCode'));
@@ -78,6 +81,7 @@ class ItWasteController extends Controller
         abort_unless($itWasteBatch->status === 'open', 422, 'Box ini sudah ditutup dan tidak dapat ditambahkan limbah.');
         $request->merge(['collection_status' => 'collected']);
         $data = $this->validateWaste($request);
+        $this->validateQuarantinedEquipment($data);
         $data['waste_code'] = $this->nextWasteCode((int) date('Y', strtotime($data['waste_date'])));
         $data['it_waste_batch_id'] = $itWasteBatch->id;
         $data['box_code'] = $itWasteBatch->box_code;
@@ -101,6 +105,19 @@ class ItWasteController extends Controller
             'handover_recipient' => $data['handover_recipient'] ?? null,
             'handed_over_at' => $data['handed_over_at'] ?? null,
         ]);
+
+        if ($data['status'] === 'handed_over') {
+            $equipmentIds = $itWasteBatch->wastes()
+                ->where('waste_type', 'Peralatan IT')
+                ->whereNotNull('equipment_id')
+                ->pluck('equipment_id');
+
+            if ($equipmentIds->isNotEmpty()) {
+                EquipmentQuarantine::whereIn('equipment_id', $equipmentIds)
+                    ->whereNull('released_at')
+                    ->update(['released_at' => $data['handed_over_at']]);
+            }
+        }
 
         return redirect()->route('it-wastes.show', $itWasteBatch)->with('success', 'Status box limbah berhasil diperbarui.');
     }
@@ -161,6 +178,7 @@ class ItWasteController extends Controller
             'wastes' => $wastes,
             'recipient' => $batch->handover_recipient ?? 'Bagian Limbah B3',
             'handoverDate' => $batch->handed_over_at,
+            'batchNotes' => $batch->notes,
         ]);
     }
 
@@ -172,7 +190,7 @@ class ItWasteController extends Controller
             'description' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0.01',
             'unit' => 'required|string|max:30',
-            'equipment_id' => 'nullable|exists:equipments,id',
+            'equipment_id' => 'nullable|required_if:waste_type,Peralatan IT|exists:equipments,id',
             'collection_status' => 'required|in:collected,ready_to_handover,handed_over',
             'storage_location' => 'nullable|string|max:255',
             'handling_method' => 'nullable|string|max:255',
@@ -180,6 +198,21 @@ class ItWasteController extends Controller
             'handed_over_at' => 'nullable|required_if:collection_status,handed_over|date',
             'notes' => 'nullable|string|max:2000',
         ]);
+    }
+
+    private function validateQuarantinedEquipment(array $data): void
+    {
+        if (($data['waste_type'] ?? null) !== 'Peralatan IT') {
+            return;
+        }
+
+        abort_unless(
+            EquipmentQuarantine::where('equipment_id', $data['equipment_id'])
+                ->whereNull('released_at')
+                ->exists(),
+            422,
+            'Peralatan IT harus berasal dari karantina aset aktif.'
+        );
     }
 
     private function activeOrNewBoxCode(int $year, string $status): string

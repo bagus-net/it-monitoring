@@ -12,6 +12,7 @@ use App\Http\Controllers\ItRepairTicketController;
 use App\Http\Controllers\WebMonitoringChecklistController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\EquipmentTransferController;
+use App\Http\Controllers\EquipmentQuarantineController;
 use App\Http\Controllers\InkController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\LicenseController;
@@ -133,6 +134,9 @@ Route::middleware('auth')->group(function () {
 		Route::delete('/equipments/{equipment}', [EquipmentController::class, 'destroy'])->name('equipments.destroy');
 
 		Route::get('/equipment-transfers', [EquipmentTransferController::class, 'index'])->name('equipment-transfers.index');
+		Route::get('/equipment-quarantines', [EquipmentQuarantineController::class, 'index'])->name('equipment-quarantines.index');
+		Route::get('/equipment-quarantines/create', [EquipmentQuarantineController::class, 'create'])->name('equipment-quarantines.create');
+		Route::post('/equipment-quarantines', [EquipmentQuarantineController::class, 'store'])->name('equipment-quarantines.store');
 		Route::get('/equipment-transfers/create', [EquipmentTransferController::class, 'create'])->name('equipment-transfers.create');
 		Route::post('/equipment-transfers', [EquipmentTransferController::class, 'store'])->name('equipment-transfers.store');
 		Route::get('/equipment-transfers/{equipmentTransfer}/print', [EquipmentTransferController::class, 'print'])->name('equipment-transfers.print');

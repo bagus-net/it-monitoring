@@ -313,7 +313,7 @@ class MonthlyScheduleController extends Controller
         $year = $request->query('year');
 
         // Get all equipment that have annual schedules for this checklist item
-        $equipmentList = Equipment::whereHas('maintenanceSchedules', function ($q) use ($checklistItemId) {
+        $equipmentList = $this->activeEquipmentQuery()->whereHas('maintenanceSchedules', function ($q) use ($checklistItemId) {
             $q->where('checklist_item_id', $checklistItemId);
         })->get();
 
@@ -350,7 +350,7 @@ class MonthlyScheduleController extends Controller
         sort($months);
 
         // Equipment tied to this checklist's annual schedule
-        $equipment = Equipment::whereHas('maintenanceSchedules', function ($q) use ($checklistItemId) {
+        $equipment = $this->activeEquipmentQuery()->whereHas('maintenanceSchedules', function ($q) use ($checklistItemId) {
             $q->where('checklist_item_id', $checklistItemId);
         })->get();
 
@@ -408,9 +408,21 @@ class MonthlyScheduleController extends Controller
 
         $checklistItemId = $validated['checklist_item_id'];
         $year = $validated['year'];
+        $requestedEquipmentIds = collect($request->input('equipment_dates', []))
+            ->flatMap(fn ($equipmentDates) => array_keys($equipmentDates))
+            ->map(fn ($equipmentId) => (int) $equipmentId)
+            ->unique();
+        $activeEquipmentIds = $this->activeEquipmentQuery()
+            ->whereIn('id', $requestedEquipmentIds)
+            ->pluck('id')
+            ->map(fn ($equipmentId) => (string) $equipmentId)
+            ->flip();
 
         foreach ($request->input('equipment_dates', []) as $month => $equipmentDates) {
             foreach ($equipmentDates as $equipmentId => $dates) {
+                if (!$activeEquipmentIds->has((string) $equipmentId)) {
+                    continue;
+                }
                 if (empty($dates)) {
                     continue; // Skip if no dates selected
                 }
@@ -448,5 +460,18 @@ class MonthlyScheduleController extends Controller
 
         return redirect()->route('monthly_schedules.index')
             ->with('success', 'Jadwal bulanan berhasil dihapus');
+    }
+
+    private function activeEquipmentQuery()
+    {
+        return Equipment::query()
+            ->where(function ($query) {
+                $query->whereNull('condition')
+                    ->orWhereNotIn('condition', ['rusak', 'perbaikan', 'nonaktif']);
+            })
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhereNotIn('status', ['repair', 'inactive', 'nonaktif']);
+            });
     }
 }
